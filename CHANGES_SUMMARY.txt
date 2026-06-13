@@ -1,0 +1,36 @@
+# Résumé des modifications Mixxx Custom - Rekordbox Style
+
+## Commits créés
+
+ac0a502 Add user-friendly README for custom fork
+34e7e22 Add documentation and Raspberry Pi build script
+8e5cd68 Custom Mixxx: Rekordbox-style waveform modifications
+
+## Fichiers modifiés (code source)
+
+res/skins/LateNight/waveform.xml
+src/waveform/renderers/allshader/waveformrenderbeat.cpp
+src/waveform/renderers/allshader/waveformrenderbeat.h
+src/waveform/renderers/waveformrenderbeat.cpp
+src/waveform/renderers/waveformrenderbeat.h
+src/waveform/renderers/waveformrenderersignalbase.cpp
+
+## Fichiers ajoutés (documentation)
+
+CUSTOM_MODIFICATIONS.md
+README_CUSTOM.md
+build-raspi.sh
+
+## Statistiques globales
+
+ CUSTOM_MODIFICATIONS.md                            | 207 +++++++++++++++++++++
+ README_CUSTOM.md                                   | 160 ++++++++++++++++
+ build-raspi.sh                                     | 170 +++++++++++++++++
+ res/skins/LateNight/waveform.xml                   |  16 +-
+ .../renderers/allshader/waveformrenderbeat.cpp     |  88 +++++++--
+ .../renderers/allshader/waveformrenderbeat.h       |   2 +
+ src/waveform/renderers/waveformrenderbeat.cpp      |  67 +++++--
+ src/waveform/renderers/waveformrenderbeat.h        |   2 +
+ .../renderers/waveformrenderersignalbase.cpp       |  59 +++---
+ 9 files changed, 702 insertions(+), 69 deletions(-)
+
