@@ -20,16 +20,16 @@
             <Channel><Variable name="ChanNum"/></Channel>
             <BgColor><Variable name="BgColorWaveform"/></BgColor>
             <SignalColor><Variable name="SignalColor"/></SignalColor>
-            <!-- Default colors are used for high/mid/low: blue/green/red -->
-            <SignalHighColor></SignalHighColor>
-            <SignalMidColor></SignalMidColor>
-            <SignalLowColor></SignalLowColor>
-            <SignalRGBHighColor></SignalRGBHighColor>
-            <SignalRGBMidColor></SignalRGBMidColor>
-            <SignalRGBLowColor></SignalRGBLowColor>
+            <!-- CUSTOM: Rekordbox-style 3Band colors -->
+            <SignalHighColor>#FF5500</SignalHighColor><!-- High = Orange/Red -->
+            <SignalMidColor>#88FF00</SignalMidColor><!-- Mid = Yellow/Green -->
+            <SignalLowColor>#0088FF</SignalLowColor><!-- Low = Blue -->
+            <SignalRGBHighColor>#FF5500</SignalRGBHighColor><!-- High = Orange/Red -->
+            <SignalRGBMidColor>#88FF00</SignalRGBMidColor><!-- Mid = Yellow/Green -->
+            <SignalRGBLowColor>#0088FF</SignalRGBLowColor><!-- Low = Blue -->
             <BeatColor><Variable name="BeatColor"/></BeatColor>
             <AxesColor><Variable name="AxesColor"/></AxesColor>
-            <BeatHighlightColor></BeatHighlightColor>
+            <BeatHighlightColor>#FF0000</BeatHighlightColor><!-- CUSTOM: Red downbeats (Rekordbox style) -->
             <PlayPosColor><Variable name="PlayPosColor"/></PlayPosColor>
             <EndOfTrackColor><Variable name="EndOfTrackColor"/></EndOfTrackColor>
             <SlipBorderOutlineColor><Variable name="SlipBorderOutlineColor"/></SlipBorderOutlineColor>

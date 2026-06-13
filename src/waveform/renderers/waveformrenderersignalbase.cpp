@@ -183,37 +183,40 @@ void WaveformRendererSignalBase::getGains(float* pAllGain,
 
     if (pLowGain || pMidGain || pHighGain) {
         // Per-band gain from the EQ knobs.
+        // CUSTOM MODIFICATION: Force gains to 1.0 to keep waveform static (Rekordbox style)
+        // The waveform should NOT move when EQ knobs are adjusted
         CSAMPLE_GAIN lowGain = 1.0, midGain = 1.0, highGain = 1.0;
 
+        // DISABLED: EQ visual feedback on waveform (Rekordbox uses pre-EQ waveform)
         // Only adjust low/mid/high gains if EQs are enabled.
-        if (m_pEQEnabled->get() > 0.0) {
-            if (m_pLowFilterControlObject &&
-                m_pMidFilterControlObject &&
-                m_pHighFilterControlObject) {
-                lowGain = static_cast<CSAMPLE_GAIN>(m_pLowFilterControlObject->get());
-                midGain = static_cast<CSAMPLE_GAIN>(m_pMidFilterControlObject->get());
-                highGain = static_cast<CSAMPLE_GAIN>(m_pHighFilterControlObject->get());
-            }
+        // if (m_pEQEnabled->get() > 0.0) {
+        //     if (m_pLowFilterControlObject &&
+        //         m_pMidFilterControlObject &&
+        //         m_pHighFilterControlObject) {
+        //         lowGain = static_cast<CSAMPLE_GAIN>(m_pLowFilterControlObject->get());
+        //         midGain = static_cast<CSAMPLE_GAIN>(m_pMidFilterControlObject->get());
+        //         highGain = static_cast<CSAMPLE_GAIN>(m_pHighFilterControlObject->get());
+        //     }
 
-            lowGain *= static_cast<CSAMPLE_GAIN>(
-                    factory->getVisualGain(WaveformWidgetFactory::Low));
-            midGain *= static_cast<CSAMPLE_GAIN>(
-                    factory->getVisualGain(WaveformWidgetFactory::Mid));
-            highGain *= static_cast<CSAMPLE_GAIN>(
-                    factory->getVisualGain(WaveformWidgetFactory::High));
+        //     lowGain *= static_cast<CSAMPLE_GAIN>(
+        //             factory->getVisualGain(WaveformWidgetFactory::Low));
+        //     midGain *= static_cast<CSAMPLE_GAIN>(
+        //             factory->getVisualGain(WaveformWidgetFactory::Mid));
+        //     highGain *= static_cast<CSAMPLE_GAIN>(
+        //             factory->getVisualGain(WaveformWidgetFactory::High));
 
-            if (m_pLowKillControlObject && m_pLowKillControlObject->get() > 0.0) {
-                lowGain = 0;
-            }
+        //     if (m_pLowKillControlObject && m_pLowKillControlObject->get() > 0.0) {
+        //         lowGain = 0;
+        //     }
 
-            if (m_pMidKillControlObject && m_pMidKillControlObject->get() > 0.0) {
-                midGain = 0;
-            }
+        //     if (m_pMidKillControlObject && m_pMidKillControlObject->get() > 0.0) {
+        //         midGain = 0;
+        //     }
 
-            if (m_pHighKillControlObject && m_pHighKillControlObject->get() > 0.0) {
-                highGain = 0;
-            }
-        }
+        //     if (m_pHighKillControlObject && m_pHighKillControlObject->get() > 0.0) {
+        //         highGain = 0;
+        //     }
+        // }
 
         if (pLowGain != nullptr) {
             *pLowGain = lowGain;

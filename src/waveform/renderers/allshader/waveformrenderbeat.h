@@ -27,7 +27,9 @@ class allshader::WaveformRenderBeat final : public allshader::WaveformRenderer {
   private:
     mixxx::UnicolorShader m_shader;
     QColor m_color;
+    QColor m_highlightColor;  // Color for downbeats (Rekordbox style)
     VertexData m_vertices;
+    VertexData m_downbeatVertices;  // Separate vertices for downbeats
 
     bool m_isSlipRenderer;
 
