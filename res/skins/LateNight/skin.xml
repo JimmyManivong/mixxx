@@ -63,6 +63,12 @@
       <attribute persist="true" config_key="[Skin],show_rate_controls">1</attribute>
       <attribute persist="true" config_key="[Skin],show_rate_control_buttons">1</attribute>
       <attribute persist="true" config_key="[Skin],show_beatgrid_controls">1</attribute>
+      <!-- CUSTOM: bottom deck view selector. 0 = normal (pads/jog), 1 = grid edit page.
+           One control PER DECK so each deck switches its view independently. -->
+      <attribute persist="true" config_key="[Skin],show_grid_edit_1">0</attribute>
+      <attribute persist="true" config_key="[Skin],show_grid_edit_2">0</attribute>
+      <attribute persist="true" config_key="[Skin],show_grid_edit_3">0</attribute>
+      <attribute persist="true" config_key="[Skin],show_grid_edit_4">0</attribute>
       <!-- Compact deck -->
       <attribute persist="true" config_key="[Skin],show_rate_controls_compact">1</attribute>
       <attribute persist="true" config_key="[Skin],show_loop_controls_compact">1</attribute>
@@ -187,6 +193,11 @@
       <SetVariable name="SignalHighColor">mediumblue</SetVariable><!-- #0000cd -->
       <SetVariable name="SignalMidColor">darkgreen</SetVariable><!-- #006400 -->
       <SetVariable name="SignalLowColor">orangered</SetVariable><!-- #ff4500 -->
+      <!-- Rekordbox-style RGB waveform bass color: royal/cornflower blue
+           (measured Rekordbox avg ~36,83,214), not a pure neon blue -->
+      <SetVariable name="SignalRGBLowColor">#2855D7</SetVariable>
+      <SetVariable name="SignalRGBMidColor">#00DDFF</SetVariable>
+      <SetVariable name="SignalRGBHighColor">#FF8800</SetVariable>
 
       <SetVariable name="DimBrightThresholdOverview">127</SetVariable>
       <SetVariable name="DimBrightThresholdWaveform">105</SetVariable>
@@ -366,6 +377,7 @@
       <Children>
       <Template src="skins:LateNight/decks/deck.xml">
         <SetVariable name="ChanNum">1</SetVariable>
+        <SetVariable name="MirrorReverse"></SetVariable>
         <SetVariable name="DeckGroup">12</SetVariable>
         <SetVariable name="SignalColor"><Variable name="SignalColor_12"/></SetVariable>
         <SetVariable name="BgColor"><Variable name="BgColorOverview_12"/></SetVariable>
@@ -378,6 +390,7 @@
       <Children>
         <Template src="skins:LateNight/decks/deck.xml">
           <SetVariable name="ChanNum">2</SetVariable>
+          <SetVariable name="MirrorReverse">-reverse</SetVariable>
           <SetVariable name="DeckGroup">12</SetVariable>
           <SetVariable name="SignalColor"><Variable name="SignalColor_12"/></SetVariable>
           <SetVariable name="BgColor"><Variable name="BgColorOverview_12"/></SetVariable>
@@ -390,6 +403,7 @@
       <Children>
       <Template src="skins:LateNight/decks/deck.xml">
         <SetVariable name="ChanNum">3</SetVariable>
+        <SetVariable name="MirrorReverse"></SetVariable>
         <SetVariable name="DeckGroup">34</SetVariable>
         <SetVariable name="SignalColor"><Variable name="SignalColor_34"/></SetVariable>
         <SetVariable name="BgColor"><Variable name="BgColorOverview_34"/></SetVariable>
@@ -402,6 +416,7 @@
       <Children>
       <Template src="skins:LateNight/decks/deck.xml">
         <SetVariable name="ChanNum">4</SetVariable>
+        <SetVariable name="MirrorReverse">-reverse</SetVariable>
         <SetVariable name="DeckGroup">34</SetVariable>
         <SetVariable name="SignalColor"><Variable name="SignalColor_34"/></SetVariable>
         <SetVariable name="BgColor"><Variable name="BgColorOverview_34"/></SetVariable>

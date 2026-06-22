@@ -126,6 +126,17 @@ void WWidgetGroup::setup(const QDomNode& node, const SkinContext& context) {
             pLayout = new QVBoxLayout();
         } else if (layout == "horizontal") {
             pLayout = new QHBoxLayout();
+        } else if (layout == "horizontal-reverse") {
+            // CUSTOM: same as horizontal but children are laid out
+            // right-to-left. Used to mirror the right-hand decks (2/4)
+            // without duplicating the layout markup. See deck_compact.xml.
+            auto* pHBox = new QHBoxLayout();
+            pHBox->setDirection(QBoxLayout::RightToLeft);
+            pLayout = pHBox;
+        } else if (layout == "vertical-reverse") {
+            auto* pVBox = new QVBoxLayout();
+            pVBox->setDirection(QBoxLayout::BottomToTop);
+            pLayout = pVBox;
         } else if (layout == "stacked") {
             auto* pStackedLayout = new QStackedLayout();
             pStackedLayout->setStackingMode(QStackedLayout::StackAll);

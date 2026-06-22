@@ -113,6 +113,8 @@ class BpmControl : public EngineControl {
     void slotUpdateEngineBpm(double v = 0.0);
     void slotBeatsTranslate(double);
     void slotBeatsTranslateMatchAlignment(double);
+    // CUSTOM: capture the current play position as the bar-1 / downbeat anchor.
+    void slotGridSetDownbeat(double);
     void slotToggleBpmLock(double);
     void slotBeatsUndoAdjustment(double value);
 
@@ -177,6 +179,14 @@ class BpmControl : public EngineControl {
 
     PollingControlProxy m_pThisBeatDistance;
     ControlValueAtomic<double> m_dSyncTargetBeatDistance;
+
+    // CUSTOM: Beat counter (Rekordbox style)
+    std::unique_ptr<ControlObject> m_pBeatNumber;
+    // CUSTOM: bar-1 / downbeat anchor (audio frame pos; <0 = use the sound onset).
+    // Set to the current play position by the GRID EDIT "SET" button, reset on
+    // track load. Read by the beat-grid renderer to place the white downbeat line.
+    std::unique_ptr<ControlObject> m_pGridDownbeatPos;
+    std::unique_ptr<ControlPushButton> m_pGridSetDownbeat;
     // The user offset is a beat distance percentage value that the user has tweaked a deck
     // to bring it in sync with the other decks. This value is added to the reported beat
     // distance to get the virtual beat distance used for sync.

@@ -15,7 +15,9 @@ RGBStackedWaveformWidget::RGBStackedWaveformWidget(const QString& group, QWidget
         : WaveformWidget(group, parent) {
     addRenderer<WaveformRenderBackground>();
     addRenderer<WaveformRendererEndOfTrack>();
-    addRenderer<WaveformRendererPreroll>();
+    // CUSTOM: preroll/postroll hatch pattern disabled (the beige diagonal hatch
+    // drawn before the track start and after its end). Re-enable by uncommenting.
+    // addRenderer<WaveformRendererPreroll>();
     addRenderer<WaveformRenderMarkRange>();
     addRenderer<WaveformRendererFiltered>(true); // true for RGB Stacked
     addRenderer<WaveformRenderBeat>();

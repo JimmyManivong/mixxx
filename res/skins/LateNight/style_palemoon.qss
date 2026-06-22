@@ -3222,3 +3222,180 @@ WSearchLineEdit::indicator:unchecked:selected {
 }
 /************** common styles for WEffectSelector ******************************
 *************** QSpinBox, QMenu, QToolTip *************************************/
+
+/************** CUSTOM Rekordbox jog wheel panel ******************************/
+/* Dark rounded hub sitting in the center of the wheel, behind the BPM. */
+#JogHub {
+  background-color: rgba(0, 0, 0, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+}
+/* Big white circle enclosing the BPM badge (border-radius = half the size). */
+#JogOuterRing {
+  /* The white ring is now drawn (and rotated, with its notch) by the
+     BarSpinner overlay, so this is just a transparent sizing container. */
+  background: transparent;
+}
+/* Inner black disc with the preview-waveform blue outline. */
+#JogInnerDisc {
+  background-color: #000000;
+  border: 2px solid #1E5BFF;
+  border-radius: 38px;
+}
+/* Rotating bar-marker overlay must stay see-through. */
+#JogBarMarker {
+  background: transparent;
+}
+/* White live BPM centered on the disc (tracks the turntable pitch). */
+#JogBpmText {
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  qproperty-alignment: 'AlignCenter';
+}
+/* Small grey rate readout (e.g. +6.0%). */
+#JogRateText {
+  color: #b9b9b9;
+  font-size: 8px;
+  qproperty-alignment: 'AlignCenter';
+}
+
+/************** CUSTOM Rekordbox performance section *************************/
+#DeckPadsCompact {
+  /* No right padding so the transport cluster sits flush against the edge. */
+  padding: 2px 0px 2px 4px;
+}
+/* Hot cue pads: white letter, left padded so it sits like a Rekordbox badge. */
+#RbHotcuePad {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  padding-left: 6px;
+  text-align: left;
+}
+/* Pad-mode label under the grid. */
+#RbPadModeLabel {
+  color: #cfcfcf;
+  font-size: 11px;
+  font-weight: 600;
+  background-color: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  padding: 2px 6px 2px 8px;
+}
+/* Big loop-size number (the "8"). */
+#RbLoopSize {
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 600;
+}
+/* Loop halve/double arrows + AU/MA mode buttons. */
+#RbLoopArrow {
+  color: #d9d9d9;
+  font-size: 15px;
+}
+#RbLoopMode {
+  color: #d9d9d9;
+  font-size: 11px;
+  font-weight: 600;
+}
+#RbLoopMode[displayValue="1"] {
+  color: #3b9bff;
+}
+/* Round CUE button: white label, yellow ring comes from the SVG (stays fixed). */
+#RbCueButton {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  background: transparent;
+}
+#RbPlayButton {
+  background: transparent;
+}
+/* SLIP / Q / MT: grey when off, blue when active. */
+#RbSlipButton, #RbQButton, #RbMtButton {
+  color: #c7c7c7;
+  font-size: 11px;
+  font-weight: 600;
+}
+#RbSlipButton[displayValue="1"],
+#RbQButton[displayValue="1"],
+#RbMtButton[displayValue="1"] {
+  color: #3b9bff;
+}
+
+/************** CUSTOM bottom view selector + GRID EDIT page *****************/
+/* Two stacked view buttons on the far left of the deck. The active one (normal
+   when show_grid_edit=0, grid when =1) lights up blue. */
+#ViewNormalBtn, #ViewGridBtn {
+  color: #b9b9b9;
+  font-size: 10px;
+  font-weight: 700;
+}
+#ViewNormalBtn[displayValue="0"],
+#ViewGridBtn[displayValue="1"] {
+  color: #3b9bff;
+}
+/* GRID EDIT page */
+#DeckGridEditCompact {
+  padding: 2px 8px 2px 8px;
+}
+#GeTitle {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+}
+#GeCaption {
+  color: #8f8f8f;
+  font-size: 9px;
+  font-weight: 600;
+}
+#GeBpmText {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 700;
+  qproperty-alignment: 'AlignCenter';
+}
+#GeBtn {
+  color: #e6e6e6;
+  font-size: 14px;
+  font-weight: 600;
+}
+#GeLockButton {
+  color: #c7c7c7;
+  font-size: 11px;
+  font-weight: 600;
+}
+#GeLockButton[displayValue="1"] {
+  color: #ff5a3c;
+}
+
+/************** CUSTOM homogeneous white text ********************************/
+/* Deck title / artist / bpm / key — override the per-deck ivory/teal colors.
+   Must match the original two-id specificity to win (Qt has no !important). */
+#Deck1 #TitleText, #Deck1 #ArtistText, #Deck1 #BpmText, #Deck1 #KeyText,
+#Deck2 #TitleText, #Deck2 #ArtistText, #Deck2 #BpmText, #Deck2 #KeyText,
+#Deck3 #TitleText, #Deck3 #ArtistText, #Deck3 #BpmText, #Deck3 #KeyText,
+#Deck4 #TitleText, #Deck4 #ArtistText, #Deck4 #BpmText, #Deck4 #KeyText,
+#DeckCompact1 #TitleText, #DeckCompact1 #ArtistText, #DeckCompact1 #BpmText, #DeckCompact1 #KeyText,
+#DeckCompact2 #TitleText, #DeckCompact2 #ArtistText, #DeckCompact2 #BpmText, #DeckCompact2 #KeyText,
+#DeckCompact3 #TitleText, #DeckCompact3 #ArtistText, #DeckCompact3 #BpmText, #DeckCompact3 #KeyText,
+#DeckCompact4 #TitleText, #DeckCompact4 #ArtistText, #DeckCompact4 #BpmText, #DeckCompact4 #KeyText,
+#DeckMini1 #TitleTextSmall, #DeckMini1 #ArtistTextSmall, #DeckMini1 #BpmTextSmall, #DeckMini1 #KeyTextSmall,
+#DeckMini2 #TitleTextSmall, #DeckMini2 #ArtistTextSmall, #DeckMini2 #BpmTextSmall, #DeckMini2 #KeyTextSmall,
+#DeckMini3 #TitleTextSmall, #DeckMini3 #ArtistTextSmall, #DeckMini3 #BpmTextSmall, #DeckMini3 #KeyTextSmall,
+#DeckMini4 #TitleTextSmall, #DeckMini4 #ArtistTextSmall, #DeckMini4 #BpmTextSmall, #DeckMini4 #KeyTextSmall {
+  color: #ffffff;
+}
+/* Grey deck readouts: position, duration, rate. */
+#PlayPositionText, #PlayPositionTextSmall, #DurationText, #RateText,
+#RateRangePrefix, #RateRangeText {
+  color: #ffffff;
+}
+/* Library: track table cells, column headers, sidebar, text browser. */
+WTrackTableView,
+WTrackTableViewHeader,
+WTrackTableViewHeader::section,
+WLibrarySidebar,
+WLibraryTextBrowser {
+  color: #ffffff;
+}

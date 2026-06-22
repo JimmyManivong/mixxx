@@ -53,6 +53,19 @@ void WaveformRendererRGB::paintGL() {
         return;
     }
 
+    // CUSTOM (Rekordbox-style dynamics): find the loudest point of the whole
+    // track once and cache it. The per-column height is later normalized to
+    // this peak and gamma-curved so the waveform "breathes" (kicks stand out,
+    // breaks stay low) instead of saturating into a flat block.
+    if (data != m_cachedPeakData || m_globalPeak <= 0.f) {
+        uchar peak = 1;
+        for (int i = 0; i < dataSize; ++i) {
+            peak = math_max(peak, data[i].filtered.all);
+        }
+        m_globalPeak = static_cast<float>(peak);
+        m_cachedPeakData = data;
+    }
+
     const float devicePixelRatio = m_waveformRenderer->getDevicePixelRatio();
     const int length = static_cast<int>(m_waveformRenderer->getLength() * devicePixelRatio);
 
@@ -72,11 +85,31 @@ void WaveformRendererRGB::paintGL() {
     // applyCompensation = false, as we scale to match filtered.all
     getGains(&allGain, false, &lowGain, &midGain, &highGain);
 
+    // CUSTOM: keep the waveform fixed - don't let the EQ knobs change it. We
+    // still honour allGain (the overall waveform zoom/gain), just not the
+    // per-band EQ gains.
+    lowGain = 1.0f;
+    midGain = 1.0f;
+    highGain = 1.0f;
+
     const float breadth = static_cast<float>(m_waveformRenderer->getBreadth()) * devicePixelRatio;
     const float halfBreadth = breadth / 2.0f;
 
-    const float heightFactor = allGain * halfBreadth / m_maxValue;
+    // CUSTOM height controls:
+    //  - kHeightScale: overall height of the waveform (1.0 = stock; the RMS
+    //    analyzer gives low values so a bit more reads better).
+    //  - kBassHeightBoost: extra height for bass-dominated columns only, so the
+    //    kicks punch taller while mids/highs keep their normal height. The
+    //    per-column height becomes max(all, low * kBassHeightBoost).
+    constexpr float kHeightScale = 0.95f;  // 1.0 = the track's loudest point fills the half-height
+    constexpr float kBassHeightBoost = 1.6f;
+    constexpr float kGamma = 1.6f;         // >1 carves the dynamics (organic Rekordbox look)
+    // heightFactor maps a normalized 0..1 amplitude to pixels (no /255 here -
+    // amplitude is normalized to the track's global peak below).
+    const float heightFactor = kHeightScale * allGain * halfBreadth;
 
+    // Standard RGB band colors (from the skin / defaults: low=red, mid=green,
+    // high=blue).
     const float low_r = static_cast<float>(m_rgbLowColor_r);
     const float mid_r = static_cast<float>(m_rgbMidColor_r);
     const float high_r = static_cast<float>(m_rgbHighColor_r);
@@ -171,30 +204,55 @@ void WaveformRendererRGB::paintGL() {
             maxAllChn[1] *= factor;
         }
 
-        // Use the gained maxLow, maxMid and maxHigh values to calculate the color components
-        float red = maxLow * low_r + maxMid * mid_r + maxHigh * high_r;
-        float green = maxLow * low_g + maxMid * mid_g + maxHigh * high_g;
-        float blue = maxLow * low_b + maxMid * mid_b + maxHigh * high_b;
+        // CUSTOM colour model: a plain additive low+mid+high mix turns muddy
+        // (blue bass + orange mid -> pale pink, white highs wash everything).
+        // Instead let the DOMINANT band win: weight each band, square the
+        // weights to sharpen toward the strongest, and take a weighted average.
+        // Result = clean blue (kicks) / orange (mids) / white (highs), not a
+        // washed pastel. Boosts let mids/highs win in their own moments.
+        constexpr float kMidColorBoost = 1.5f;
+        constexpr float kHighColorBoost = 1.4f;
+        const float eLow = maxLow;
+        const float eMid = maxMid * kMidColorBoost;
+        const float eHigh = maxHigh * kHighColorBoost;
+        const float wLow = eLow * eLow;
+        const float wMid = eMid * eMid;
+        const float wHigh = eHigh * eHigh;
+        const float wTotal = wLow + wMid + wHigh;
 
-        // Normalize the color components using the maximum of the three
-        const float maxComponent = math_max3(red, green, blue);
-        if (maxComponent == 0.f) {
-            // Avoid division by 0
-            red = 0.f;
-            green = 0.f;
-            blue = 0.f;
-        } else {
-            const float normFactor = 1.f / maxComponent;
-            red *= normFactor;
-            green *= normFactor;
-            blue *= normFactor;
+        float red = 0.f;
+        float green = 0.f;
+        float blue = 0.f;
+        if (wTotal > 0.f) {
+            const float inv = 1.f / wTotal;
+            red = (wLow * low_r + wMid * mid_r + wHigh * high_r) * inv;
+            green = (wLow * low_g + wMid * mid_g + wHigh * high_g) * inv;
+            blue = (wLow * low_b + wMid * mid_b + wHigh * high_b) * inv;
+            // Re-saturate so the winning colour stays vivid.
+            const float maxComponent = math_max3(red, green, blue);
+            if (maxComponent > 0.f) {
+                const float normFactor = 1.f / maxComponent;
+                red *= normFactor;
+                green *= normFactor;
+                blue *= normFactor;
+            }
         }
+
+        // CUSTOM (Rekordbox-style dynamics): the bass can push a column taller
+        // (kicks punch), then normalize to the track's global peak and apply a
+        // gamma curve (kGamma>1) so loud sections stand out and quiet sections
+        // dip - the waveform "breathes" instead of saturating into a block.
+        const float boostedLow = maxLow * kBassHeightBoost;
+        const float nAll0 = std::min(1.f, std::max(maxAllChn[0], boostedLow) / m_globalPeak);
+        const float nAll1 = std::min(1.f, std::max(maxAllChn[1], boostedLow) / m_globalPeak);
+        const float carved0 = std::pow(nAll0, kGamma);
+        const float carved1 = std::pow(nAll1, kGamma);
 
         // Lines are thin rectangles
         m_vertices.addRectangle(fpos - 0.5f,
-                halfBreadth - heightFactor * maxAllChn[0],
+                halfBreadth - heightFactor * carved0,
                 fpos + 0.5f,
-                m_isSlipRenderer ? halfBreadth : halfBreadth + heightFactor * maxAllChn[1]);
+                m_isSlipRenderer ? halfBreadth : halfBreadth + heightFactor * carved1);
         m_colors.addForRectangle(red, green, blue);
 
         xVisualFrame += visualIncrementPerPixel;

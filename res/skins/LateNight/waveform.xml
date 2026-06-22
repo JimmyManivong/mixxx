@@ -18,18 +18,22 @@
           <Visual>
             <TooltipId>waveform_display</TooltipId>
             <Channel><Variable name="ChanNum"/></Channel>
-            <BgColor><Variable name="BgColorWaveform"/></BgColor>
+            <!-- CUSTOM: pure black background behind the waveform, like Rekordbox. -->
+            <BgColor>#000000</BgColor>
             <SignalColor><Variable name="SignalColor"/></SignalColor>
-            <!-- CUSTOM: Rekordbox-style 3Band colors -->
-            <SignalHighColor>#FF5500</SignalHighColor><!-- High = Orange/Red -->
-            <SignalMidColor>#88FF00</SignalMidColor><!-- Mid = Yellow/Green -->
-            <SignalLowColor>#0088FF</SignalLowColor><!-- Low = Blue -->
-            <SignalRGBHighColor>#FF5500</SignalRGBHighColor><!-- High = Orange/Red -->
-            <SignalRGBMidColor>#88FF00</SignalRGBMidColor><!-- Mid = Yellow/Green -->
-            <SignalRGBLowColor>#0088FF</SignalRGBLowColor><!-- Low = Blue -->
+            <!-- Default colors are used for high/mid/low: blue/green/red -->
+            <SignalHighColor></SignalHighColor>
+            <SignalMidColor></SignalMidColor>
+            <SignalLowColor></SignalLowColor>
+            <!-- CUSTOM Rekordbox palette: blue bass, amber mids, white highs.
+                 Mid = Rekordbox amber/ochre (measured avg ~191,122,44), not a
+                 bright neon orange. -->
+            <SignalRGBHighColor>#FFFFFF</SignalRGBHighColor>
+            <SignalRGBMidColor>#C87E2E</SignalRGBMidColor>
+            <SignalRGBLowColor><Variable name="SignalRGBLowColor"/></SignalRGBLowColor>
             <BeatColor><Variable name="BeatColor"/></BeatColor>
             <AxesColor><Variable name="AxesColor"/></AxesColor>
-            <BeatHighlightColor>#FF0000</BeatHighlightColor><!-- CUSTOM: Red downbeats (Rekordbox style) -->
+            <BeatHighlightColor></BeatHighlightColor>
             <PlayPosColor><Variable name="PlayPosColor"/></PlayPosColor>
             <EndOfTrackColor><Variable name="EndOfTrackColor"/></EndOfTrackColor>
             <SlipBorderOutlineColor><Variable name="SlipBorderOutlineColor"/></SlipBorderOutlineColor>
@@ -149,6 +153,10 @@
         <ObjectName>BeatgridControls</ObjectName>
         <Layout>vertical</Layout>
         <SizePolicy>max,me</SizePolicy>
+        <!-- CUSTOM: beatgrid management panel hidden for now (code kept so it can
+             be brought back later). To restore: remove the MaximumSize line below
+             AND un-comment the BeatgridControlsToggle in waveforms_container.xml. -->
+        <MaximumSize>0,0</MaximumSize>
         <Children>
           <WidgetGroup><Size>0me,1me</Size></WidgetGroup>
 

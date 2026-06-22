@@ -241,28 +241,38 @@ void QmlWaveformOverview::drawFiltered(QPainter* pPainter,
 }
 
 QColor QmlWaveformOverview::getRgbPenColor(ConstWaveformPointer pWaveform, int completion) const {
+    // CUSTOM: Rekordbox-style color mixing - Blue dominant with orange peaks
     // Retrieve "raw" LMH values from waveform
     qreal low = static_cast<qreal>(pWaveform->getLow(completion));
     qreal mid = static_cast<qreal>(pWaveform->getMid(completion));
     qreal high = static_cast<qreal>(pWaveform->getHigh(completion));
 
-    // Do matrix multiplication
-    qreal red = low * m_colorLow.redF() + mid * m_colorMid.redF() + high * m_colorHigh.redF();
-    qreal green = low * m_colorLow.greenF() + mid * m_colorMid.greenF() +
-            high * m_colorHigh.greenF();
-    qreal blue = low * m_colorLow.blueF() + mid * m_colorMid.blueF() + high * m_colorHigh.blueF();
+    // Calculate total energy
+    qreal totalEnergy = low + mid + high;
 
-    // Normalize and draw
-    qreal max = math_max3(red, green, blue);
-    if (max > 0.0) {
-        QColor color;
-        color.setRgbF(
-                static_cast<float>(red / max),
-                static_cast<float>(green / max),
-                static_cast<float>(blue / max));
-        return color;
+    if (totalEnergy <= 0.0) {
+        // No signal - use base blue
+        return m_colorLow;
     }
-    return QColor();
+
+    // Rekordbox style: blue (bass) is the base, orange only appears on high peaks
+    qreal bassRatio = low / totalEnergy;
+    qreal highRatio = high / totalEnergy;
+
+    // Start with blue as base, add orange for highs
+    qreal red = m_colorLow.redF() * bassRatio + m_colorHigh.redF() * highRatio;
+    qreal green = m_colorLow.greenF() * bassRatio + m_colorHigh.greenF() * highRatio;
+    qreal blue = m_colorLow.blueF() * bassRatio + m_colorHigh.blueF() * highRatio;
+
+    // Boost blue to make it more dominant (Rekordbox style)
+    blue = qMin(1.0, blue * 1.3);
+
+    QColor color;
+    color.setRgbF(
+            static_cast<float>(red),
+            static_cast<float>(green),
+            static_cast<float>(blue));
+    return color;
 }
 
 } // namespace qml

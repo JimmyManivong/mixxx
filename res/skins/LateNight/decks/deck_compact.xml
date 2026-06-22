@@ -18,7 +18,9 @@
               <WidgetGroup>
                 <ObjectName>DeckRows234</ObjectName>
                 <SizePolicy>me,min</SizePolicy>
-                <Layout>horizontal</Layout>
+                <!-- "horizontal" for left decks (1/3); "horizontal-reverse"
+                     for right decks (2/4) so the row is mirrored. -->
+                <Layout>horizontal<Variable name="MirrorReverse"/></Layout>
                 <Children>
 
                   <WidgetGroup>
@@ -57,34 +59,106 @@
                 </Children>
               </WidgetGroup><!-- DeckRows234 -->
 
-              <Template src="skins:LateNight/decks/row_5_transportLoopJump_compact.xml" />
+              <!-- CUSTOM (Rekordbox layout): the bottom section. Two view buttons
+                   on the LEFT (at hot-cue level) select what fills the rest: the
+                   performance pads or the GRID EDIT page. The two views are
+                   STACKED so they occupy the exact same area — no size jump when
+                   switching tabs. ([Skin],show_grid_edit) -->
+              <WidgetGroup>
+                <ObjectName>DeckBottomSwitch</ObjectName>
+                <!-- "horizontal" for left decks (1/3); "horizontal-reverse"
+                     for right decks (2/4): VIEW/GRID buttons move to the
+                     right, the pads/grid views to the left. -->
+                <Layout>horizontal<Variable name="MirrorReverse"/></Layout>
+                <SizePolicy>me,min</SizePolicy>
+                <Children>
+
+                  <!-- view selector: VIEW (top) / GRID (below), top-aligned -->
+                  <WidgetGroup>
+                    <ObjectName>DeckViewSwitch</ObjectName>
+                    <Layout>vertical</Layout>
+                    <SizePolicy>min,me</SizePolicy>
+                    <Children>
+                      <WidgetGroup><Size>0min,2f</Size></WidgetGroup>
+                      <PushButton>
+                        <TooltipId>show_grid_edit</TooltipId>
+                        <ObjectName>ViewNormalBtn</ObjectName>
+                        <Size>44f,32f</Size>
+                        <NumberStates>2</NumberStates>
+                        <State><Number>0</Number><Text>VIEW</Text><Alignment>center</Alignment>
+                          <Unpressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="SubRegion_BtnType"/>_square_active.svg</Unpressed>
+                          <Pressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="SubRegion_BtnType"/>_square_active.svg</Pressed>
+                        </State>
+                        <State><Number>1</Number><Text>VIEW</Text><Alignment>center</Alignment>
+                          <Unpressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="SubRegion_BtnType"/>_square.svg</Unpressed>
+                          <Pressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="SubRegion_BtnType"/>_square.svg</Pressed>
+                        </State>
+                        <Connection><ConfigKey persist="true">[Skin],show_grid_edit_<Variable name="ChanNum"/></ConfigKey><ButtonState>LeftButton</ButtonState></Connection>
+                      </PushButton>
+                      <WidgetGroup><Size>0min,4f</Size></WidgetGroup>
+                      <PushButton>
+                        <TooltipId>show_grid_edit</TooltipId>
+                        <ObjectName>ViewGridBtn</ObjectName>
+                        <Size>44f,32f</Size>
+                        <NumberStates>2</NumberStates>
+                        <State><Number>0</Number><Text>GRID</Text><Alignment>center</Alignment>
+                          <Unpressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="SubRegion_BtnType"/>_square.svg</Unpressed>
+                          <Pressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="SubRegion_BtnType"/>_square.svg</Pressed>
+                        </State>
+                        <State><Number>1</Number><Text>GRID</Text><Alignment>center</Alignment>
+                          <Unpressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="SubRegion_BtnType"/>_square_active.svg</Unpressed>
+                          <Pressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="SubRegion_BtnType"/>_square_active.svg</Pressed>
+                        </State>
+                        <Connection><ConfigKey persist="true">[Skin],show_grid_edit_<Variable name="ChanNum"/></ConfigKey><ButtonState>LeftButton</ButtonState></Connection>
+                      </PushButton>
+                      <WidgetGroup><Size>0min,1me</Size></WidgetGroup>
+                    </Children>
+                  </WidgetGroup>
+                  <WidgetGroup><Size>6f,0min</Size></WidgetGroup>
+
+                  <!-- stacked views: pads + grid edit share the exact same area -->
+                  <WidgetGroup>
+                    <ObjectName>DeckViewsStack</ObjectName>
+                    <Layout>stacked</Layout>
+                    <SizePolicy>me,min</SizePolicy>
+                    <Children>
+                      <WidgetGroup>
+                        <Layout>horizontal</Layout>
+                        <SizePolicy>me,min</SizePolicy>
+                        <Children>
+                          <Template src="skins:LateNight/decks/deck_pads_compact.xml" />
+                        </Children>
+                        <Connection>
+                          <ConfigKey persist="true">[Skin],show_grid_edit_<Variable name="ChanNum"/></ConfigKey>
+                          <Transform><Not/></Transform>
+                          <BindProperty>visible</BindProperty>
+                        </Connection>
+                      </WidgetGroup>
+                      <WidgetGroup>
+                        <Layout>horizontal</Layout>
+                        <SizePolicy>me,min</SizePolicy>
+                        <Children>
+                          <Template src="skins:LateNight/decks/deck_gridedit_compact.xml" />
+                        </Children>
+                        <Connection>
+                          <ConfigKey persist="true">[Skin],show_grid_edit_<Variable name="ChanNum"/></ConfigKey>
+                          <BindProperty>visible</BindProperty>
+                        </Connection>
+                      </WidgetGroup>
+                    </Children>
+                  </WidgetGroup>
+
+                </Children>
+              </WidgetGroup>
 
             </Children>
           </WidgetGroup><!-- DeckRows2345 -->
 
-          <WidgetGroup>
-            <SizePolicy>min,min</SizePolicy>
-            <Layout>horizontal</Layout>
-            <Children>
-              <WidgetGroup>
-                <ObjectName>DeckRateSpacer</ObjectName>
-                <SizePolicy>min,min</SizePolicy>
-                <Children/>
-                <Connection>
-                  <ConfigKey persist="true">[LateNight],show_vumeters_compact</ConfigKey>
-                  <Transform><Not/></Transform>
-                  <BindProperty>visible</BindProperty>
-                </Connection>
-              </WidgetGroup>
-            </Children>
-            <Connection>
-              <ConfigKey persist="true">[Skin],show_rate_controls_compact</ConfigKey>
-              <Transform><Not/></Transform>
-              <BindProperty>visible</BindProperty>
-            </Connection>
-          </WidgetGroup>
-
-          <Template src="skins:LateNight/decks/rate_controls_compact.xml"/>
+          <!-- CUSTOM (Rekordbox layout): the pitch fader (rate_controls_compact)
+               was removed (pitch is controlled from the turntables) so the
+               waveform spans the full width. The jog wheel + live BPM now sits
+               in the transport row BELOW the waveform (see
+               row_5_transportLoopJump_compact.xml). -->
 
         </Children>
         <!-- This is supposed to reduce margin and eliminate the border that

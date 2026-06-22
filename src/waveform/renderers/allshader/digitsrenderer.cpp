@@ -18,8 +18,9 @@
 
 namespace {
 
-// The texture will contain 12 characters: 10 digits, colon and dot
-constexpr int NUM_CHARS = 12;
+// CUSTOM: Extended to include "Bars" text for Rekordbox-style beat counter
+// The texture will contain characters: digits, punctuation, and letters for "Bars"
+constexpr int NUM_CHARS = 17; // 10 digits + : . space B a r s
 
 // space around chars for blurred dark outline
 constexpr int OUTLINE_SIZE = 4;
@@ -27,7 +28,7 @@ constexpr int OUTLINE_SIZE = 4;
 constexpr int OUTLINE_ALPHA = 224;
 
 constexpr char indexToChar(int index) {
-    constexpr char str[] = "0123456789:.";
+    constexpr char str[] = "0123456789:. Bars";
     return str[index];
 }
 constexpr int charToIndex(QChar ch) {
@@ -41,8 +42,23 @@ constexpr int charToIndex(QChar ch) {
     if (ch == '.') {
         return 11;
     }
+    if (ch == ' ') {
+        return 12;
+    }
+    if (ch == 'B') {
+        return 13;
+    }
+    if (ch == 'a') {
+        return 14;
+    }
+    if (ch == 'r') {
+        return 15;
+    }
+    if (ch == 's') {
+        return 16;
+    }
     DEBUG_ASSERT(false);
-    return 11; // fallback to dot
+    return 12; // fallback to space
 }
 constexpr bool checkCharToIndex() {
     for (int i = 0; i < NUM_CHARS; i++) {
@@ -120,8 +136,8 @@ void allshader::DigitsRenderer::updateTexture(
             // We need to adjust the font size to fit in the maxHeight.
             // Only do this once.
             fontPointSize *= static_cast<float>(maxHeightWithoutSpace / maxTextHeight);
-            // Avoid becoming unreadable
-            fontPointSize = std::max(10.f, fontPointSize);
+            // CUSTOM: Allow very small fonts for compact beat counter (Rekordbox style)
+            fontPointSize = std::max(5.f, fontPointSize); // Reduced from 10.f
             m_adjustedFontPointSize = fontPointSize;
             retry = true;
         } else {
@@ -184,8 +200,9 @@ void allshader::DigitsRenderer::updateTexture(
         painter.setRenderHint(QPainter::Antialiasing);
 
         painter.setFont(font);
-        painter.setPen(Qt::white);
-        painter.setBrush(Qt::white);
+        // CUSTOM: Blue color for beat counter (Rekordbox style)
+        painter.setPen(QColor(0, 120, 255)); // Bright blue
+        painter.setBrush(QColor(0, 120, 255));
 
         qreal x = 0;
         QPainterPath path;

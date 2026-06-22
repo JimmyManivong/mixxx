@@ -27,11 +27,20 @@ class allshader::WaveformRenderBeat final : public allshader::WaveformRenderer {
   private:
     mixxx::UnicolorShader m_shader;
     QColor m_color;
-    QColor m_highlightColor;  // Color for downbeats (Rekordbox style)
-    VertexData m_vertices;
-    VertexData m_downbeatVertices;  // Separate vertices for downbeats
+    QColor m_highlightColor;  // Color for the white downbeat lines (Rekordbox style)
+    VertexData m_vertices;       // Grey "T" markers for normal beats
+    VertexData m_dotVertices;    // White vertical lines for downbeats
+    VertexData m_triangleVertices;  // Red triangles top/bottom on downbeats
 
     bool m_isSlipRenderer;
+
+    // CUSTOM: cached audio onset/offset (audio-frame positions of the first and
+    // last waveform sample carrying real signal) so the beat grid can be hidden
+    // over the silence before and after the sound. Recomputed when the waveform
+    // data pointer changes.
+    const void* m_cachedSignalData{nullptr};
+    double m_signalStartFrame{0.0};
+    double m_signalEndFrame{0.0};
 
     DISALLOW_COPY_AND_ASSIGN(WaveformRenderBeat);
 };

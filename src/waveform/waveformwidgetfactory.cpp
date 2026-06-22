@@ -138,7 +138,7 @@ WaveformWidgetFactory::WaveformWidgetFactory()
           m_untilMarkShowBeats(false),
           m_untilMarkShowTime(false),
           m_untilMarkAlign(Qt::AlignVCenter),
-          m_untilMarkTextPointSize(24),
+          m_untilMarkTextPointSize(6), // CUSTOM: Minimal size for Rekordbox-style compact display
           m_untilMarkTextHeightLimit(toUntilMarkTextHeightLimit(0)),
           m_openGlAvailable(false),
           m_openGlesAvailable(false),
@@ -456,9 +456,8 @@ bool WaveformWidgetFactory::setConfig(UserSettingsPointer config) {
     setUntilMarkAlign(toUntilMarkAlign(
             m_config->getValue(ConfigKey("[Waveform]", "UntilMarkAlign"),
                     toUntilMarkAlignIndex(m_untilMarkAlign))));
-    setUntilMarkTextPointSize(
-            m_config->getValue(ConfigKey("[Waveform]", "UntilMarkTextPointSize"),
-                    m_untilMarkTextPointSize));
+    // CUSTOM: Force font size for Rekordbox-style beat counter
+    setUntilMarkTextPointSize(12); // Always use 12pt regardless of saved config
     setUntilMarkTextHeightLimit(toUntilMarkTextHeightLimit(
             m_config->getValue(ConfigKey("[Waveform]", "UntilMarkTextHeightLimit"),
                     toUntilMarkTextHeightLimitIndex(m_untilMarkTextHeightLimit))));
@@ -1379,6 +1378,10 @@ QSurfaceFormat WaveformWidgetFactory::getSurfaceFormat(UserSettingsPointer confi
     // On Linux, horrible FPS were seen with "VSync off" before switching to QOpenGLWindow too
     format.setSwapInterval(vsyncMode == VSyncThread::ST_PLL ? 1 : 0);
 #endif
+    // CUSTOM (Rekordbox-style smoothness): request 4x multisampling so the
+    // diagonal edges of the filled waveform ribbons are anti-aliased instead of
+    // hard/stair-stepped. Safe no-op if the driver can't provide it.
+    format.setSamples(4);
     return format;
 }
 

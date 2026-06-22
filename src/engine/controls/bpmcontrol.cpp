@@ -78,6 +78,23 @@ BpmControl::BpmControl(const QString& group,
                                       Qt::DirectConnection);
 
     m_pLocalBpm = std::make_unique<ControlObject>(ConfigKey(group, "local_bpm"));
+
+    // CUSTOM: Beat number counter (Rekordbox style)
+    m_pBeatNumber = std::make_unique<ControlObject>(ConfigKey(group, "beat_number"));
+    m_pBeatNumber->set(0);
+
+    // CUSTOM: bar-1 / downbeat anchor. <0 means "use the sound onset" (default).
+    m_pGridDownbeatPos = std::make_unique<ControlObject>(
+            ConfigKey(group, "grid_downbeat_pos"));
+    m_pGridDownbeatPos->set(-1.0);
+    m_pGridSetDownbeat = std::make_unique<ControlPushButton>(
+            ConfigKey(group, "grid_set_downbeat"));
+    connect(m_pGridSetDownbeat.get(),
+            &ControlObject::valueChanged,
+            this,
+            &BpmControl::slotGridSetDownbeat,
+            Qt::DirectConnection);
+
     m_pAdjustBeatsFaster = std::make_unique<ControlPushButton>(
             ConfigKey(group, "beats_adjust_faster"), false);
     m_pAdjustBeatsFaster->setKbdRepeatable(true);
@@ -1118,6 +1135,11 @@ void BpmControl::slotUpdateRateSlider(double value) {
 
 // called from an engine worker thread
 void BpmControl::trackLoaded(TrackPointer pNewTrack) {
+    // CUSTOM: reset the downbeat anchor so a freshly loaded track defaults to
+    // "downbeat at the sound onset" until the user presses GRID EDIT "SET".
+    if (m_pGridDownbeatPos) {
+        m_pGridDownbeatPos->set(-1.0);
+    }
     mixxx::BeatsPointer pBeats;
     if (pNewTrack) {
         pBeats = pNewTrack->getBeats();
@@ -1173,6 +1195,35 @@ void BpmControl::slotBeatsTranslate(double v) {
             pTrack->trySetBeats(*translatedBeats);
         }
     }
+}
+
+void BpmControl::slotGridSetDownbeat(double v) {
+    if (v <= 0) {
+        return;
+    }
+    TrackPointer pTrack = getEngineBuffer()->getLoadedTrack();
+    if (!pTrack) {
+        return;
+    }
+    const auto position = frameInfo().currentPosition;
+    if (!position.isValid()) {
+        return;
+    }
+    // Align the grid so a beat lands exactly on the current play position, then
+    // store that same position as the downbeat / bar-1 anchor. Using one value
+    // for both guarantees the white downbeat line lands exactly on the playhead.
+    const mixxx::BeatsPointer pBeats = pTrack->getBeats();
+    if (pBeats) {
+        const auto closestBeat = pBeats->findClosestBeat(position);
+        if (closestBeat.isValid()) {
+            const mixxx::audio::FrameDiff_t offset = position - closestBeat;
+            const auto translatedBeats = pBeats->tryTranslate(offset);
+            if (translatedBeats) {
+                pTrack->trySetBeats(*translatedBeats);
+            }
+        }
+    }
+    m_pGridDownbeatPos->set(position.value());
 }
 
 void BpmControl::slotBeatsTranslateMatchAlignment(double v) {
@@ -1242,10 +1293,36 @@ double BpmControl::updateBeatDistance() {
 
 double BpmControl::updateBeatDistance(mixxx::audio::FramePos playpos) {
     double beatDistance = getBeatDistance(playpos);
-    m_pThisBeatDistance.set(beatDistance);
+    // CUSTOM: Invert beat_distance to count DOWN to next beat (Rekordbox style)
+    // Original: 0.0 = on beat, 1.0 = almost at next beat
+    // Inverted: 1.0 = just after beat, 0.0 = arriving at next beat
+    double invertedBeatDistance = 1.0 - beatDistance;
+    m_pThisBeatDistance.set(invertedBeatDistance);
     if (!isSynchronized() && m_dUserOffset.getValue() != 0.0) {
         m_dUserOffset.setValue(0.0);
     }
+
+    // CUSTOM: Update beat number (Rekordbox style)
+    if (m_pBeats && playpos.isValid()) {
+        auto firstBeat = m_pBeats->firstBeat();
+        if (firstBeat.isValid()) {
+            // Count beats from first beat to current position
+            int beatCount = 0;
+            for (auto it = m_pBeats->iteratorFrom(firstBeat);
+                 it != m_pBeats->cend() && *it <= playpos;
+                 ++it) {
+                beatCount++;
+            }
+            if (beatCount > 0) {
+                m_pBeatNumber->set(beatCount);
+                // Simple debug every 10 beats
+                if (beatCount % 10 == 0) {
+                    qDebug() << "Beat:" << beatCount;
+                }
+            }
+        }
+    }
+
     if (kLogger.traceEnabled()) {
         kLogger.trace() << getGroup() << "BpmControl::updateBeatDistance" << beatDistance;
     }

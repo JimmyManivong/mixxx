@@ -3,28 +3,20 @@
 
   <WidgetGroup>
     <ObjectName>DeckRow_4_OverviewSpinny</ObjectName>
-    <Layout>horizontal</Layout>
+    <!-- CUSTOM: vertical so the Rekordbox-style phrase bar sits BELOW the
+         overview waveform. -->
+    <Layout>vertical</Layout>
     <SizePolicy>me,min</SizePolicy>
     <Children>
 
-      <WidgetGroup>
-        <ObjectName>SpinnyCoverContainer_SmallCompact</ObjectName>
-        <Layout>horizontal</Layout>
-        <SizePolicy>f,f</SizePolicy>
-        <Children>
-          <SingletonContainer>
-            <ObjectName>SpinnyCoverart<Variable name="ChanNum"/></ObjectName>
-          </SingletonContainer>
-        </Children>
-        <Connection>
-          <ConfigKey>[Skin],show_small_spinny_or_cover</ConfigKey>
-          <BindProperty>visible</BindProperty>
-        </Connection>
-      </WidgetGroup><!-- SpinnyCoverContainer_SmallCompact -->
+      <!-- CUSTOM (Rekordbox layout): the small spinny/cover that used to sit here
+           on the left of the overview was removed so the waveform spans the full
+           width. The cover art now sits next to the title (see row_2_3_compact). -->
 
       <WidgetGroup>
         <ObjectName>OverviewBox</ObjectName>
-        <Size>me,64me</Size>
+        <!-- CUSTOM: halved height (was 64) to match Rekordbox's thin overview strip -->
+        <Size>me,32me</Size>
         <Layout>horizontal</Layout>
         <Children>
           <SingletonContainer>
@@ -37,20 +29,18 @@
         </Connection>
       </WidgetGroup>
 
-      <WidgetGroup>
-        <ObjectName>DeckSettingsContainerCompact</ObjectName>
-        <SizePolicy>min,me</SizePolicy>
-        <Layout>horizontal</Layout>
-        <Children>
-          <SingletonContainer>
-            <ObjectName>DeckSettings<Variable name="ChanNum"/></ObjectName>
-          </SingletonContainer>
-        </Children>
-        <Connection>
-          <ConfigKey persist="true">[Skin],show_rate_controls_compact</ConfigKey>
-          <BindProperty>highlight</BindProperty>
-        </Connection>
-      </WidgetGroup>
+      <!-- CUSTOM (Rekordbox phrase analysis): coloured section strip
+           (INTRO / UP / CHORUS / DOWN / OUTRO) below the overview, fed by the
+           offline analyzer cache (tools/phrase_analysis.py). -->
+      <PhraseBar>
+        <ObjectName>DeckPhraseBar</ObjectName>
+        <Group><Variable name="Group"/></Group>
+        <Size>me,15f</Size>
+      </PhraseBar>
+
+      <!-- CUSTOM (Rekordbox layout): the DeckSettings icon panel (slip, quantize,
+           keylock, eject, stars) that used to sit here on the right of the overview
+           was removed so the waveform spans the full width like Rekordbox. -->
 
     </Children>
   </WidgetGroup><!-- DeckRow_4_OverviewSpinny -->

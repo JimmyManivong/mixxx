@@ -80,6 +80,9 @@
 
           <WidgetGroup><Size>1f,1min</Size></WidgetGroup>
 
+<!-- CUSTOM: beatgrid controls toggle hidden for now (panel removed; code kept).
+     To restore, un-comment this block and remove the MaximumSize line on the
+     BeatgridControls group in waveform.xml.
           <Template src="skins:LateNight/controls/button_2state_persist.xml">
             <SetVariable name="TooltipId">show_beatgrid_controls</SetVariable>
             <SetVariable name="ObjectName">BeatgridControlsToggle</SetVariable>
@@ -87,6 +90,8 @@
             <SetVariable name="BtnSize"></SetVariable>
             <SetVariable name="ConfigKey">[Skin],show_beatgrid_controls</SetVariable>
           </Template>
+-->
+
 
           <WidgetGroup>
             <Size>2f,1min</Size>

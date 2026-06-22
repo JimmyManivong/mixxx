@@ -700,11 +700,15 @@ void WOverview::drawWaveformPixmap(QPainter* pPainter) {
         }
 
         if (m_diffGain != diffGain || m_waveformImageScaled.isNull()) {
+            // CUSTOM (Rekordbox style): crop only the top half of the mirrored
+            // source image so the overview shows a single waveform rising from a
+            // bottom baseline and fills the whole box (better visibility) instead
+            // of a smaller top+bottom mirror.
             QRect sourceRect(0,
                     static_cast<int>(diffGain),
                     m_waveformSourceImage.width(),
-                    m_waveformSourceImage.height() -
-                            2 * static_cast<int>(diffGain));
+                    m_waveformSourceImage.height() / 2 -
+                            static_cast<int>(diffGain));
             QImage croppedImage = m_waveformSourceImage.copy(sourceRect);
             if (m_orientation == Qt::Vertical) {
                 // Rotate pixmap
@@ -716,6 +720,9 @@ void WOverview::drawWaveformPixmap(QPainter* pPainter) {
             m_diffGain = diffGain;
         }
 
+        // CUSTOM (Rekordbox style): the single (top-half) waveform fills the whole
+        // box with its baseline at the bottom. The widget itself is kept short in
+        // the skin, so there is no wasted black space above the waveform.
         pPainter->drawImage(rect(), m_waveformImageScaled);
     }
 }
@@ -1476,50 +1483,93 @@ void WOverview::drawNextPixmapPartRGB(QPainter* pPainter,
     float highColor_r, highColor_g, highColor_b;
     getRgbF(m_signalColors.getRgbHighColor(), &highColor_r, &highColor_g, &highColor_b);
 
+    // CUSTOM (Rekordbox stacked overview): instead of one colour per column, the
+    // total amplitude of each column is subdivided into three ADDITIVE STACKED
+    // segments — blue (bass) at the base, amber (mid) above it, white (high) at
+    // the tip. Only the top half is drawn here; drawWaveformPixmap crops it and
+    // flips it to a bottom baseline, so the result reads as blue→orange→white
+    // from the bottom up, exactly like Rekordbox. The three colours are always
+    // present, so a bass-heavy track no longer collapses to a single blue tint.
+    Q_UNUSED(color);
+    QColor lowQ, midQ, highQ;
+    lowQ.setRgbF(lowColor_r, lowColor_g, lowColor_b);
+    midQ.setRgbF(midColor_r, midColor_g, midColor_b);
+    highQ.setRgbF(highColor_r, highColor_g, highColor_b);
+
+    const int dataSize = pWaveform->getDataSize();
+
     int currentCompletion = 0;
     for (currentCompletion = m_actualCompletion;
             currentCompletion < nextCompletion;
             currentCompletion += 2) {
-        unsigned char left = pWaveform->getAll(currentCompletion);
-        unsigned char right = pWaveform->getAll(currentCompletion + 1);
+        // CUSTOM: smooth each band over a window of columns (moving average) so
+        // the stacked band boundaries are clean, defined ribbons. Without this
+        // the per-column peak noise makes the orange/white smear into a blurry
+        // ("Paint-like") band when the overview is downscaled. Rekordbox shows
+        // clean bands; the averaging reproduces that.
+        constexpr int kSmoothRadius = 2; // visual-sample pairs each side
+        float sumLow = 0.f, sumMid = 0.f, sumHigh = 0.f, sumAmp = 0.f;
+        int samples = 0;
+        for (int w = currentCompletion - 2 * kSmoothRadius;
+                w <= currentCompletion + 2 * kSmoothRadius;
+                w += 2) {
+            if (w < 0 || w + 1 >= dataSize) {
+                continue;
+            }
+            sumLow += math_max(pWaveform->getLow(w), pWaveform->getLow(w + 1));
+            sumMid += math_max(pWaveform->getMid(w), pWaveform->getMid(w + 1));
+            sumHigh += math_max(pWaveform->getHigh(w), pWaveform->getHigh(w + 1));
+            sumAmp += math_max(pWaveform->getAll(w), pWaveform->getAll(w + 1));
+            samples++;
+        }
+        if (samples == 0) {
+            continue;
+        }
+        const float amplitude = sumAmp / static_cast<float>(samples);
+        const float low = sumLow / static_cast<float>(samples);
+        const float mid = sumMid / static_cast<float>(samples);
+        const float high = sumHigh / static_cast<float>(samples);
 
-        // Retrieve "raw" LMH values from waveform
-        float low = static_cast<float>(pWaveform->getLow(currentCompletion));
-        float mid = static_cast<float>(pWaveform->getMid(currentCompletion));
-        float high = static_cast<float>(pWaveform->getHigh(currentCompletion));
+        // Band values are PEAKS, not energy: high-frequency transients (hats,
+        // cymbals) peak high even with little energy, which would make the white
+        // band dominate. Rekordbox weights the bass up and the highs down so the
+        // blue base dominates. Weight each band before subdividing the amplitude.
+        constexpr float kLowWeight = 0.8f;
+        constexpr float kMidWeight = 1.0f;
+        constexpr float kHighWeight = 0.5f;
+        const float wLow = low * kLowWeight;
+        const float wMid = mid * kMidWeight;
+        const float wHigh = high * kHighWeight;
 
-        // Do matrix multiplication
-        float red = low * lowColor_r + mid * midColor_r + high * highColor_r;
-        float green = low * lowColor_g + mid * midColor_g + high * highColor_g;
-        float blue = low * lowColor_b + mid * midColor_b + high * highColor_b;
-
-        // Normalize and draw
-        float max = math_max3(red, green, blue);
-        if (max > 0.0) {
-            color.setRgbF(red / max, green / max, blue / max);
-            pPainter->setPen(color);
-            pPainter->drawLine(QPointF(currentCompletion / 2, -left),
-                    QPointF(currentCompletion / 2, 0));
+        const float bandSum = wLow + wMid + wHigh;
+        if (bandSum <= 0.f || amplitude <= 0.f) {
+            continue;
         }
 
-        // Retrieve "raw" LMH values from waveform
-        low = static_cast<float>(pWaveform->getLow(currentCompletion + 1));
-        mid = static_cast<float>(pWaveform->getMid(currentCompletion + 1));
-        high = static_cast<float>(pWaveform->getHigh(currentCompletion + 1));
+        // Overall height: Rekordbox leaves black space above the waveform (it
+        // fills ~55% of the box), so scale the drawn amplitude down rather than
+        // filling the whole widget.
+        constexpr float kHeightScale = 0.6f;
+        const float drawnAmp = amplitude * kHeightScale;
 
-        // Do matrix multiplication
-        red = low * lowColor_r + mid * midColor_r + high * highColor_r;
-        green = low * lowColor_g + mid * midColor_g + high * highColor_g;
-        blue = low * lowColor_b + mid * midColor_b + high * highColor_b;
+        // Subdivide the (scaled) amplitude into the three stacked bands.
+        const float x = currentCompletion / 2;
+        const float blueH = drawnAmp * wLow / bandSum;
+        const float orangeH = drawnAmp * wMid / bandSum;
+        // y goes up (negative) from the centre baseline.
+        const float yBlue = -blueH;
+        const float yOrange = yBlue - orangeH;
+        const float yWhite = -drawnAmp;
 
-        // Normalize and draw
-        max = math_max3(red, green, blue);
-        if (max > 0.0) {
-            color.setRgbF(red / max, green / max, blue / max);
-            pPainter->setPen(color);
-            pPainter->drawLine(QPointF(currentCompletion / 2, 0),
-                    QPointF(currentCompletion / 2, right));
-        }
+        // Blue base (nearest the baseline).
+        pPainter->setPen(lowQ);
+        pPainter->drawLine(QPointF(x, 0.f), QPointF(x, yBlue));
+        // Amber mid stacked on top.
+        pPainter->setPen(midQ);
+        pPainter->drawLine(QPointF(x, yBlue), QPointF(x, yOrange));
+        // White high at the tip.
+        pPainter->setPen(highQ);
+        pPainter->drawLine(QPointF(x, yOrange), QPointF(x, yWhite));
     }
 
     // Evaluate waveform ratio peak

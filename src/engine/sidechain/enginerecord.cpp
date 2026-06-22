@@ -224,9 +224,10 @@ void EngineRecord::process(const CSAMPLE* pBuffer, const int iBufferSize) {
 }
 
 QString EngineRecord::getRecordedDurationStr() {
+    // CUSTOM: Qt6 fix - use correct arg() signature for integers
     return QString("%1:%2")
-                 .arg(m_recordedDuration / 60, 2, 'f', 0, '0')   // minutes
-                 .arg(m_recordedDuration % 60, 2, 'f', 0, '0');  // seconds
+                 .arg(static_cast<int>(m_recordedDuration / 60), 2, 10, QChar('0'))   // minutes
+                 .arg(static_cast<int>(m_recordedDuration % 60), 2, 10, QChar('0'));  // seconds
 }
 
 void EngineRecord::writeCueLine() {
@@ -239,8 +240,9 @@ void EngineRecord::writeCueLine() {
                                 ((m_frames / (m_sampleRate / 75)))
                                     % 75);
 
+    // CUSTOM: Qt6 fix - use correct arg() signature
     m_cueFile.write(QString("  TRACK %1 AUDIO\n")
-                            .arg((double)m_cueTrack, 2, 'f', 0, '0')
+                            .arg(static_cast<int>(m_cueTrack), 2, 10, QChar('0'))
                             .toUtf8());
 
     m_cueFile.write(QString("    TITLE \"%1\"\n")
@@ -253,9 +255,10 @@ void EngineRecord::writeCueLine() {
     // Woefully inaccurate (at the seconds level anyways).
     // We'd need a signal fired state tracker
     // for the track detection code.
+    // CUSTOM: Qt6 fix - use correct arg() signature
     m_cueFile.write(QString("    INDEX 01 %1:%2\n")
                             .arg(getRecordedDurationStr())
-                            .arg(static_cast<double>(cueFrame), 2, 'f', 0, '0')
+                            .arg(static_cast<int>(cueFrame), 2, 10, QChar('0'))
                             .toUtf8());
 }
 

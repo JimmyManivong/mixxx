@@ -1,0 +1,239 @@
+<Template>
+  <!-- CUSTOM (Rekordbox-style GRID EDIT page): shown in the bottom deck section
+       instead of the performance pads when [Skin],show_grid_edit == 1.
+       Buttons are mapped to Mixxx's native beatgrid controls. -->
+  <SetVariable name="Group">[Channel<Variable name="ChanNum"/>]</SetVariable>
+  <SetVariable name="BtnType"><Variable name="SubRegion_BtnType"/></SetVariable>
+
+  <WidgetGroup>
+    <ObjectName>DeckGridEditCompact</ObjectName>
+    <Layout>horizontal</Layout>
+    <SizePolicy>me,min</SizePolicy>
+    <Children>
+
+      <!-- title -->
+      <Label>
+        <ObjectName>GeTitle</ObjectName>
+        <Size>78f,24f</Size>
+        <Text>GRID EDIT</Text>
+        <Alignment>left</Alignment>
+      </Label>
+
+      <WidgetGroup><Size>10f,0min</Size></WidgetGroup>
+
+      <!-- BPM readout -->
+      <WidgetGroup>
+        <Layout>vertical</Layout><SizePolicy>min,me</SizePolicy>
+        <Children>
+          <WidgetGroup><Size>0min,1me</Size></WidgetGroup>
+          <Number>
+            <ObjectName>GeBpmText</ObjectName>
+            <TooltipId>bpm</TooltipId>
+            <Size>78f,30f</Size>
+            <Alignment>center</Alignment>
+            <NumberOfDigits>2</NumberOfDigits>
+            <Connection><ConfigKey><Variable name="Group"/>,bpm</ConfigKey></Connection>
+          </Number>
+          <WidgetGroup><Size>0min,1me</Size></WidgetGroup>
+        </Children>
+      </WidgetGroup>
+
+      <WidgetGroup><Size>14f,0min</Size></WidgetGroup>
+
+      <!-- Move grid: earlier / snap-to-playhead / later -->
+      <WidgetGroup>
+        <ObjectName>GeBlock</ObjectName>
+        <Layout>vertical</Layout><SizePolicy>min,me</SizePolicy>
+        <Children>
+          <WidgetGroup><Size>0min,1me</Size></WidgetGroup>
+          <Label><ObjectName>GeCaption</ObjectName><Size>150f,14f</Size><Text>MOVE GRID</Text><Alignment>center</Alignment></Label>
+          <WidgetGroup>
+            <Layout>horizontal</Layout><SizePolicy>min,min</SizePolicy>
+            <Children>
+              <PushButton>
+                <TooltipId>beats_translate_earlier</TooltipId>
+                <ObjectName>GeBtn</ObjectName>
+                <Size>44f,30f</Size>
+                <NumberStates>1</NumberStates>
+                <State><Number>0</Number><Text>&#9664;</Text><Alignment>center</Alignment>
+                  <Unpressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square.svg</Unpressed>
+                  <Pressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Pressed>
+                </State>
+                <Connection><ConfigKey><Variable name="Group"/>,beats_translate_earlier</ConfigKey></Connection>
+              </PushButton>
+              <WidgetGroup><Size>5f,0min</Size></WidgetGroup>
+              <PushButton>
+                <TooltipId>beats_translate_curpos</TooltipId>
+                <ObjectName>GeBtn</ObjectName>
+                <Size>52f,30f</Size>
+                <NumberStates>1</NumberStates>
+                <State><Number>0</Number><Text>SET</Text><Alignment>center</Alignment>
+                  <Unpressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square.svg</Unpressed>
+                  <Pressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Pressed>
+                </State>
+                <!-- One C++ action: align a beat to the playhead AND place the
+                     downbeat (bar 1 / white line) exactly on the playhead. -->
+                <Connection><ConfigKey><Variable name="Group"/>,grid_set_downbeat</ConfigKey></Connection>
+              </PushButton>
+              <WidgetGroup><Size>5f,0min</Size></WidgetGroup>
+              <PushButton>
+                <TooltipId>beats_translate_later</TooltipId>
+                <ObjectName>GeBtn</ObjectName>
+                <Size>44f,30f</Size>
+                <NumberStates>1</NumberStates>
+                <State><Number>0</Number><Text>&#9654;</Text><Alignment>center</Alignment>
+                  <Unpressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square.svg</Unpressed>
+                  <Pressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Pressed>
+                </State>
+                <Connection><ConfigKey><Variable name="Group"/>,beats_translate_later</ConfigKey></Connection>
+              </PushButton>
+            </Children>
+          </WidgetGroup>
+          <WidgetGroup><Size>0min,1me</Size></WidgetGroup>
+        </Children>
+      </WidgetGroup>
+
+      <WidgetGroup><Size>14f,0min</Size></WidgetGroup>
+
+      <!-- Tempo nudge: slower / faster -->
+      <WidgetGroup>
+        <ObjectName>GeBlock</ObjectName>
+        <Layout>vertical</Layout><SizePolicy>min,me</SizePolicy>
+        <Children>
+          <WidgetGroup><Size>0min,1me</Size></WidgetGroup>
+          <Label><ObjectName>GeCaption</ObjectName><Size>97f,14f</Size><Text>TEMPO</Text><Alignment>center</Alignment></Label>
+          <WidgetGroup>
+            <Layout>horizontal</Layout><SizePolicy>min,min</SizePolicy>
+            <Children>
+              <PushButton>
+                <TooltipId>beats_adjust_slower</TooltipId>
+                <ObjectName>GeBtn</ObjectName>
+                <Size>46f,30f</Size>
+                <NumberStates>1</NumberStates>
+                <State><Number>0</Number><Text>&#8722;</Text><Alignment>center</Alignment>
+                  <Unpressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square.svg</Unpressed>
+                  <Pressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Pressed>
+                </State>
+                <Connection><ConfigKey><Variable name="Group"/>,beats_adjust_slower</ConfigKey></Connection>
+              </PushButton>
+              <WidgetGroup><Size>5f,0min</Size></WidgetGroup>
+              <PushButton>
+                <TooltipId>beats_adjust_faster</TooltipId>
+                <ObjectName>GeBtn</ObjectName>
+                <Size>46f,30f</Size>
+                <NumberStates>1</NumberStates>
+                <State><Number>0</Number><Text>+</Text><Alignment>center</Alignment>
+                  <Unpressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square.svg</Unpressed>
+                  <Pressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Pressed>
+                </State>
+                <Connection><ConfigKey><Variable name="Group"/>,beats_adjust_faster</ConfigKey></Connection>
+              </PushButton>
+            </Children>
+          </WidgetGroup>
+          <WidgetGroup><Size>0min,1me</Size></WidgetGroup>
+        </Children>
+      </WidgetGroup>
+
+      <WidgetGroup><Size>14f,0min</Size></WidgetGroup>
+
+      <!-- x1/2 and x2 -->
+      <WidgetGroup>
+        <ObjectName>GeBlock</ObjectName>
+        <Layout>vertical</Layout><SizePolicy>min,me</SizePolicy>
+        <Children>
+          <WidgetGroup><Size>0min,1me</Size></WidgetGroup>
+          <Label><ObjectName>GeCaption</ObjectName><Size>97f,14f</Size><Text>BPM x</Text><Alignment>center</Alignment></Label>
+          <WidgetGroup>
+            <Layout>horizontal</Layout><SizePolicy>min,min</SizePolicy>
+            <Children>
+              <PushButton>
+                <TooltipId>beats_set_halve</TooltipId>
+                <ObjectName>GeBtn</ObjectName>
+                <Size>46f,30f</Size>
+                <NumberStates>1</NumberStates>
+                <State><Number>0</Number><Text>&#189;</Text><Alignment>center</Alignment>
+                  <Unpressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square.svg</Unpressed>
+                  <Pressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Pressed>
+                </State>
+                <Connection><ConfigKey><Variable name="Group"/>,beats_set_halve</ConfigKey></Connection>
+              </PushButton>
+              <WidgetGroup><Size>5f,0min</Size></WidgetGroup>
+              <PushButton>
+                <TooltipId>beats_set_double</TooltipId>
+                <ObjectName>GeBtn</ObjectName>
+                <Size>46f,30f</Size>
+                <NumberStates>1</NumberStates>
+                <State><Number>0</Number><Text>2</Text><Alignment>center</Alignment>
+                  <Unpressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square.svg</Unpressed>
+                  <Pressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Pressed>
+                </State>
+                <Connection><ConfigKey><Variable name="Group"/>,beats_set_double</ConfigKey></Connection>
+              </PushButton>
+            </Children>
+          </WidgetGroup>
+          <WidgetGroup><Size>0min,1me</Size></WidgetGroup>
+        </Children>
+      </WidgetGroup>
+
+      <WidgetGroup><Size>14f,0min</Size></WidgetGroup>
+
+      <!-- TAP / LOCK / UNDO -->
+      <WidgetGroup>
+        <ObjectName>GeBlock</ObjectName>
+        <Layout>vertical</Layout><SizePolicy>min,me</SizePolicy>
+        <Children>
+          <WidgetGroup><Size>0min,1me</Size></WidgetGroup>
+          <Label><ObjectName>GeCaption</ObjectName><Size>150f,14f</Size><Text>TAP / LOCK / UNDO</Text><Alignment>center</Alignment></Label>
+          <WidgetGroup>
+            <Layout>horizontal</Layout><SizePolicy>min,min</SizePolicy>
+            <Children>
+              <PushButton>
+                <TooltipId>bpm_tap</TooltipId>
+                <ObjectName>GeBtn</ObjectName>
+                <Size>46f,30f</Size>
+                <NumberStates>1</NumberStates>
+                <State><Number>0</Number><Text>TAP</Text><Alignment>center</Alignment>
+                  <Unpressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square.svg</Unpressed>
+                  <Pressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Pressed>
+                </State>
+                <Connection><ConfigKey><Variable name="Group"/>,bpm_tap</ConfigKey></Connection>
+              </PushButton>
+              <WidgetGroup><Size>5f,0min</Size></WidgetGroup>
+              <PushButton>
+                <TooltipId>bpmlock</TooltipId>
+                <ObjectName>GeLockButton</ObjectName>
+                <Size>46f,30f</Size>
+                <NumberStates>2</NumberStates>
+                <State><Number>0</Number><Text>LOCK</Text><Alignment>center</Alignment>
+                  <Unpressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square.svg</Unpressed>
+                  <Pressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Pressed>
+                </State>
+                <State><Number>1</Number><Text>LOCK</Text><Alignment>center</Alignment>
+                  <Unpressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Unpressed>
+                  <Pressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Pressed>
+                </State>
+                <Connection><ConfigKey><Variable name="Group"/>,bpmlock</ConfigKey></Connection>
+              </PushButton>
+              <WidgetGroup><Size>5f,0min</Size></WidgetGroup>
+              <PushButton>
+                <TooltipId>beats_undo_adjustment</TooltipId>
+                <ObjectName>GeBtn</ObjectName>
+                <Size>46f,30f</Size>
+                <NumberStates>1</NumberStates>
+                <State><Number>0</Number><Text>&#8634;</Text><Alignment>center</Alignment>
+                  <Unpressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square.svg</Unpressed>
+                  <Pressed scalemode="STRETCH">skins:LateNight/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Pressed>
+                </State>
+                <Connection><ConfigKey><Variable name="Group"/>,beats_undo_adjustment</ConfigKey></Connection>
+              </PushButton>
+            </Children>
+          </WidgetGroup>
+          <WidgetGroup><Size>0min,1me</Size></WidgetGroup>
+        </Children>
+      </WidgetGroup>
+
+      <WidgetGroup><SizePolicy>me,min</SizePolicy></WidgetGroup>
+
+    </Children>
+  </WidgetGroup>
+</Template>

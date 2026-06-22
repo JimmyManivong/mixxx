@@ -1,20 +1,24 @@
 <Template>
   <Overview>
     <TooltipId>waveform_overview</TooltipId>
-    <Size>-1me,20me</Size>
+    <Size>-1me,12me</Size>
     <Group><Variable name="Group"/></Group>
     <Connection>
       <ConfigKey><Variable name="Group"/>,playposition</ConfigKey>
     </Connection>
-    <BgColor><Variable name="BgColor"/></BgColor>
+    <!-- CUSTOM: pure black background behind the overview, like Rekordbox. -->
+    <BgColor>#000000</BgColor>
     <SignalColor><Variable name="SignalColor"/></SignalColor>
     <!-- Default colors are used for high/mid/low: blue/green/red -->
     <SignalHighColor></SignalHighColor>
     <SignalMidColor></SignalMidColor>
     <SignalLowColor></SignalLowColor>
-    <SignalRGBHighColor></SignalRGBHighColor>
-    <SignalRGBMidColor></SignalRGBMidColor>
-    <SignalRGBLowColor></SignalRGBLowColor>
+    <!-- CUSTOM Rekordbox palette (VIVID): the overview stacks large solid colour
+         areas, so it needs punchier hues than the scrolling waveform — a vivid
+         electric blue (real blue, not greyish), a brighter amber, white tips. -->
+    <SignalRGBHighColor>#FFFFFF</SignalRGBHighColor>
+    <SignalRGBMidColor>#F58A1E</SignalRGBMidColor>
+    <SignalRGBLowColor>#1E5BFF</SignalRGBLowColor>
     <PlayedOverlayColor><Variable name="PlayedOverlayColor"/></PlayedOverlayColor>
     <PlayPosColor><Variable name="PlayPosColor"/></PlayPosColor>
     <EndOfTrackColor><Variable name="EndOfTrackColor"/></EndOfTrackColor>

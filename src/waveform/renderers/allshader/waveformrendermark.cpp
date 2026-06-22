@@ -314,7 +314,9 @@ void allshader::WaveformRenderMark::paintGL() {
     if (WaveformWidgetFactory::instance()->getUntilMarkShowBeats() ||
             WaveformWidgetFactory::instance()->getUntilMarkShowTime()) {
         updateUntilMark(playPosition, nextMarkPosition);
-        drawUntilMark(matrix, currentMarkPoint + 20);
+        // CUSTOM: Position beat counter to the left of playhead (Rekordbox style)
+        float leftOfPlayhead = currentMarkPoint - 90.f; // 90px to the left of playhead
+        drawUntilMark(matrix, leftOfPlayhead);
     }
 }
 
@@ -340,10 +342,8 @@ void allshader::WaveformRenderMark::drawUntilMark(const QMatrix4x4& matrix, floa
     }
     const float ch = m_digitsRenderer.height();
 
-    float y = untilMarkAlign == Qt::AlignTop ? 0.f
-            : untilMarkAlign == Qt::AlignBottom
-            ? m_waveformRenderer->getBreadth() - ch
-            : m_waveformRenderer->getBreadth() / 2.f;
+    // CUSTOM: Position at top for beat counter (Rekordbox style)
+    float y = 8.f; // Top with enough margin to avoid being cut off
 
     bool multiLine = untilMarkShowBeats && untilMarkShowTime &&
             ch * 2.f < untilMarkMaxHeightForText;
@@ -360,10 +360,16 @@ void allshader::WaveformRenderMark::drawUntilMark(const QMatrix4x4& matrix, floa
     }
 
     if (untilMarkShowBeats) {
+        // CUSTOM: Format as "bar.beat Bars" (Rekordbox style)
+        // Example: beat 5 = bar 2, beat 1 → "2.1 Bars"
+        int barNumber = ((m_beatsUntilMark - 1) / 4) + 1; // Bar number (1, 2, 3...)
+        int beatInBar = ((m_beatsUntilMark - 1) % 4) + 1; // Beat in bar (1, 2, 3, 4)
+        QString beatText = QString("%1.%2 Bars").arg(barNumber).arg(beatInBar);
+
         const auto w = m_digitsRenderer.draw(matrix,
                 x,
                 y,
-                QString::number(m_beatsUntilMark));
+                beatText);
         if (multiLine) {
             y += ch;
         } else {
@@ -508,16 +514,22 @@ void allshader::WaveformRenderMark::updateUntilMark(
         }
     }
 
+    // CUSTOM: Count beats FROM first beat instead of TO next marker (Rekordbox style)
+    auto firstBeatPos = trackBeats->firstBeat();
+    auto firstBeatIterator = trackBeats->iteratorFrom(firstBeatPos);
+
     if (std::abs(itA->toEngineSamplePos() - playPosition) < 1) {
         m_currentBeatPosition = itA->toEngineSamplePos();
-        m_beatsUntilMark = std::distance(itA, itB);
+        // CUSTOM: Count from first beat to current position
+        m_beatsUntilMark = std::distance(firstBeatIterator, itA) + 1;
         itA++;
         m_nextBeatPosition = itA->toEngineSamplePos();
     } else {
         m_nextBeatPosition = itA->toEngineSamplePos();
         itA--;
         m_currentBeatPosition = itA->toEngineSamplePos();
-        m_beatsUntilMark = std::distance(itA, itB);
+        // CUSTOM: Count from first beat to current position
+        m_beatsUntilMark = std::distance(firstBeatIterator, itA) + 1;
     }
     // As endPosition - playPosition corresponds with remainingTime,
     // we calculate the proportional part of nextMarkPosition - playPosition

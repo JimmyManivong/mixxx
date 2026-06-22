@@ -16,9 +16,7 @@ class WaveformRenderBeat : public WaveformRendererAbstract {
 
   private:
     QColor m_beatColor;
-    QColor m_beatHighlightColor;  // Color for downbeats (1st beat of measure)
     QVector<QLineF> m_beats;
-    QVector<QLineF> m_downbeats;  // Separate vector for downbeats
 
     DISALLOW_COPY_AND_ASSIGN(WaveformRenderBeat);
 };

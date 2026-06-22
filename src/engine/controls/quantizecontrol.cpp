@@ -10,9 +10,10 @@
 QuantizeControl::QuantizeControl(const QString& group,
         UserSettingsPointer pConfig)
         : EngineControl(group, pConfig) {
-    // Turn quantize OFF by default. See Bug #898213
+    // CUSTOM: Turn quantize ON by default (Rekordbox behavior)
     m_pCOQuantizeEnabled = new ControlPushButton(ConfigKey(group, "quantize"), true);
     m_pCOQuantizeEnabled->setButtonMode(ControlPushButton::TOGGLE);
+    m_pCOQuantizeEnabled->set(1.0); // CUSTOM: Enable quantize by default
     m_pCONextBeat = new ControlObject(ConfigKey(group, "beat_next"));
     m_pCONextBeat->setKbdRepeatable(true);
     m_pCONextBeat->set(mixxx::audio::kInvalidFramePos.toEngineSamplePosMaybeInvalid());

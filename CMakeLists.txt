@@ -1309,6 +1309,8 @@ add_library(mixxx-lib STATIC EXCLUDE_FROM_ALL
   src/widget/wsearchrelatedtracksmenu.cpp
   src/widget/wsingletoncontainer.cpp
   src/widget/wsizeawarestack.cpp
+  src/widget/wbarspinner.cpp
+  src/widget/wphrasebar.cpp
   src/widget/wskincolor.cpp
   src/widget/wslidercomposed.cpp
   src/widget/wspinny.cpp
@@ -2060,6 +2062,8 @@ endif()
 # Tests
 #
 
+# CUSTOM: Only build tests if BUILD_TESTING is ON
+if(BUILD_TESTING)
 add_executable(mixxx-test
   src/test/analyserwaveformtest.cpp
   src/test/analyzersilence_test.cpp
@@ -2183,7 +2187,10 @@ set_target_properties(mixxx-test PROPERTIES AUTOMOC ON)
 target_link_libraries(mixxx-test PRIVATE mixxx-lib mixxx-gitinfostore GTest::gtest GTest::gmock)
 
 find_package(benchmark)
-target_link_libraries(mixxx-test PRIVATE benchmark::benchmark)
+# CUSTOM: Disabled benchmark linking (optional for tests)
+if(benchmark_FOUND)
+  target_link_libraries(mixxx-test PRIVATE benchmark::benchmark)
+endif()
 
 # Test Suite
 include(CTest)
@@ -2210,6 +2217,8 @@ add_custom_target(mixxx-benchmark
   VERBATIM
 )
 add_dependencies(mixxx-benchmark mixxx-test)
+
+endif() # CUSTOM: End of if(BUILD_TESTING) block from line 2064
 
 #
 # Resources
@@ -2244,8 +2253,10 @@ endif()
 
 target_sources(mixxx PRIVATE res/mixxx.qrc)
 set_target_properties(mixxx PROPERTIES AUTORCC ON)
-target_sources(mixxx-test PRIVATE res/mixxx.qrc)
-set_target_properties(mixxx-test PROPERTIES AUTORCC ON)
+if(BUILD_TESTING)
+  target_sources(mixxx-test PRIVATE res/mixxx.qrc)
+  set_target_properties(mixxx-test PROPERTIES AUTORCC ON)
+endif()
 
 if (MIXXX_VERSION_PRERELEASE STREQUAL "")
    set(MIXXX_VERSION "${CMAKE_PROJECT_VERSION}")
@@ -2967,10 +2978,11 @@ else()
         DESTINATION "${MIXXX_INSTALL_DATADIR}"
         COMPONENT applocal)
 
-      install(IMPORTED_RUNTIME_ARTIFACTS
-        Qt${QT_VERSION_MAJOR}::QuickShapesPrivate
-        DESTINATION "${MIXXX_INSTALL_DATADIR}"
-        COMPONENT applocal)
+      # CUSTOM: Disabled - QuickShapesPrivate is not a runtime artifact
+      # install(IMPORTED_RUNTIME_ARTIFACTS
+      #   Qt${QT_VERSION_MAJOR}::QuickShapesPrivate
+      #   DESTINATION "${MIXXX_INSTALL_DATADIR}"
+      #   COMPONENT applocal)
 
       install(IMPORTED_RUNTIME_ARTIFACTS
         Qt${QT_VERSION_MAJOR}::QuickTemplates2
@@ -2987,6 +2999,11 @@ else()
         DESTINATION "${MIXXX_INSTALL_DATADIR}"
         COMPONENT applocal)
 
+      # CUSTOM: These qml module copies pull directly from the vcpkg install
+      # tree. On a non-vcpkg build (system/brew Qt) VCPKG_INSTALLED_DIR is empty,
+      # which yields a bogus "//Qt6/..." source path and fails the applocal
+      # install. Guard the whole block so such builds skip it.
+      if(VCPKG_INSTALLED_DIR AND NOT VCPKG_INSTALLED_DIR STREQUAL "")
       #install qml6-module-qt5compat-graphicaleffects
       install(
         DIRECTORY "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}$<$<CONFIG:Debug>:/debug>/Qt6/qml/Qt5Compat/GraphicalEffects"
@@ -3040,6 +3057,7 @@ else()
         DIRECTORY "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}$<$<CONFIG:Debug>:/debug>/Qt6/qml/Qt/labs/qmlmodels"
         DESTINATION "${MIXXX_INSTALL_DATADIR}/Qt6/qml/Qt/labs"
         COMPONENT applocal)
+      endif() # VCPKG_INSTALLED_DIR guard
 
     endif()
 
@@ -3178,19 +3196,21 @@ if(APPLE OR WIN32)
   # qt_de.qm is just one arbitrary file in the directory that needs to be located;
   # there is no particular reason to look for this file versus any other one in the directory.
   if(QT6)
-    find_file(QT_TRANSLATION_FILE qt_de.qm PATHS "${Qt6_DIR}/../../translations/Qt6" REQUIRED NO_DEFAULT_PATH)
+    find_file(QT_TRANSLATION_FILE qt_de.qm PATHS "${Qt6_DIR}/../../translations/Qt6" "${Qt6_DIR}/../../../share/qt/translations" NO_DEFAULT_PATH)
   else()
     find_file(QT_TRANSLATION_FILE qt_de.qm PATHS "${Qt5_DIR}/../../../translations" "${Qt5_DIR}/../../qt5/translations" REQUIRED NO_DEFAULT_PATH)
   endif()
-  get_filename_component(QT_TRANSLATIONS ${QT_TRANSLATION_FILE} DIRECTORY)
-  install(
-    DIRECTORY "${QT_TRANSLATIONS}/"
-    DESTINATION "${MIXXX_INSTALL_DATADIR}/translations"
+  if(QT_TRANSLATION_FILE)
+    get_filename_component(QT_TRANSLATIONS ${QT_TRANSLATION_FILE} DIRECTORY)
+    install(
+      DIRECTORY "${QT_TRANSLATIONS}/"
+      DESTINATION "${MIXXX_INSTALL_DATADIR}/translations"
     # QT 5 translations have been separated into several files, and most of the qt_xx.qm files
     # contain just shortcuts to load the qtbase, qtmultimedia etc files.
     FILES_MATCHING REGEX
       "qt_.+\.qm|qtbase_.*\.qm|qtmultimedia_.*\.qm|qtscript_.*\.qm|qtxmlpatterns_.*\.qm"
   )
+  endif()  # CUSTOM: Added missing endif for if(QT_TRANSLATION_FILE)
 endif()
 
 # Queen Mary DSP

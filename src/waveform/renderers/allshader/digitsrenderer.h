@@ -26,8 +26,8 @@ class allshader::DigitsRenderer : public QOpenGLFunctions {
     mixxx::TextureShader m_shader;
     OpenGLTexture2D m_texture;
     int m_penWidth;
-    float m_offset[13];
-    float m_width[12];
+    float m_offset[18]; // CUSTOM: Increased for "Bars" text (17 chars + 1)
+    float m_width[17];  // CUSTOM: Increased for "Bars" text
     float m_fontPointSize{};
     float m_height{};
     float m_maxHeight{};

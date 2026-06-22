@@ -4,6 +4,24 @@
     <SizePolicy>me,min</SizePolicy>
     <Children>
 
+      <!-- CUSTOM (Rekordbox layout): small cover art to the left of the title.
+           The big spinny that used to sit left of the overview was removed so
+           the waveform can span the full width. -->
+      <WidgetGroup>
+        <ObjectName>TitleCoverArt</ObjectName>
+        <Layout>horizontal</Layout>
+        <SizePolicy>min,min</SizePolicy>
+        <Children>
+          <CoverArt>
+            <TooltipId>coverart</TooltipId>
+            <Size>50f,50f</Size>
+            <Group><Variable name="Group"/></Group>
+            <DefaultCover>skins:LateNight/<Variable name="StyleScheme"/>/style/cover_default.svg</DefaultCover>
+          </CoverArt>
+        </Children>
+      </WidgetGroup>
+      <WidgetGroup><Size>6f,1min</Size></WidgetGroup><!-- gap -->
+
       <WidgetGroup>
         <ObjectName>DeckRow_2_3_ArtistTitleTime</ObjectName>
         <Layout>vertical</Layout>

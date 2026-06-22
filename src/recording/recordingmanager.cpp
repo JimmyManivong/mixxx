@@ -208,10 +208,11 @@ void RecordingManager::slotDurationRecorded(quint64 duration) {
 }
 
 // Copy from the implementation in enginerecord.cpp
+// CUSTOM: Qt6 fix - use correct arg() signature for integers
 QString RecordingManager::getRecordedDurationStr(unsigned int duration) {
     return QString("%1:%2")
-                 .arg(duration / 60, 2, 'f', 0, '0')   // minutes
-                 .arg(duration % 60, 2, 'f', 0, '0');  // seconds
+                 .arg(static_cast<int>(duration / 60), 2, 10, QChar('0'))   // minutes
+                 .arg(static_cast<int>(duration % 60), 2, 10, QChar('0'));  // seconds
 }
 
 // Only called when recording is active.
