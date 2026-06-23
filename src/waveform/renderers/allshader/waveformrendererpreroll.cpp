@@ -80,6 +80,15 @@ void WaveformRendererPreroll::initializeGL() {
 }
 
 void WaveformRendererPreroll::paintGL() {
+    // CUSTOM (Rekordbox-style): do not draw the pre-roll / post-roll marker
+    // pattern (the repeating beige triangles before and after the track). In
+    // Rekordbox those zones are simply empty/black. Set this to true to restore
+    // Mixxx's stock pre-roll indicator.
+    constexpr bool kDrawPreroll = false;
+    if (!kDrawPreroll) {
+        return;
+    }
+
     const TrackPointer track = m_waveformRenderer->getTrackInfo();
     if (!track || (m_isSlipRenderer && !m_waveformRenderer->isSlipActive())) {
         return;

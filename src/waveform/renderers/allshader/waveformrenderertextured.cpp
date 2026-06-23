@@ -304,6 +304,12 @@ void WaveformRendererTextured::paintGL() {
     float lowGain(1.0), midGain(1.0), highGain(1.0), allGain(1.0);
     getGains(&allGain, true, &lowGain, &midGain, &highGain);
 
+    // CUSTOM (Rekordbox-style): keep the waveform fixed - the EQ knobs must not
+    // change the displayed signal. We still honour allGain (overall zoom/gain).
+    lowGain = 1.0f;
+    midGain = 1.0f;
+    highGain = 1.0f;
+
     const auto firstVisualIndex = static_cast<GLfloat>(
             m_waveformRenderer->getFirstDisplayedPosition() * trackSamples /
             audioVisualRatio / 2.0);

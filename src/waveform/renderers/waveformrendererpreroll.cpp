@@ -25,6 +25,15 @@ void WaveformRendererPreroll::setup(
 void WaveformRendererPreroll::draw(QPainter* painter, QPaintEvent* event) {
     Q_UNUSED(event);
 
+    // CUSTOM (Rekordbox-style): do not draw the pre-roll / post-roll marker
+    // pattern (beige triangles before/after the track). Set to true to restore
+    // Mixxx's stock pre-roll indicator. (Legacy QPainter path; the GL path is in
+    // allshader/waveformrendererpreroll.cpp.)
+    constexpr bool kDrawPreroll = false;
+    if (!kDrawPreroll) {
+        return;
+    }
+
     const TrackPointer pTrack = m_waveformRenderer->getTrackInfo();
     if (!pTrack) {
         return;

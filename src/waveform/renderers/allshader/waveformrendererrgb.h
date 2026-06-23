@@ -29,11 +29,5 @@ class allshader::WaveformRendererRGB final : public allshader::WaveformRendererS
 
     bool m_isSlipRenderer;
 
-    // Cached global peak of filtered.all over the whole track, used to
-    // normalize the waveform height (Rekordbox-style dynamics). Recomputed
-    // when the underlying waveform data pointer changes.
-    float m_globalPeak{0.f};
-    const void* m_cachedPeakData{nullptr};
-
     DISALLOW_COPY_AND_ASSIGN(WaveformRendererRGB);
 };

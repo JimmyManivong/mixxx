@@ -24,10 +24,5 @@ class allshader::WaveformRendererFiltered final : public allshader::WaveformRend
     mixxx::UnicolorShader m_shader;
     VertexData m_vertices[4];
 
-    // Cached global peak of filtered.all over the track, for Rekordbox-style
-    // height normalization. Recomputed when the waveform data pointer changes.
-    float m_globalPeak{0.f};
-    const void* m_cachedPeakData{nullptr};
-
     DISALLOW_COPY_AND_ASSIGN(WaveformRendererFiltered);
 };
