@@ -1,0 +1,35 @@
+<!-- CUSTOM (Rekordbox layout): a hot cue performance pad showing its letter.
+     Variables: number (hotcue index), letter (A..H), Group, BtnScheme, BtnType.
+     The pad tints itself with the hotcue color when the cue is set. -->
+<Template>
+  <HotcueButton>
+    <TooltipId>hotcue</TooltipId>
+    <ObjectName>RbHotcuePad</ObjectName>
+    <Size>78f,26f</Size>
+    <SizePolicy>f,f</SizePolicy>
+    <Group><Variable name="Group"/></Group>
+    <Hotcue><Variable name="number"/></Hotcue>
+    <NumberStates>3</NumberStates>
+    <State>
+      <Number>0</Number>
+      <Text> <Variable name="letter"/></Text>
+      <Alignment>left</Alignment>
+      <Unpressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_medium.svg</Unpressed>
+      <Pressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_medium_active.svg</Pressed>
+    </State>
+    <State>
+      <Number>1</Number>
+      <Text> <Variable name="letter"/></Text>
+      <Alignment>left</Alignment>
+      <Unpressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_medium_set.svg</Unpressed>
+      <Pressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_medium_active.svg</Pressed>
+    </State>
+    <State>
+      <Number>2</Number>
+      <Text> <Variable name="letter"/></Text>
+      <Alignment>left</Alignment>
+      <Unpressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_medium_set.svg</Unpressed>
+      <Pressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_medium_active.svg</Pressed>
+    </State>
+  </HotcueButton>
+</Template>

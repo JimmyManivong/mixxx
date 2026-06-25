@@ -1,0 +1,326 @@
+<Template>
+  <!-- CUSTOM (Rekordbox layout): the bottom performance section of the deck.
+       Left to right: hot cue pads (2x4), loop block, CUE/Play, jog wheel + BPM,
+       and the SLIP / Q (quantize) / MT (keylock) column. -->
+  <SetVariable name="Group">[Channel<Variable name="ChanNum"/>]</SetVariable>
+  <SetVariable name="BtnType"><Variable name="SubRegion_BtnType"/></SetVariable>
+
+  <WidgetGroup>
+    <ObjectName>DeckPadsCompact</ObjectName>
+    <Layout>horizontal<Variable name="MirrorReverse"/></Layout>
+    <SizePolicy>me,min</SizePolicy>
+    <Children>
+
+      <!-- ===== Hot cue pads: 2 columns x 4 rows (A..H) ===== -->
+      <WidgetGroup>
+        <ObjectName>RbHotcuePanel</ObjectName>
+        <Layout>vertical</Layout>
+        <SizePolicy>min,min</SizePolicy>
+        <Children>
+
+          <WidgetGroup>
+            <Layout>horizontal<Variable name="MirrorReverse"/></Layout><SizePolicy>min,min</SizePolicy>
+            <Children>
+              <Template src="skins:RekordboxPi/controls/pad_hotcue.xml">
+                <SetVariable name="number">1</SetVariable><SetVariable name="letter">A</SetVariable>
+              </Template>
+              <WidgetGroup><Size>3f,0min</Size></WidgetGroup>
+              <Template src="skins:RekordboxPi/controls/pad_hotcue.xml">
+                <SetVariable name="number">5</SetVariable><SetVariable name="letter">E</SetVariable>
+              </Template>
+            </Children>
+          </WidgetGroup>
+          <WidgetGroup><Size>0min,3f</Size></WidgetGroup>
+
+          <WidgetGroup>
+            <Layout>horizontal<Variable name="MirrorReverse"/></Layout><SizePolicy>min,min</SizePolicy>
+            <Children>
+              <Template src="skins:RekordboxPi/controls/pad_hotcue.xml">
+                <SetVariable name="number">2</SetVariable><SetVariable name="letter">B</SetVariable>
+              </Template>
+              <WidgetGroup><Size>3f,0min</Size></WidgetGroup>
+              <Template src="skins:RekordboxPi/controls/pad_hotcue.xml">
+                <SetVariable name="number">6</SetVariable><SetVariable name="letter">F</SetVariable>
+              </Template>
+            </Children>
+          </WidgetGroup>
+          <WidgetGroup><Size>0min,3f</Size></WidgetGroup>
+
+          <WidgetGroup>
+            <Layout>horizontal<Variable name="MirrorReverse"/></Layout><SizePolicy>min,min</SizePolicy>
+            <Children>
+              <Template src="skins:RekordboxPi/controls/pad_hotcue.xml">
+                <SetVariable name="number">3</SetVariable><SetVariable name="letter">C</SetVariable>
+              </Template>
+              <WidgetGroup><Size>3f,0min</Size></WidgetGroup>
+              <Template src="skins:RekordboxPi/controls/pad_hotcue.xml">
+                <SetVariable name="number">7</SetVariable><SetVariable name="letter">G</SetVariable>
+              </Template>
+            </Children>
+          </WidgetGroup>
+          <WidgetGroup><Size>0min,3f</Size></WidgetGroup>
+
+          <WidgetGroup>
+            <Layout>horizontal<Variable name="MirrorReverse"/></Layout><SizePolicy>min,min</SizePolicy>
+            <Children>
+              <Template src="skins:RekordboxPi/controls/pad_hotcue.xml">
+                <SetVariable name="number">4</SetVariable><SetVariable name="letter">D</SetVariable>
+              </Template>
+              <WidgetGroup><Size>3f,0min</Size></WidgetGroup>
+              <Template src="skins:RekordboxPi/controls/pad_hotcue.xml">
+                <SetVariable name="number">8</SetVariable><SetVariable name="letter">H</SetVariable>
+              </Template>
+            </Children>
+          </WidgetGroup>
+          <WidgetGroup><Size>0min,4f</Size></WidgetGroup>
+
+          <!-- HOT CUE mode label (pad-mode switcher placeholder) -->
+          <Label>
+            <ObjectName>RbPadModeLabel</ObjectName>
+            <Size>110f,20f</Size>
+            <Text>HOT CUE  ▾</Text>
+            <Alignment>left</Alignment>
+          </Label>
+
+        </Children>
+      </WidgetGroup>
+
+      <!-- expanding gap: hot cues stay left; the whole transport cluster is
+           pushed right as one block. -->
+      <WidgetGroup><SizePolicy>me,min</SizePolicy><MinimumSize>12,</MinimumSize></WidgetGroup>
+
+      <!-- Transport cluster as ONE atomic block so loop + CUE/Play + jog +
+           SLIP/Q/MT always stay tight together, flush at the right edge. -->
+      <WidgetGroup>
+        <ObjectName>RbTransportCluster</ObjectName>
+        <Layout>horizontal<Variable name="MirrorReverse"/></Layout>
+        <SizePolicy>min,min</SizePolicy>
+        <Children>
+
+      <!-- ===== Loop block: bars number + halve/double + auto/manual ===== -->
+      <WidgetGroup>
+        <ObjectName>RbLoopBlock</ObjectName>
+        <Layout>vertical</Layout>
+        <SizePolicy>min,min</SizePolicy>
+        <Children>
+          <WidgetGroup><Size>0min,1me</Size></WidgetGroup>
+
+          <BeatSpinBox>
+            <TooltipId>beatloop_size</TooltipId>
+            <ObjectName>RbLoopSize</ObjectName>
+            <Size>62f,30f</Size>
+            <Align>center</Align>
+            <Alignment>center</Alignment>
+            <Value><Variable name="Group"/>,beatloop_size</Value>
+          </BeatSpinBox>
+
+          <WidgetGroup><Size>0min,4f</Size></WidgetGroup>
+
+          <WidgetGroup>
+            <Layout>horizontal<Variable name="MirrorReverse"/></Layout><SizePolicy>min,min</SizePolicy>
+            <Children>
+              <PushButton>
+                <TooltipId>loop_halve</TooltipId>
+                <ObjectName>RbLoopArrow</ObjectName>
+                <Size>29f,26f</Size>
+                <NumberStates>1</NumberStates>
+                <State><Number>0</Number><Text>‹</Text><Alignment>center</Alignment>
+                  <Unpressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square.svg</Unpressed>
+                  <Pressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Pressed>
+                </State>
+                <Connection><ConfigKey><Variable name="Group"/>,loop_halve</ConfigKey></Connection>
+              </PushButton>
+              <WidgetGroup><Size>4f,0min</Size></WidgetGroup>
+              <PushButton>
+                <TooltipId>loop_double</TooltipId>
+                <ObjectName>RbLoopArrow</ObjectName>
+                <Size>29f,26f</Size>
+                <NumberStates>1</NumberStates>
+                <State><Number>0</Number><Text>›</Text><Alignment>center</Alignment>
+                  <Unpressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square.svg</Unpressed>
+                  <Pressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Pressed>
+                </State>
+                <Connection><ConfigKey><Variable name="Group"/>,loop_double</ConfigKey></Connection>
+              </PushButton>
+            </Children>
+          </WidgetGroup>
+
+          <WidgetGroup><Size>0min,4f</Size></WidgetGroup>
+
+          <WidgetGroup>
+            <Layout>horizontal<Variable name="MirrorReverse"/></Layout><SizePolicy>min,min</SizePolicy>
+            <Children>
+              <PushButton>
+                <TooltipId>beatloop_activate</TooltipId>
+                <ObjectName>RbLoopMode</ObjectName>
+                <Size>29f,24f</Size>
+                <NumberStates>2</NumberStates>
+                <State><Number>0</Number><Text>AU</Text><Alignment>center</Alignment>
+                  <Unpressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square.svg</Unpressed>
+                  <Pressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Pressed>
+                </State>
+                <State><Number>1</Number><Text>AU</Text><Alignment>center</Alignment>
+                  <Unpressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Unpressed>
+                  <Pressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Pressed>
+                </State>
+                <Connection><ConfigKey><Variable name="Group"/>,beatloop_activate</ConfigKey></Connection>
+                <Connection><ConfigKey><Variable name="Group"/>,loop_enabled</ConfigKey><ConnectValueFromWidget>false</ConnectValueFromWidget></Connection>
+              </PushButton>
+              <WidgetGroup><Size>4f,0min</Size></WidgetGroup>
+              <PushButton>
+                <TooltipId>reloop_toggle</TooltipId>
+                <ObjectName>RbLoopMode</ObjectName>
+                <Size>29f,24f</Size>
+                <NumberStates>1</NumberStates>
+                <State><Number>0</Number><Text>MA</Text><Alignment>center</Alignment>
+                  <Unpressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square.svg</Unpressed>
+                  <Pressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Pressed>
+                </State>
+                <Connection><ConfigKey><Variable name="Group"/>,reloop_toggle</ConfigKey></Connection>
+              </PushButton>
+            </Children>
+          </WidgetGroup>
+
+          <WidgetGroup><Size>0min,1me</Size></WidgetGroup>
+        </Children>
+      </WidgetGroup>
+
+      <WidgetGroup><Size>6f,0min</Size></WidgetGroup>
+
+      <!-- ===== CUE + PLAY (round buttons) ===== -->
+      <WidgetGroup>
+        <ObjectName>RbCuePlay</ObjectName>
+        <Layout>vertical</Layout>
+        <SizePolicy>min,me</SizePolicy>
+        <Children>
+          <WidgetGroup><Size>0min,1me</Size></WidgetGroup>
+
+          <PushButton>
+            <TooltipId>cue_default_cue_gotoandstop</TooltipId>
+            <ObjectName>RbCueButton</ObjectName>
+            <Size>40f,40f</Size>
+            <NumberStates>2</NumberStates>
+            <RightClickIsPushButton>true</RightClickIsPushButton>
+            <State><Number>0</Number><Text>CUE</Text><Alignment>center</Alignment>
+              <Unpressed scalemode="STRETCH_ASPECT">skins:RekordboxPi/<Variable name="StyleScheme"/>/style/rb_cue.svg</Unpressed>
+              <Pressed scalemode="STRETCH_ASPECT">skins:RekordboxPi/<Variable name="StyleScheme"/>/style/rb_cue_active.svg</Pressed>
+            </State>
+            <State><Number>1</Number><Text>CUE</Text><Alignment>center</Alignment>
+              <Unpressed scalemode="STRETCH_ASPECT">skins:RekordboxPi/<Variable name="StyleScheme"/>/style/rb_cue_active.svg</Unpressed>
+              <Pressed scalemode="STRETCH_ASPECT">skins:RekordboxPi/<Variable name="StyleScheme"/>/style/rb_cue_active.svg</Pressed>
+            </State>
+            <Connection><ConfigKey><Variable name="Group"/>,cue_default</ConfigKey><ButtonState>LeftButton</ButtonState></Connection>
+            <Connection><ConfigKey><Variable name="Group"/>,cue_gotoandstop</ConfigKey><ButtonState>RightButton</ButtonState></Connection>
+            <!-- Intentionally NOT connected to cue_indicator: that control blinks
+                 while paused at the cue point. Leaving it out keeps the button
+                 fixed (dark fill, yellow border) like Rekordbox. -->
+
+          </PushButton>
+
+          <WidgetGroup><Size>0min,8f</Size></WidgetGroup>
+
+          <PushButton>
+            <TooltipId>play_cue_set</TooltipId>
+            <ObjectName>RbPlayButton</ObjectName>
+            <Size>40f,40f</Size>
+            <NumberStates>2</NumberStates>
+            <State><Number>0</Number>
+              <Unpressed scalemode="STRETCH_ASPECT">skins:RekordboxPi/<Variable name="StyleScheme"/>/style/rb_play.svg</Unpressed>
+              <Pressed scalemode="STRETCH_ASPECT">skins:RekordboxPi/<Variable name="StyleScheme"/>/style/rb_play_active.svg</Pressed>
+            </State>
+            <State><Number>1</Number>
+              <Unpressed scalemode="STRETCH_ASPECT">skins:RekordboxPi/<Variable name="StyleScheme"/>/style/rb_play_active.svg</Unpressed>
+              <Pressed scalemode="STRETCH_ASPECT">skins:RekordboxPi/<Variable name="StyleScheme"/>/style/rb_play_active.svg</Pressed>
+            </State>
+            <Connection><ConfigKey><Variable name="Group"/>,play</ConfigKey></Connection>
+          </PushButton>
+
+          <WidgetGroup><Size>0min,1me</Size></WidgetGroup>
+        </Children>
+      </WidgetGroup>
+
+      <WidgetGroup><Size>6f,0min</Size></WidgetGroup>
+
+      <!-- ===== Jog wheel + live BPM ===== -->
+      <WidgetGroup>
+        <ObjectName>AlignVCenter</ObjectName>
+        <Layout>vertical</Layout><SizePolicy>min,me</SizePolicy>
+        <Children>
+          <WidgetGroup><Size>0min,1me</Size></WidgetGroup>
+          <Template src="skins:RekordboxPi/decks/jog_panel_compact.xml"/>
+          <WidgetGroup><Size>0min,1me</Size></WidgetGroup>
+        </Children>
+      </WidgetGroup>
+
+      <WidgetGroup><Size>6f,0min</Size></WidgetGroup>
+
+      <!-- ===== SLIP / Q (quantize) / MT (keylock) ===== -->
+      <WidgetGroup>
+        <ObjectName>RbSlipQMt</ObjectName>
+        <Layout>vertical</Layout>
+        <SizePolicy>min,me</SizePolicy>
+        <Children>
+          <WidgetGroup><Size>0min,1me</Size></WidgetGroup>
+
+          <PushButton>
+            <TooltipId>slip_mode</TooltipId>
+            <ObjectName>RbSlipButton</ObjectName>
+            <Size>34f,24f</Size>
+            <NumberStates>2</NumberStates>
+            <State><Number>0</Number><Text>SLIP</Text><Alignment>center</Alignment>
+              <Unpressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square.svg</Unpressed>
+              <Pressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Pressed>
+            </State>
+            <State><Number>1</Number><Text>SLIP</Text><Alignment>center</Alignment>
+              <Unpressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Unpressed>
+              <Pressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Pressed>
+            </State>
+            <Connection><ConfigKey><Variable name="Group"/>,slip_enabled</ConfigKey></Connection>
+          </PushButton>
+
+          <WidgetGroup><Size>0min,6f</Size></WidgetGroup>
+
+          <PushButton>
+            <TooltipId>quantize</TooltipId>
+            <ObjectName>RbQButton</ObjectName>
+            <Size>34f,24f</Size>
+            <NumberStates>2</NumberStates>
+            <State><Number>0</Number><Text>Q</Text><Alignment>center</Alignment>
+              <Unpressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square.svg</Unpressed>
+              <Pressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Pressed>
+            </State>
+            <State><Number>1</Number><Text>Q</Text><Alignment>center</Alignment>
+              <Unpressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Unpressed>
+              <Pressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Pressed>
+            </State>
+            <Connection><ConfigKey><Variable name="Group"/>,quantize</ConfigKey></Connection>
+          </PushButton>
+
+          <WidgetGroup><Size>0min,6f</Size></WidgetGroup>
+
+          <PushButton>
+            <TooltipId>keylock</TooltipId>
+            <ObjectName>RbMtButton</ObjectName>
+            <Size>34f,24f</Size>
+            <NumberStates>2</NumberStates>
+            <State><Number>0</Number><Text>MT</Text><Alignment>center</Alignment>
+              <Unpressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square.svg</Unpressed>
+              <Pressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Pressed>
+            </State>
+            <State><Number>1</Number><Text>MT</Text><Alignment>center</Alignment>
+              <Unpressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Unpressed>
+              <Pressed scalemode="STRETCH">skins:RekordboxPi/<Variable name="BtnScheme"/>/buttons/btn_<Variable name="BtnType"/>_square_active.svg</Pressed>
+            </State>
+            <Connection><ConfigKey><Variable name="Group"/>,keylock</ConfigKey></Connection>
+          </PushButton>
+
+          <WidgetGroup><Size>0min,1me</Size></WidgetGroup>
+        </Children>
+      </WidgetGroup>
+
+        </Children>
+      </WidgetGroup><!-- RbTransportCluster -->
+
+    </Children>
+  </WidgetGroup>
+</Template>

@@ -1,0 +1,37 @@
+<Template>
+  <SetVariable name="BtnType"></SetVariable>
+
+  <WidgetGroup>
+    <ObjectName>DeckRow_4_OverviewSpinny</ObjectName>
+    <!-- CUSTOM (Rekordbox layout): overview waveform spans the full width. -->
+    <Layout>vertical</Layout>
+    <SizePolicy>me,min</SizePolicy>
+    <Children>
+
+      <!-- CUSTOM (Rekordbox layout): the small spinny/cover that used to sit here
+           on the left of the overview was removed so the waveform spans the full
+           width. The cover art now sits next to the title (see row_2_3_compact). -->
+
+      <WidgetGroup>
+        <ObjectName>OverviewBox</ObjectName>
+        <!-- CUSTOM: halved height (was 64) to match Rekordbox's thin overview strip -->
+        <Size>me,32me</Size>
+        <Layout>horizontal</Layout>
+        <Children>
+          <SingletonContainer>
+            <ObjectName>DeckOverview<Variable name="ChanNum"/></ObjectName>
+          </SingletonContainer>
+        </Children>
+        <Connection>
+          <ConfigKey><Variable name="Group"/>,track_loaded</ConfigKey>
+          <BindProperty>highlight</BindProperty>
+        </Connection>
+      </WidgetGroup>
+
+      <!-- CUSTOM (Rekordbox layout): the DeckSettings icon panel (slip, quantize,
+           keylock, eject, stars) that used to sit here on the right of the overview
+           was removed so the waveform spans the full width like Rekordbox. -->
+
+    </Children>
+  </WidgetGroup><!-- DeckRow_4_OverviewSpinny -->
+</Template>

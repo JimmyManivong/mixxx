@@ -1,0 +1,72 @@
+<Template>
+  <!-- CUSTOM (Rekordbox layout): a static badge (no spinning disc) showing the
+       live BPM on a black disc outlined in the preview-waveform blue, enclosed
+       by a larger white ring with margin around it. BPM is bound to visual_bpm
+       so it tracks the playback rate set from the turntables. -->
+  <SetVariable name="Group">[Channel<Variable name="ChanNum"/>]</SetVariable>
+
+  <WidgetGroup>
+    <ObjectName>JogWheelContainer</ObjectName>
+    <Layout>stacked</Layout>
+    <SizePolicy>min,min</SizePolicy>
+    <Children>
+
+      <!-- Outer white circle -->
+      <WidgetGroup>
+        <ObjectName>JogOuterRing</ObjectName>
+        <Layout>vertical</Layout>
+        <Size>94f,94f</Size>
+        <Children>
+          <WidgetGroup><Size>0min,1me</Size></WidgetGroup>
+
+          <!-- Inner black disc with blue outline, centered -->
+          <WidgetGroup>
+            <ObjectName>AlignCenter</ObjectName>
+            <Layout>horizontal</Layout>
+            <SizePolicy>me,min</SizePolicy>
+            <Children>
+              <WidgetGroup>
+                <ObjectName>JogInnerDisc</ObjectName>
+                <Layout>vertical</Layout>
+                <Size>76f,76f</Size>
+                <Children>
+                  <WidgetGroup><Size>0min,1me</Size></WidgetGroup>
+                  <Number>
+                    <ObjectName>JogBpmText</ObjectName>
+                    <TooltipId>visual_bpm</TooltipId>
+                    <Size>60f,15f</Size>
+                    <Alignment>center</Alignment>
+                    <NumberOfDigits>2</NumberOfDigits>
+                    <Connection>
+                      <ConfigKey><Variable name="Group"/>,visual_bpm</ConfigKey>
+                    </Connection>
+                  </Number>
+                  <NumberRate>
+                    <ObjectName>JogRateText</ObjectName>
+                    <TooltipId>rate_display</TooltipId>
+                    <Channel><Variable name="ChanNum"/></Channel>
+                    <Alignment>center</Alignment>
+                    <Size>60f,9f</Size>
+                    <NumberOfDigits>2</NumberOfDigits>
+                  </NumberRate>
+                  <WidgetGroup><Size>0min,1me</Size></WidgetGroup>
+                </Children>
+              </WidgetGroup>
+            </Children>
+          </WidgetGroup>
+
+          <WidgetGroup><Size>0min,1me</Size></WidgetGroup>
+        </Children>
+      </WidgetGroup>
+
+      <!-- Rotating red bar marker overlay (1 revolution = 1 bar). Stacked on
+           top of the badge; transparent so the disc + BPM show through. -->
+      <BarSpinner>
+        <ObjectName>JogBarMarker</ObjectName>
+        <Group><Variable name="Group"/></Group>
+        <Size>94f,94f</Size>
+      </BarSpinner>
+
+    </Children>
+  </WidgetGroup>
+</Template>

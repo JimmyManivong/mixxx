@@ -1,0 +1,131 @@
+<Template>
+  <!-- CUSTOM Rekordbox / XDJ-AZ deck info strip (M3 glow-up).
+       Card with: deck number badge, title/artist, KEY + BPM blocks (labelled),
+       TIME + mini overview. Transport stays on the FLX6 hardware.
+       Caller SetVariable: Group (e.g. [Channel1]), DeckNum (1/2),
+       DeckBadgeObj (XdjBadge1/XdjBadge2 -> badge colour in QSS). -->
+  <WidgetGroup>
+    <ObjectName>XdjDeckStrip</ObjectName>
+    <Layout>vertical</Layout>
+    <SizePolicy>me,me</SizePolicy>
+    <Children>
+
+      <!-- Row 1: badge | title/artist | KEY | BPM -->
+      <WidgetGroup>
+        <ObjectName>XdjStripRow1</ObjectName>
+        <Layout>horizontal</Layout>
+        <SizePolicy>me,f</SizePolicy>
+        <MinimumSize>0,44</MinimumSize>
+        <MaximumSize>-1,50</MaximumSize>
+        <Children>
+
+          <Label>
+            <ObjectName><Variable name="DeckBadgeObj"/></ObjectName>
+            <Text><Variable name="DeckNum"/></Text>
+            <Size>30f,30f</Size>
+          </Label>
+
+          <WidgetGroup><Size>9f,1min</Size></WidgetGroup>
+
+          <WidgetGroup>
+            <Layout>vertical</Layout>
+            <SizePolicy>me,me</SizePolicy>
+            <Children>
+              <TrackProperty>
+                <ObjectName>XdjTitle</ObjectName>
+                <Group><Variable name="Group"/></Group>
+                <Property>title</Property>
+                <SizePolicy>me,f</SizePolicy>
+              </TrackProperty>
+              <TrackProperty>
+                <ObjectName>XdjArtist</ObjectName>
+                <Group><Variable name="Group"/></Group>
+                <Property>artist</Property>
+                <SizePolicy>me,f</SizePolicy>
+              </TrackProperty>
+            </Children>
+          </WidgetGroup>
+
+          <WidgetGroup><Size>10f,1min</Size></WidgetGroup>
+
+          <!-- KEY block -->
+          <WidgetGroup>
+            <Layout>vertical</Layout>
+            <SizePolicy>max,me</SizePolicy>
+            <Children>
+              <Label><ObjectName>XdjLabel</ObjectName><Text>KEY</Text><SizePolicy>max,f</SizePolicy></Label>
+              <Key>
+                <ObjectName>XdjKey</ObjectName>
+                <Group><Variable name="Group"/></Group>
+                <SizePolicy>max,f</SizePolicy>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,visual_key</ConfigKey>
+                </Connection>
+              </Key>
+            </Children>
+          </WidgetGroup>
+
+          <WidgetGroup><Size>16f,1min</Size></WidgetGroup>
+
+          <!-- BPM block -->
+          <WidgetGroup>
+            <Layout>vertical</Layout>
+            <SizePolicy>max,me</SizePolicy>
+            <Children>
+              <Label><ObjectName>XdjLabel</ObjectName><Text>BPM</Text><SizePolicy>max,f</SizePolicy></Label>
+              <Number>
+                <ObjectName>XdjBpm</ObjectName>
+                <SizePolicy>max,f</SizePolicy>
+                <Alignment>right</Alignment>
+                <NumberOfDigits>2</NumberOfDigits>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,visual_bpm</ConfigKey>
+                </Connection>
+              </Number>
+            </Children>
+          </WidgetGroup>
+
+          <WidgetGroup><Size>10f,1min</Size></WidgetGroup>
+
+        </Children>
+      </WidgetGroup>
+
+      <!-- Row 2: TIME + mini overview waveform -->
+      <WidgetGroup>
+        <ObjectName>XdjStripRow2</ObjectName>
+        <Layout>horizontal</Layout>
+        <SizePolicy>me,me</SizePolicy>
+        <Children>
+
+          <WidgetGroup>
+            <Layout>vertical</Layout>
+            <SizePolicy>max,me</SizePolicy>
+            <Children>
+              <Label><ObjectName>XdjLabel</ObjectName><Text>TIME</Text><SizePolicy>max,f</SizePolicy></Label>
+              <NumberPos>
+                <ObjectName>XdjTime</ObjectName>
+                <SizePolicy>max,f</SizePolicy>
+                <Alignment>left</Alignment>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,playposition</ConfigKey>
+                </Connection>
+              </NumberPos>
+            </Children>
+          </WidgetGroup>
+
+          <WidgetGroup><Size>12f,1min</Size></WidgetGroup>
+
+          <Template src="skins:RekordboxPi/decks/overview.xml">
+            <SetVariable name="Group"><Variable name="Group"/></SetVariable>
+            <SetVariable name="SignalColor"><Variable name="SignalColor_12"/></SetVariable>
+            <SetVariable name="OverviewFontSize">9</SetVariable>
+          </Template>
+
+          <WidgetGroup><Size>8f,1min</Size></WidgetGroup>
+
+        </Children>
+      </WidgetGroup>
+
+    </Children>
+  </WidgetGroup>
+</Template>

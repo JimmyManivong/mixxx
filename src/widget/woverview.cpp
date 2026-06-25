@@ -1507,8 +1507,8 @@ void WOverview::drawNextPixmapPartRGB(QPainter* pPainter,
         // the per-column peak noise makes the orange/white smear into a blurry
         // ("Paint-like") band when the overview is downscaled. Rekordbox shows
         // clean bands; the averaging reproduces that.
-        constexpr int kSmoothRadius = 2; // visual-sample pairs each side
-        float sumLow = 0.f, sumMid = 0.f, sumHigh = 0.f, sumAmp = 0.f;
+        constexpr int kSmoothRadius = 1; // visual-sample pairs each side
+        float sumLow = 0.f, sumMid = 0.f, sumHigh = 0.f;
         int samples = 0;
         for (int w = currentCompletion - 2 * kSmoothRadius;
                 w <= currentCompletion + 2 * kSmoothRadius;
@@ -1519,47 +1519,56 @@ void WOverview::drawNextPixmapPartRGB(QPainter* pPainter,
             sumLow += math_max(pWaveform->getLow(w), pWaveform->getLow(w + 1));
             sumMid += math_max(pWaveform->getMid(w), pWaveform->getMid(w + 1));
             sumHigh += math_max(pWaveform->getHigh(w), pWaveform->getHigh(w + 1));
-            sumAmp += math_max(pWaveform->getAll(w), pWaveform->getAll(w + 1));
             samples++;
         }
         if (samples == 0) {
             continue;
         }
-        const float amplitude = sumAmp / static_cast<float>(samples);
         const float low = sumLow / static_cast<float>(samples);
         const float mid = sumMid / static_cast<float>(samples);
         const float high = sumHigh / static_cast<float>(samples);
 
-        // Band values are PEAKS, not energy: high-frequency transients (hats,
-        // cymbals) peak high even with little energy, which would make the white
-        // band dominate. Rekordbox weights the bass up and the highs down so the
-        // blue base dominates. Weight each band before subdividing the amplitude.
-        constexpr float kLowWeight = 0.8f;
-        constexpr float kMidWeight = 1.0f;
-        constexpr float kHighWeight = 0.5f;
-        const float wLow = low * kLowWeight;
-        const float wMid = mid * kMidWeight;
-        const float wHigh = high * kHighWeight;
+        // CUSTOM (Rekordbox-style "holes"): subtract a small floor from each band
+        // so calm/quiet sections fall to (near) zero - visible holes - instead of
+        // leaving a constant blue floor. Loud sections lose only a little.
+        // Raise kFloor to dig deeper holes, lower it to keep more of the quiet.
+        constexpr float kFloor = 26.f; // 0-255 band scale
+        const float lowF = math_max(0.f, low - kFloor);
+        const float midF = math_max(0.f, mid - kFloor);
+        const float highF = math_max(0.f, high - kFloor);
 
-        const float bandSum = wLow + wMid + wHigh;
-        if (bandSum <= 0.f || amplitude <= 0.f) {
+        // ADDITIVE stacking: each band drawn at its OWN (floored, weighted)
+        // magnitude and stacked, so the white tip spikes where the highs are.
+        // Rekordbox: the blue bass body dominates the height, the orange mids a
+        // thin layer and the white highs only thin dynamic tips.
+        constexpr float kLowWeight = 1.00f;
+        constexpr float kMidWeight = 1.00f;
+        constexpr float kHighWeight = 0.50f;
+        // Overall height scale: fill most of the (now shorter) frame like
+        // Rekordbox; loud full-spectrum columns clamp to 255 below.
+        constexpr float kHeightScale = 0.80f;
+        float blueH = lowF * kLowWeight * kHeightScale;
+        float orangeH = midF * kMidWeight * kHeightScale;
+        float whiteH = highF * kHighWeight * kHeightScale;
+
+        float total = blueH + orangeH + whiteH;
+        if (total <= 0.f) {
             continue;
         }
+        // Clamp the stacked total to the image half-height (top half = 255 px)
+        // so loud full-spectrum columns don't overflow the source image.
+        if (total > 255.f) {
+            const float k = 255.f / total;
+            blueH *= k;
+            orangeH *= k;
+            whiteH *= k;
+        }
 
-        // Overall height: Rekordbox leaves black space above the waveform (it
-        // fills ~55% of the box), so scale the drawn amplitude down rather than
-        // filling the whole widget.
-        constexpr float kHeightScale = 0.6f;
-        const float drawnAmp = amplitude * kHeightScale;
-
-        // Subdivide the (scaled) amplitude into the three stacked bands.
+        // y goes up (negative) from the centre baseline; stack blue->orange->white.
         const float x = currentCompletion / 2;
-        const float blueH = drawnAmp * wLow / bandSum;
-        const float orangeH = drawnAmp * wMid / bandSum;
-        // y goes up (negative) from the centre baseline.
         const float yBlue = -blueH;
         const float yOrange = yBlue - orangeH;
-        const float yWhite = -drawnAmp;
+        const float yWhite = yOrange - whiteH;
 
         // Blue base (nearest the baseline).
         pPainter->setPen(lowQ);
