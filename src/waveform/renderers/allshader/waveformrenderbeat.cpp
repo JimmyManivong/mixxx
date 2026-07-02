@@ -96,7 +96,12 @@ void WaveformRenderBeat::paintGL() {
             const WaveformData* data = waveform->data();
             const double audioVisualRatio = waveform->getAudioVisualRatio();
             if (data != nullptr && dataSize > 1 && audioVisualRatio > 0.0) {
-                if (data != m_cachedSignalData) {
+                // Re-scan when the buffer is swapped OR while it is still filling
+                // (completion grows during analysis); otherwise a scan done on a
+                // half-analysed track would clip the grid partway through.
+                const int completion = waveform->getCompletion();
+                if (data != m_cachedSignalData || completion != m_cachedCompletion) {
+                    m_cachedCompletion = completion;
                     // Silence reads ~0; treat anything above this (out of 255)
                     // as real signal. Index is interleaved L/R (2 per frame).
                     constexpr uchar kSignalThreshold = 6;

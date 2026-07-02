@@ -39,6 +39,11 @@ class allshader::WaveformRenderBeat final : public allshader::WaveformRenderer {
     // over the silence before and after the sound. Recomputed when the waveform
     // data pointer changes.
     const void* m_cachedSignalData{nullptr};
+    // Also keyed on the waveform completion: during analysis the data pointer
+    // stays the same while the buffer fills, so without this the silence scan
+    // would be cached from a half-analysed track (only the start has signal) and
+    // the grid would stop partway. Re-scan whenever completion grows.
+    int m_cachedCompletion{-1};
     double m_signalStartFrame{0.0};
     double m_signalEndFrame{0.0};
 

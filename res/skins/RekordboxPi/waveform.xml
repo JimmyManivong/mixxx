@@ -21,10 +21,10 @@
             <!-- CUSTOM: pure black background behind the waveform, like Rekordbox. -->
             <BgColor>#000000</BgColor>
             <SignalColor><Variable name="SignalColor"/></SignalColor>
-            <!-- Default colors are used for high/mid/low: blue/green/red -->
-            <SignalHighColor></SignalHighColor>
-            <SignalMidColor></SignalMidColor>
-            <SignalLowColor></SignalLowColor>
+            <!-- Used by the 3-Band renderer -->
+            <SignalHighColor><Variable name="SignalHighColor"/></SignalHighColor>
+            <SignalMidColor><Variable name="SignalMidColor"/></SignalMidColor>
+            <SignalLowColor><Variable name="SignalLowColor"/></SignalLowColor>
             <!-- CUSTOM: EXACT pixel-sampled Rekordbox colours (see skin.xml):
                  low #2254D9, mid #EFAA44, high #FAEDE0. -->
             <SignalRGBHighColor>#FAEDE0</SignalRGBHighColor>
@@ -57,13 +57,12 @@
               <TextColor>#FFFFFF</TextColor>
               <Text> %1 </Text>
             </DefaultMark>
-            <!-- Cue -->
+            <!-- Cue: raw SVG pixmap = pure orange triangle + line, no box (Rekordbox-style) -->
             <Mark>
               <Control>cue_point</Control>
-              <Text>CUE</Text>
-              <Align>top|right</Align>
+              <Pixmap>skins:RekordboxPi/classic/style/mark_cue.svg</Pixmap>
               <Color><Variable name="CueColor"/></Color>
-              <TextColor>#FFFFFF</TextColor>
+              <TextColor>#ff7a01</TextColor>
             </Mark>
             <!-- Loop -->
             <MarkRange>
@@ -72,20 +71,21 @@
               <EnabledControl>loop_enabled</EnabledControl>
               <Color><Variable name="LoopColor"/></Color>
               <Opacity>0.8</Opacity>
-              <DisabledColor>#FFFFFF</DisabledColor>
-              <DisabledOpacity>0.5</DisabledOpacity>
+              <DisabledColor>#000000</DisabledColor>
+              <DisabledOpacity>0</DisabledOpacity>
             </MarkRange>
             <Mark>
               <Control>loop_start_position</Control>
               <Text>&#8635;</Text>
               <Icon>skins:RekordboxPi/classic/style/mark_loop.svg</Icon>
+              <VisibilityControl><Variable name="Group"/>,loop_enabled</VisibilityControl>
               <Align>top|left</Align>
               <Color><Variable name="LoopColor"/></Color>
               <TextColor>#FFFFFF</TextColor>
             </Mark>
             <Mark>
               <Control>loop_end_position</Control>
-              <!-- <Text>&#8635;</Text> -->
+              <VisibilityControl><Variable name="Group"/>,loop_enabled</VisibilityControl>
               <Align>top|right</Align>
               <Color><Variable name="LoopColor"/></Color>
               <TextColor>#FFFFFF</TextColor>

@@ -4,7 +4,7 @@
 
 Fork custom de **Mixxx 2.5.0** qui reproduit l'apparence visuelle de **Rekordbox**, optimisé pour :
 - **Raspberry Pi 4** (2GB RAM)
-- **Écran 10"** (1200x600)
+- **Écran 10"** (1024x600)
 - **Pioneer DDJ-FLX6** controller
 
 ---
@@ -69,7 +69,7 @@ Le script `build-raspi.sh` gère **automatiquement** :
 
 ### Matériel
 - **Raspberry Pi 4** (2GB minimum, 4GB+ recommandé)
-- **Écran** : 10" tactile 1200x600 (ou plus grand)
+- **Écran** : 10" tactile 1024x600 (ou plus grand)
 - **Contrôleur** : Pioneer DDJ-FLX6 (mapping fixxiefixx)
 - **Stockage** : Carte SD 32GB+ (classe 10 ou UHS-I)
 - **Alimentation** : 5V 3A minimum

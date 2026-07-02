@@ -193,14 +193,23 @@
       <SetVariable name="SignalHighColor">mediumblue</SetVariable><!-- #0000cd -->
       <SetVariable name="SignalMidColor">darkgreen</SetVariable><!-- #006400 -->
       <SetVariable name="SignalLowColor">orangered</SetVariable><!-- #ff4500 -->
-      <!-- Rekordbox-style RGB waveform bass color: royal/cornflower blue
-           (measured Rekordbox avg ~36,83,214), not a pure neon blue -->
-      <SetVariable name="SignalRGBLowColor">#2855D7</SetVariable>
-      <SetVariable name="SignalRGBMidColor">#00DDFF</SetVariable>
-      <SetVariable name="SignalRGBHighColor">#FF8800</SetVariable>
+      <!-- Rekordbox "3Band" waveform colours — the EXACT literal fill colours,
+           sampled from a 2880x1800 Rekordbox-software capture (mode of 30k-44k
+           pixels per band; Rekordbox fills each band with one solid colour):
+             low  = pure blue     (0,78,224)    bass / kicks
+             mid  = deep orange   (177,98,0)    mids
+             high = warm white    (244,234,213) treble / transient caps
+           See tools/sample_waveform_colors.py. Matches the renderer's
+           blue/orange/white colour model. -->
+      <SetVariable name="SignalRGBLowColor">#004EE0</SetVariable>
+      <SetVariable name="SignalRGBMidColor">#B16200</SetVariable>
+      <!-- #FFFFFF (blanc pur) pour que les transients/aigus ressortent
+           clairement sur fond noir, comme Rekordbox. L'ancien #F4EAD5
+           (beige chaud) était presque invisible. -->
+      <SetVariable name="SignalRGBHighColor">#FFFFFF</SetVariable>
 
-      <SetVariable name="DimBrightThresholdOverview">127</SetVariable>
-      <SetVariable name="DimBrightThresholdWaveform">105</SetVariable>
+      <SetVariable name="DimBrightThresholdOverview">140</SetVariable>
+      <SetVariable name="DimBrightThresholdWaveform">127</SetVariable>
       <SetVariable name="DimBrightThresholdHotcueBtn">105</SetVariable>
 
       <SetVariable name="AxesColor">#999</SetVariable>
@@ -362,7 +371,10 @@
   <!-- MinimumSize should not be an exact monitor resolution. There needs
   to be space for the title bar or other chrome at full screen.
   https://www.mixxx.org/wiki/doku.php/skin_guidelines#the_optimal_size_for_skins -->
-  <MinimumSize>1280,668</MinimumSize>
+  <!-- CUSTOM (Pi build): 10.1" LAFVIN panel is 1024x600. Lowered from the
+  stock 1280,668 so the window can fit the native panel in fullscreen/kiosk
+  mode (no window chrome on the Pi). -->
+  <MinimumSize>1024,600</MinimumSize>
   <SizePolicy>me,me</SizePolicy>
   <Layout>vertical</Layout>
   <Children>

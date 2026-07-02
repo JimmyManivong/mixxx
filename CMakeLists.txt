@@ -855,6 +855,7 @@ add_library(mixxx-lib STATIC EXCLUDE_FROM_ALL
   src/engine/controls/clockcontrol.cpp
   src/engine/controls/cuecontrol.cpp
   src/engine/controls/enginecontrol.cpp
+  src/engine/controls/keycompatibilityindicator.cpp
   src/engine/controls/keycontrol.cpp
   src/engine/controls/loopingcontrol.cpp
   src/engine/controls/quantizecontrol.cpp
@@ -1310,7 +1311,6 @@ add_library(mixxx-lib STATIC EXCLUDE_FROM_ALL
   src/widget/wsingletoncontainer.cpp
   src/widget/wsizeawarestack.cpp
   src/widget/wbarspinner.cpp
-  src/widget/wphrasebar.cpp
   src/widget/wskincolor.cpp
   src/widget/wslidercomposed.cpp
   src/widget/wspinny.cpp
@@ -1520,26 +1520,13 @@ if(QOPENGL)
     src/waveform/renderers/allshader/waveformrenderer.cpp
     src/waveform/renderers/allshader/waveformrendererendoftrack.cpp
     src/waveform/renderers/allshader/waveformrendererslipmode.cpp
-    src/waveform/renderers/allshader/waveformrendererfiltered.cpp
-    src/waveform/renderers/allshader/waveformrendererhsv.cpp
-    src/waveform/renderers/allshader/waveformrendererlrrgb.cpp
+    src/waveform/renderers/allshader/waveformrenderer3band.cpp
     src/waveform/renderers/allshader/waveformrendererpreroll.cpp
-    src/waveform/renderers/allshader/waveformrendererrgb.cpp
-    src/waveform/renderers/allshader/waveformrenderertextured.cpp
     src/waveform/renderers/allshader/waveformrenderersignalbase.cpp
-    src/waveform/renderers/allshader/waveformrenderersimple.cpp
     src/waveform/renderers/allshader/waveformrendermark.cpp
     src/waveform/renderers/allshader/waveformrendermarkrange.cpp
-    src/waveform/widgets/allshader/filteredwaveformwidget.cpp
-    src/waveform/widgets/allshader/hsvwaveformwidget.cpp
-    src/waveform/widgets/allshader/lrrgbwaveformwidget.cpp
-    src/waveform/widgets/allshader/rgbwaveformwidget.cpp
-    src/waveform/widgets/allshader/rgbstackedwaveformwidget.cpp
-    src/waveform/widgets/allshader/simplewaveformwidget.cpp
+    src/waveform/widgets/allshader/3bandwaveformwidget.cpp
     src/waveform/widgets/allshader/waveformwidget.cpp
-    src/waveform/widgets/allshader/waveformwidgettexturedfiltered.cpp
-    src/waveform/widgets/allshader/waveformwidgettexturedrgb.cpp
-    src/waveform/widgets/allshader/waveformwidgettexturedstacked.cpp
     src/widget/openglwindow.cpp
     src/widget/tooltipqopengl.cpp
     src/widget/wglwidgetqopengl.cpp

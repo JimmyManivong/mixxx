@@ -50,6 +50,7 @@ WaveformWidgetType::Type upgradeToAllShaders(WaveformWidgetType::Type waveformTy
     case WWT::AllShaderTexturedFiltered:
     case WWT::AllShaderTexturedRGB:
     case WWT::AllShaderTexturedStacked:
+    case WWT::AllShaderThreeBandWaveform:
     case WWT::Count_WaveformwidgetType:
         return waveformType;
     case WWT::QtSimpleWaveform:

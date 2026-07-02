@@ -11,7 +11,7 @@
 #include "waveform/waveform.h"
 
 const double WaveformWidgetRenderer::s_waveformMinZoom = 1.0;
-const double WaveformWidgetRenderer::s_waveformMaxZoom = 10.0;
+const double WaveformWidgetRenderer::s_waveformMaxZoom = 40.0;
 const double WaveformWidgetRenderer::s_waveformDefaultZoom = 3.0;
 const double WaveformWidgetRenderer::s_defaultPlayMarkerPosition = 0.5;
 
@@ -92,8 +92,15 @@ bool WaveformWidgetRenderer::init() {
 
     m_pRateRatioCO = new ControlProxy(
             m_group, "rate_ratio");
+    // CUSTOM (Rekordbox-style stable height): use "pregain" (the trim knob,
+    // default 1.0) instead of "total_gain". total_gain also carries the
+    // ReplayGain correction, which is computed at the END of analysis and then
+    // smooth-faded in over 1s (see EnginePregain) - that made the waveform
+    // shrink right after loading on loud (heavily ReplayGain-attenuated) tracks.
+    // Reading pregain keeps the display height independent of ReplayGain while
+    // audio leveling still works, and the trim knob still scales the waveform.
     m_pGainControlObject = new ControlProxy(
-            m_group, "total_gain");
+            m_group, "pregain");
     m_pTrackSamplesControlObject = new ControlProxy(
             m_group, "track_samples");
 

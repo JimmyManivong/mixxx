@@ -24,15 +24,7 @@
 #include "waveform/visualsmanager.h"
 #include "waveform/vsyncthread.h"
 #ifdef MIXXX_USE_QOPENGL
-#include "waveform/widgets/allshader/filteredwaveformwidget.h"
-#include "waveform/widgets/allshader/hsvwaveformwidget.h"
-#include "waveform/widgets/allshader/lrrgbwaveformwidget.h"
-#include "waveform/widgets/allshader/rgbstackedwaveformwidget.h"
-#include "waveform/widgets/allshader/rgbwaveformwidget.h"
-#include "waveform/widgets/allshader/simplewaveformwidget.h"
-#include "waveform/widgets/allshader/waveformwidgettexturedfiltered.h"
-#include "waveform/widgets/allshader/waveformwidgettexturedrgb.h"
-#include "waveform/widgets/allshader/waveformwidgettexturedstacked.h"
+#include "waveform/widgets/allshader/3bandwaveformwidget.h"
 #else
 #include "waveform/widgets/qthsvwaveformwidget.h"
 #include "waveform/widgets/qtrgbwaveformwidget.h"
@@ -602,6 +594,8 @@ bool WaveformWidgetFactory::widgetTypeSupportsUntilMark() const {
         return true;
     case WaveformWidgetType::AllShaderRGBStackedWaveform:
         return true;
+    case WaveformWidgetType::AllShaderThreeBandWaveform:
+        return true;
     case WaveformWidgetType::AllShaderTexturedFiltered:
         return true;
     case WaveformWidgetType::AllShaderTexturedRGB:
@@ -1023,66 +1017,20 @@ void WaveformWidgetFactory::evaluateWidgets() {
             break;
 #endif
         case WaveformWidgetType::AllShaderRGBWaveform:
-#ifndef MIXXX_USE_QOPENGL
-            continue;
-#else
-            setWaveformVarsByType.operator()<allshader::RGBWaveformWidget>();
-            break;
-#endif
         case WaveformWidgetType::AllShaderLRRGBWaveform:
-#ifndef MIXXX_USE_QOPENGL
-            continue;
-#else
-            setWaveformVarsByType.operator()<allshader::LRRGBWaveformWidget>();
-            break;
-#endif
         case WaveformWidgetType::AllShaderFilteredWaveform:
-#ifndef MIXXX_USE_QOPENGL
-            continue;
-#else
-            setWaveformVarsByType.operator()<allshader::FilteredWaveformWidget>();
-            break;
-#endif
         case WaveformWidgetType::AllShaderRGBStackedWaveform:
-#ifndef MIXXX_USE_QOPENGL
-            continue;
-#else
-            setWaveformVarsByType.operator()<allshader::RGBStackedWaveformWidget>();
-            break;
-#endif
         case WaveformWidgetType::AllShaderSimpleWaveform:
-#ifndef MIXXX_USE_QOPENGL
-            continue;
-#else
-            setWaveformVarsByType.operator()<allshader::SimpleWaveformWidget>();
-            break;
-#endif
         case WaveformWidgetType::AllShaderHSVWaveform:
-#ifndef MIXXX_USE_QOPENGL
-            continue;
-#else
-            setWaveformVarsByType.operator()<allshader::HSVWaveformWidget>();
-            break;
-#endif
         case WaveformWidgetType::AllShaderTexturedFiltered:
-#ifndef MIXXX_USE_QOPENGL
-            continue;
-#else
-            setWaveformVarsByType.operator()<allshader::WaveformWidgetTexturedFiltered>();
-            break;
-#endif
         case WaveformWidgetType::AllShaderTexturedRGB:
-#ifndef MIXXX_USE_QOPENGL
-            continue;
-#else
-            setWaveformVarsByType.operator()<allshader::WaveformWidgetTexturedRGB>();
-            break;
-#endif
         case WaveformWidgetType::AllShaderTexturedStacked:
+            continue;
+        case WaveformWidgetType::AllShaderThreeBandWaveform:
 #ifndef MIXXX_USE_QOPENGL
             continue;
 #else
-            setWaveformVarsByType.operator()<allshader::WaveformWidgetTexturedStacked>();
+            setWaveformVarsByType.operator()<allshader::ThreeBandWaveformWidget>();
             break;
 #endif
         default:
@@ -1166,32 +1114,8 @@ WaveformWidgetAbstract* WaveformWidgetFactory::createWaveformWidget(
             widget = new GLVSyncTestWidget(viewer->getGroup(), viewer);
             break;
 #ifdef MIXXX_USE_QOPENGL
-        case WaveformWidgetType::AllShaderRGBWaveform:
-            widget = new allshader::RGBWaveformWidget(viewer->getGroup(), viewer);
-            break;
-        case WaveformWidgetType::AllShaderLRRGBWaveform:
-            widget = new allshader::LRRGBWaveformWidget(viewer->getGroup(), viewer);
-            break;
-        case WaveformWidgetType::AllShaderFilteredWaveform:
-            widget = new allshader::FilteredWaveformWidget(viewer->getGroup(), viewer);
-            break;
-        case WaveformWidgetType::AllShaderRGBStackedWaveform:
-            widget = new allshader::RGBStackedWaveformWidget(viewer->getGroup(), viewer);
-            break;
-        case WaveformWidgetType::AllShaderSimpleWaveform:
-            widget = new allshader::SimpleWaveformWidget(viewer->getGroup(), viewer);
-            break;
-        case WaveformWidgetType::AllShaderHSVWaveform:
-            widget = new allshader::HSVWaveformWidget(viewer->getGroup(), viewer);
-            break;
-        case WaveformWidgetType::AllShaderTexturedFiltered:
-            widget = new allshader::WaveformWidgetTexturedFiltered(viewer->getGroup(), viewer);
-            break;
-        case WaveformWidgetType::AllShaderTexturedRGB:
-            widget = new allshader::WaveformWidgetTexturedRGB(viewer->getGroup(), viewer);
-            break;
-        case WaveformWidgetType::AllShaderTexturedStacked:
-            widget = new allshader::WaveformWidgetTexturedStacked(viewer->getGroup(), viewer);
+        case WaveformWidgetType::AllShaderThreeBandWaveform:
+            widget = new allshader::ThreeBandWaveformWidget(viewer->getGroup(), viewer);
             break;
 #else
         case WaveformWidgetType::QtSimpleWaveform:

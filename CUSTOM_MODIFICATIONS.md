@@ -2,7 +2,7 @@
 
 ## Vue d'ensemble
 
-Ce fork de Mixxx 2.5.0 implémente des modifications visuelles pour reproduire le style de Rekordbox, optimisé pour une utilisation sur Raspberry Pi 4 (2GB RAM) avec un écran 10" (1200x600) et un contrôleur Pioneer DDJ-FLX6.
+Ce fork de Mixxx 2.5.0 implémente des modifications visuelles pour reproduire le style de Rekordbox, optimisé pour une utilisation sur Raspberry Pi 4 (2GB RAM) avec un écran 10" (1024x600) et un contrôleur Pioneer DDJ-FLX6.
 
 ## Modifications implémentées
 
@@ -159,7 +159,7 @@ Après compilation, lancez Mixxx et vérifiez :
 
 Le mapping Pioneer DDJ-FLX6 devrait être détecté automatiquement. Si nécessaire, utilisez le mapping de **fixxiefixx** disponible dans Mixxx.
 
-Pour l'écran 10" (1200x600), vous pouvez ajuster la taille de l'interface dans :
+Pour l'écran 10" (1024x600), vous pouvez ajuster la taille de l'interface dans :
 - **Options → Préférences → Interface → Scaling**
 
 ---
@@ -189,7 +189,7 @@ res/skins/LateNight/waveform.xml                       (couleurs Rekordbox)
 
 1. **Détection de time signature** : Lire la signature temporelle depuis les tags ID3 ou analyser le track
 2. **Optimisations GPU** : Utiliser le GPU VideoCore VI de la Raspberry Pi 4 pour le rendu
-3. **Interface compacte** : Créer un skin custom optimisé pour l'écran 10" (1200x600)
+3. **Interface compacte** : Créer un skin custom optimisé pour l'écran 10" (1024x600)
 4. **Couleurs configurables** : Exposer les couleurs Rekordbox dans les préférences GUI
 
 ---

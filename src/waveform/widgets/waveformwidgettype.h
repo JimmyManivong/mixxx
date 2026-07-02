@@ -31,6 +31,7 @@ class WaveformWidgetType {
         AllShaderTexturedRGB,        // 23 RGB (textured) (all-shaders)
         AllShaderTexturedStacked,    // 24 Stacked (textured) (all-shaders)
         AllShaderRGBStackedWaveform, // 26 Stacked (all-shaders)
+        AllShaderThreeBandWaveform,  // 27 3-Band (all-shaders)
         Count_WaveformwidgetType     //    Also used as invalid value
     };
 };

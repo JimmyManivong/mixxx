@@ -1528,35 +1528,30 @@ void WOverview::drawNextPixmapPartRGB(QPainter* pPainter,
         const float mid = sumMid / static_cast<float>(samples);
         const float high = sumHigh / static_cast<float>(samples);
 
-        // CUSTOM (Rekordbox-style "holes"): subtract a small floor from each band
-        // so calm/quiet sections fall to (near) zero - visible holes - instead of
-        // leaving a constant blue floor. Loud sections lose only a little.
-        // Raise kFloor to dig deeper holes, lower it to keep more of the quiet.
-        constexpr float kFloor = 26.f; // 0-255 band scale
-        const float lowF = math_max(0.f, low - kFloor);
-        const float midF = math_max(0.f, mid - kFloor);
+        // Floor: quiet sections become real holes (like Rekordbox).
+        constexpr float kFloor = 20.f;
+        const float lowF  = math_max(0.f, low  - kFloor);
+        const float midF  = math_max(0.f, mid  - kFloor);
         const float highF = math_max(0.f, high - kFloor);
 
-        // ADDITIVE stacking: each band drawn at its OWN (floored, weighted)
-        // magnitude and stacked, so the white tip spikes where the highs are.
-        // Rekordbox: the blue bass body dominates the height, the orange mids a
-        // thin layer and the white highs only thin dynamic tips.
-        constexpr float kLowWeight = 1.00f;
-        constexpr float kMidWeight = 1.00f;
-        constexpr float kHighWeight = 0.50f;
-        // Overall height scale: fill most of the (now shorter) frame like
-        // Rekordbox; loud full-spectrum columns clamp to 255 below.
-        constexpr float kHeightScale = 0.80f;
-        float blueH = lowF * kLowWeight * kHeightScale;
-        float orangeH = midF * kMidWeight * kHeightScale;
-        float whiteH = highF * kHighWeight * kHeightScale;
+        // Rekordbox-style STACKED overview: blue (bass) forms the body from the
+        // baseline, then an orange (mid) ribbon stacked on top, then prominent
+        // white (high) transient tips at the very top. The high gain is kept
+        // close to the scrolling 3-band renderer (0.4) so hi-hats/snares spike
+        // up as bright white peaks like Rekordbox, instead of a thin sliver.
+        constexpr float kLowGain  = 0.90f;
+        constexpr float kMidGain  = 0.38f;
+        constexpr float kHighGain = 0.45f;
+        float blueH   = lowF  * kLowGain;
+        float orangeH = midF  * kMidGain;
+        float whiteH  = highF * kHighGain;
 
         float total = blueH + orangeH + whiteH;
         if (total <= 0.f) {
             continue;
         }
-        // Clamp the stacked total to the image half-height (top half = 255 px)
-        // so loud full-spectrum columns don't overflow the source image.
+        // Clamp the stacked total to the top half of the source image (255 px)
+        // so loud full-spectrum columns don't overflow.
         if (total > 255.f) {
             const float k = 255.f / total;
             blueH *= k;
@@ -1564,19 +1559,16 @@ void WOverview::drawNextPixmapPartRGB(QPainter* pPainter,
             whiteH *= k;
         }
 
-        // y goes up (negative) from the centre baseline; stack blue->orange->white.
+        // y goes up (negative) from the baseline; stack blue -> orange -> white.
         const float x = currentCompletion / 2;
         const float yBlue = -blueH;
         const float yOrange = yBlue - orangeH;
         const float yWhite = yOrange - whiteH;
 
-        // Blue base (nearest the baseline).
         pPainter->setPen(lowQ);
         pPainter->drawLine(QPointF(x, 0.f), QPointF(x, yBlue));
-        // Amber mid stacked on top.
         pPainter->setPen(midQ);
         pPainter->drawLine(QPointF(x, yBlue), QPointF(x, yOrange));
-        // White high at the tip.
         pPainter->setPen(highQ);
         pPainter->drawLine(QPointF(x, yOrange), QPointF(x, yWhite));
     }

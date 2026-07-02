@@ -13,12 +13,11 @@
     <SignalHighColor></SignalHighColor>
     <SignalMidColor></SignalMidColor>
     <SignalLowColor></SignalLowColor>
-    <!-- CUSTOM Rekordbox palette (VIVID): the overview stacks large solid colour
-         areas, so it needs punchier hues than the scrolling waveform — a vivid
-         electric blue (real blue, not greyish), a brighter amber, white tips. -->
-    <SignalRGBHighColor>#FFFFFF</SignalRGBHighColor>
-    <SignalRGBMidColor>#F58A1E</SignalRGBMidColor>
-    <SignalRGBLowColor>#1E5BFF</SignalRGBLowColor>
+    <!-- CUSTOM Rekordbox palette: same calibrated variables as the scrolling
+         waveform for consistency. Defined in skin.xml. -->
+    <SignalRGBHighColor><Variable name="SignalRGBHighColor"/></SignalRGBHighColor>
+    <SignalRGBMidColor><Variable name="SignalRGBMidColor"/></SignalRGBMidColor>
+    <SignalRGBLowColor><Variable name="SignalRGBLowColor"/></SignalRGBLowColor>
     <PlayedOverlayColor><Variable name="PlayedOverlayColor"/></PlayedOverlayColor>
     <PlayPosColor><Variable name="PlayPosColor"/></PlayPosColor>
     <EndOfTrackColor><Variable name="EndOfTrackColor"/></EndOfTrackColor>

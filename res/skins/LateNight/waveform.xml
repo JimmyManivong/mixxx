@@ -25,11 +25,10 @@
             <SignalHighColor></SignalHighColor>
             <SignalMidColor></SignalMidColor>
             <SignalLowColor></SignalLowColor>
-            <!-- CUSTOM Rekordbox palette: blue bass, amber mids, white highs.
-                 Mid = Rekordbox amber/ochre (measured avg ~191,122,44), not a
-                 bright neon orange. -->
-            <SignalRGBHighColor>#FFFFFF</SignalRGBHighColor>
-            <SignalRGBMidColor>#C87E2E</SignalRGBMidColor>
+            <!-- CUSTOM Rekordbox palette: exact colours calibrated pixel-by-pixel
+                 on a 2880x1800 Rekordbox capture. Variables defined in skin.xml. -->
+            <SignalRGBHighColor><Variable name="SignalRGBHighColor"/></SignalRGBHighColor>
+            <SignalRGBMidColor><Variable name="SignalRGBMidColor"/></SignalRGBMidColor>
             <SignalRGBLowColor><Variable name="SignalRGBLowColor"/></SignalRGBLowColor>
             <BeatColor><Variable name="BeatColor"/></BeatColor>
             <AxesColor><Variable name="AxesColor"/></AxesColor>
