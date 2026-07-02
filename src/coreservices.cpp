@@ -13,6 +13,7 @@
 #include "controllers/keyboard/keyboardeventfilter.h"
 #include "database/mixxxdb.h"
 #include "effects/effectsmanager.h"
+#include "engine/controls/keycompatibilityindicator.h"
 #include "engine/enginemixer.h"
 #include "library/coverartcache.h"
 #include "library/library.h"
@@ -307,6 +308,11 @@ void CoreServices::initialize(QApplication* pApp) {
     }
 
     m_pPlayerManager->addConfiguredDecks();
+
+    // CUSTOM: publish per-deck [ChannelN],key_compatible for harmonic-mix
+    // highlighting in the skin (Rekordbox-style).
+    m_pKeyCompatibilityIndicator = std::make_unique<KeyCompatibilityIndicator>(
+            static_cast<int>(m_pPlayerManager->numDecks()));
 
     for (int i = 0; i < kSamplerCount; ++i) {
         m_pPlayerManager->addSampler();

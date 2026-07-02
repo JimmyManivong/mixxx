@@ -22,6 +22,7 @@ class TrackCollectionManager;
 class Library;
 class SkinControls;
 class ControlPushButton;
+class KeyCompatibilityIndicator;
 
 namespace mixxx {
 
@@ -145,6 +146,7 @@ class CoreServices : public QObject {
 
     std::unique_ptr<SkinControls> m_pSkinControls;
     std::unique_ptr<ControlPushButton> m_pTouchShift;
+    std::unique_ptr<KeyCompatibilityIndicator> m_pKeyCompatibilityIndicator;
 
     Timer m_runtime_timer;
     const CmdlineArgs& m_cmdlineArgs;

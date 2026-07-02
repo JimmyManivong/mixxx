@@ -31,16 +31,41 @@
             <Layout>vertical</Layout>
             <SizePolicy>me,me</SizePolicy>
             <Children>
-              <TrackProperty>
-                <ObjectName>XdjTitle</ObjectName>
-                <Group><Variable name="Group"/></Group>
-                <Property>title</Property>
+              <!-- CUSTOM: titre + temps sur la même ligne. Le titre s'élide
+                   ("...") si trop long pour laisser la place au temps. -->
+              <WidgetGroup>
+                <Layout>horizontal</Layout>
                 <SizePolicy>me,f</SizePolicy>
-              </TrackProperty>
+                <Children>
+                  <!-- CUSTOM: full-width strip now (one deck per row), so the title
+                       stretches and elides instead of using Ignored width. -->
+                  <TrackProperty>
+                    <ObjectName>XdjTitle</ObjectName>
+                    <Group><Variable name="Group"/></Group>
+                    <Property>title</Property>
+                    <Elide>right</Elide>
+                    <SizePolicy>me,f</SizePolicy>
+                  </TrackProperty>
+                  <WidgetGroup><Size>8f,1min</Size></WidgetGroup>
+                  <NumberPos>
+                    <ObjectName>XdjTime</ObjectName>
+                    <!-- CUSTOM FIX: WNumberPos reads time_elapsed/time_remaining
+                         from this Group. Without <Group> the group was empty and
+                         the time stayed stuck at 0 on both decks. -->
+                    <Group><Variable name="Group"/></Group>
+                    <SizePolicy>max,f</SizePolicy>
+                    <Alignment>right</Alignment>
+                    <Connection>
+                      <ConfigKey><Variable name="Group"/>,playposition</ConfigKey>
+                    </Connection>
+                  </NumberPos>
+                </Children>
+              </WidgetGroup>
               <TrackProperty>
                 <ObjectName>XdjArtist</ObjectName>
                 <Group><Variable name="Group"/></Group>
                 <Property>artist</Property>
+                <Elide>right</Elide>
                 <SizePolicy>me,f</SizePolicy>
               </TrackProperty>
             </Children>
@@ -60,6 +85,12 @@
                 <SizePolicy>max,f</SizePolicy>
                 <Connection>
                   <ConfigKey><Variable name="Group"/>,visual_key</ConfigKey>
+                </Connection>
+                <!-- CUSTOM: light up blue when harmonically compatible with
+                     another deck (key_compatible CO from KeyCompatibilityIndicator). -->
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,key_compatible</ConfigKey>
+                  <BindProperty>highlight</BindProperty>
                 </Connection>
               </Key>
             </Children>
@@ -90,38 +121,19 @@
         </Children>
       </WidgetGroup>
 
-      <!-- Row 2: TIME + mini overview waveform -->
+      <!-- Row 2: mini overview waveform pleine largeur (le TIME est remonté
+           à côté du titre en Row 1, style Rekordbox). -->
       <WidgetGroup>
         <ObjectName>XdjStripRow2</ObjectName>
         <Layout>horizontal</Layout>
         <SizePolicy>me,me</SizePolicy>
         <Children>
 
-          <WidgetGroup>
-            <Layout>vertical</Layout>
-            <SizePolicy>max,me</SizePolicy>
-            <Children>
-              <Label><ObjectName>XdjLabel</ObjectName><Text>TIME</Text><SizePolicy>max,f</SizePolicy></Label>
-              <NumberPos>
-                <ObjectName>XdjTime</ObjectName>
-                <SizePolicy>max,f</SizePolicy>
-                <Alignment>left</Alignment>
-                <Connection>
-                  <ConfigKey><Variable name="Group"/>,playposition</ConfigKey>
-                </Connection>
-              </NumberPos>
-            </Children>
-          </WidgetGroup>
-
-          <WidgetGroup><Size>12f,1min</Size></WidgetGroup>
-
           <Template src="skins:RekordboxPi/decks/overview.xml">
             <SetVariable name="Group"><Variable name="Group"/></SetVariable>
             <SetVariable name="SignalColor"><Variable name="SignalColor_12"/></SetVariable>
             <SetVariable name="OverviewFontSize">9</SetVariable>
           </Template>
-
-          <WidgetGroup><Size>8f,1min</Size></WidgetGroup>
 
         </Children>
       </WidgetGroup>
