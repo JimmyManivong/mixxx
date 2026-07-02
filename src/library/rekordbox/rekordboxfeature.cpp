@@ -11,6 +11,9 @@
 #include <QTextCodec>
 #include <QtDebug>
 
+#include <algorithm>
+#include <memory>
+
 #include "engine/engine.h"
 #include "library/dao/trackschema.h"
 #include "library/library.h"
@@ -20,6 +23,7 @@
 #include "library/trackcollectionmanager.h"
 #include "library/treeitem.h"
 #include "moc_rekordboxfeature.cpp"
+#include "proto/waveform.pb.h"
 #include "track/beats.h"
 #include "track/cue.h"
 #include "track/keyfactory.h"
@@ -40,6 +44,11 @@ namespace {
 const QString kRekordboxLibraryTable = QStringLiteral("rekordbox_library");
 const QString kRekordboxPlaylistsTable = QStringLiteral("rekordbox_playlists");
 const QString kRekordboxPlaylistTracksTable = QStringLiteral("rekordbox_playlist_tracks");
+// Unlike the tables above, this table is NOT dropped/recreated on every scan:
+// it is a persistent cache of imported phrase (song structure) data, keyed by
+// file location, so it survives after a track leaves the ephemeral Rekordbox
+// tree (e.g. once dragged into the main library).
+const QString kRekordboxPhrasesTable = QStringLiteral("rekordbox_phrases");
 
 const QString kPdbPath = QStringLiteral("PIONEER/rekordbox/export.pdb");
 const QString kPLaylistPathDelimiter = QStringLiteral("-->");
@@ -137,6 +146,30 @@ bool createPlaylistTracksTable(QSqlDatabase& database, const QString& tableName)
             "    playlist_id INTEGER REFERENCES rekordbox_playlists(id),"
             "    track_id INTEGER REFERENCES rekordbox_library(id),"
             "    position INTEGER"
+            ");");
+
+    if (!query.exec()) {
+        LOG_FAILED_QUERY(query);
+        return false;
+    }
+
+    return true;
+}
+
+bool createPhrasesTable(QSqlDatabase& database) {
+    qDebug() << "Creating Rekordbox phrases table: " << kRekordboxPhrasesTable;
+
+    QSqlQuery query(database);
+    query.prepare(
+            "CREATE TABLE IF NOT EXISTS " + kRekordboxPhrasesTable +
+            " ("
+            "    id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "    location TEXT,"
+            "    mood INTEGER,"
+            "    phrase_index INTEGER,"
+            "    beat INTEGER,"
+            "    position_samples INTEGER,"
+            "    kind INTEGER"
             ");");
 
     if (!query.exec()) {
@@ -863,11 +896,53 @@ void setHotCue(TrackPointer track,
     }
 }
 
+// Serializes pre-computed per-visual-sample band data into the same
+// io::Waveform protobuf format Waveform::toByteArray()/readByteArray() use,
+// so the result can be handed to Track::setWaveform()/setWaveformSummary()
+// exactly like a native Mixxx analysis. Units must be RMS: readByteArray()
+// silently zeroes any filtered signal that isn't (see waveform.cpp).
+QByteArray buildWaveformByteArray(
+        const QVector<WaveformData>& samples,
+        double visualSampleRate,
+        double audioVisualRatio) {
+    mixxx::track::io::Waveform waveform;
+    waveform.set_visual_sample_rate(visualSampleRate);
+    waveform.set_audio_visual_ratio(audioVisualRatio);
+
+    mixxx::track::io::Waveform::Signal* all = waveform.mutable_signal_all();
+    mixxx::track::io::Waveform::FilteredSignal* filtered =
+            waveform.mutable_signal_filtered();
+    mixxx::track::io::Waveform::Signal* low = filtered->mutable_low();
+    mixxx::track::io::Waveform::Signal* mid = filtered->mutable_mid();
+    mixxx::track::io::Waveform::Signal* high = filtered->mutable_high();
+
+    all->set_units(mixxx::track::io::Waveform::RMS);
+    all->set_channels(mixxx::kEngineChannelCount);
+    low->set_units(mixxx::track::io::Waveform::RMS);
+    low->set_channels(mixxx::kEngineChannelCount);
+    mid->set_units(mixxx::track::io::Waveform::RMS);
+    mid->set_channels(mixxx::kEngineChannelCount);
+    high->set_units(mixxx::track::io::Waveform::RMS);
+    high->set_channels(mixxx::kEngineChannelCount);
+
+    for (const WaveformData& sample : samples) {
+        all->add_value(sample.filtered.all);
+        low->add_value(sample.filtered.low);
+        mid->add_value(sample.filtered.mid);
+        high->add_value(sample.filtered.high);
+    }
+
+    std::string output;
+    waveform.SerializeToString(&output);
+    return QByteArray(output.data(), static_cast<int>(output.length()));
+}
+
 void readAnalyze(TrackPointer track,
         mixxx::audio::SampleRate sampleRate,
         int timingOffset,
         bool ignoreCues,
-        const QString& anlzPath) {
+        const QString& anlzPath,
+        QSqlDatabase database) {
     if (!QFile(anlzPath).exists()) {
         return;
     }
@@ -1042,6 +1117,225 @@ void readAnalyze(TrackPointer track,
                 } break;
                 }
             }
+        } break;
+        case rekordbox_anlz_t::SECTION_TAGS_SONG_STRUCTURE: {
+            if (ignoreCues) {
+                break;
+            }
+
+            auto* songStructureTag =
+                    static_cast<rekordbox_anlz_t::song_structure_tag_t*>(
+                            section->body());
+
+            rekordbox_anlz_t::song_structure_body_t* structureBody =
+                    songStructureTag->body();
+            std::unique_ptr<rekordbox_anlz_t::song_structure_body_t> unmaskedBody;
+
+            if (songStructureTag->is_masked()) {
+                // Rekordbox 6 XOR-masks PSSI when exporting to a USB
+                // device. The Kaitai C++ backend can't apply the unmask
+                // step declared in rekordbox_anlz.ksy (its "process:
+                // xor(...)" is commented out there), so it's reproduced
+                // here to match pyrekordbox's implementation.
+                static const uint8_t kPssiXorMask[19] = {0xCB, 0xE1, 0xEE,
+                        0xFA, 0xE5, 0xEE, 0xAD, 0xEE, 0xE9, 0xD2, 0xE9, 0xEB,
+                        0xE1, 0xE9, 0xF3, 0xE8, 0xE9, 0xF4, 0xE1};
+
+                std::string unmaskedBytes = songStructureTag->_raw_body();
+                const uint16_t lenEntries = songStructureTag->len_entries();
+                for (size_t i = 0; i < unmaskedBytes.size(); i++) {
+                    const int mask = (kPssiXorMask[i % 19] + lenEntries) & 0xFF;
+                    unmaskedBytes[i] = static_cast<char>(
+                            static_cast<uint8_t>(unmaskedBytes[i]) ^ mask);
+                }
+
+                kaitai::kstream unmaskedStream(unmaskedBytes);
+                unmaskedBody = std::make_unique<
+                        rekordbox_anlz_t::song_structure_body_t>(
+                        &unmaskedStream,
+                        songStructureTag,
+                        songStructureTag->_root());
+                structureBody = unmaskedBody.get();
+            }
+
+            mixxx::BeatsPointer pBeats = track->getBeats();
+            if (pBeats && structureBody->entries()) {
+                ScopedTransaction transaction(database);
+
+                QSqlQuery deleteQuery(database);
+                deleteQuery.prepare("DELETE FROM " + kRekordboxPhrasesTable +
+                        " WHERE location = :location");
+                deleteQuery.bindValue(":location", track->getLocation());
+                if (!deleteQuery.exec()) {
+                    LOG_FAILED_QUERY(deleteQuery);
+                }
+
+                QSqlQuery insertQuery(database);
+                insertQuery.prepare(
+                        "INSERT INTO " + kRekordboxPhrasesTable +
+                        " (location, mood, phrase_index, beat, "
+                        "position_samples, kind) VALUES (:location, :mood, "
+                        ":phrase_index, :beat, :position_samples, :kind)");
+
+                for (const auto& entry : *structureBody->entries()) {
+                    int kind = 0;
+                    switch (structureBody->mood()) {
+                    case rekordbox_anlz_t::TRACK_MOOD_HIGH:
+                        kind = static_cast<int>(
+                                static_cast<rekordbox_anlz_t::phrase_high_t*>(
+                                        entry->kind())
+                                        ->id());
+                        break;
+                    case rekordbox_anlz_t::TRACK_MOOD_MID:
+                        kind = static_cast<int>(
+                                static_cast<rekordbox_anlz_t::phrase_mid_t*>(
+                                        entry->kind())
+                                        ->id());
+                        break;
+                    case rekordbox_anlz_t::TRACK_MOOD_LOW:
+                        kind = static_cast<int>(
+                                static_cast<rekordbox_anlz_t::phrase_low_t*>(
+                                        entry->kind())
+                                        ->id());
+                        break;
+                    }
+
+                    const auto position = pBeats->findNthBeat(
+                            pBeats->firstBeat(),
+                            static_cast<int>(entry->beat()) - 1);
+                    if (!position.isValid()) {
+                        continue;
+                    }
+
+                    insertQuery.bindValue(":location", track->getLocation());
+                    insertQuery.bindValue(
+                            ":mood", static_cast<int>(structureBody->mood()));
+                    insertQuery.bindValue(":phrase_index",
+                            static_cast<int>(entry->index()));
+                    insertQuery.bindValue(
+                            ":beat", static_cast<int>(entry->beat()));
+                    insertQuery.bindValue(":position_samples", position.value());
+                    insertQuery.bindValue(":kind", kind);
+                    if (!insertQuery.exec()) {
+                        LOG_FAILED_QUERY(insertQuery);
+                    }
+                }
+
+                transaction.commit();
+            }
+        } break;
+        case rekordbox_anlz_t::SECTION_TAGS_WAVE_COLOR_SCROLL: {
+            if (ignoreCues) {
+                break;
+            }
+
+            auto* waveColorScrollTag =
+                    static_cast<rekordbox_anlz_t::wave_color_scroll_tag_t*>(
+                            section->body());
+
+            const uint32_t numEntries = waveColorScrollTag->len_entries();
+            const std::string rawEntries = waveColorScrollTag->entries();
+            if (numEntries == 0 || rawEntries.size() < numEntries * 2u) {
+                break;
+            }
+
+            // Project Rekordbox's raw per-sample display-colour triplet onto
+            // this skin's exact calibrated Rekordbox waveform colours
+            // (SignalRGBLowColor/MidColor/HighColor in skin.xml, pixel-
+            // sampled from real Rekordbox captures) instead of assuming a
+            // generic blue/orange/white channel order. Each Mixxx band
+            // intensity is how strongly the sample resembles that reference
+            // colour (normalized dot product); waveformrendererrgb.cpp
+            // renormalizes by the brightest channel anyway, so only the
+            // *ratio* between low/mid/high needs to be right for hue, while
+            // the entry's own height/amplitude drives the overall scale.
+            constexpr double kLowColor[3] = {0x22, 0x54, 0xD9};
+            constexpr double kMidColor[3] = {0xEF, 0xAA, 0x44};
+            constexpr double kHighColor[3] = {0xFA, 0xED, 0xE0};
+            constexpr double kLowColorDot = kLowColor[0] * kLowColor[0] +
+                    kLowColor[1] * kLowColor[1] + kLowColor[2] * kLowColor[2];
+            constexpr double kMidColorDot = kMidColor[0] * kMidColor[0] +
+                    kMidColor[1] * kMidColor[1] + kMidColor[2] * kMidColor[2];
+            constexpr double kHighColorDot = kHighColor[0] * kHighColor[0] +
+                    kHighColor[1] * kHighColor[1] + kHighColor[2] * kHighColor[2];
+            auto toByte = [](double v) {
+                return static_cast<unsigned char>(std::clamp(v, 0.0, 1.0) * 255.0);
+            };
+
+            QVector<WaveformData> samples(static_cast<int>(numEntries));
+            for (uint32_t i = 0; i < numEntries; i++) {
+                const uint16_t value =
+                        (static_cast<uint8_t>(rawEntries[2 * i]) << 8) |
+                        static_cast<uint8_t>(rawEntries[2 * i + 1]);
+                // PWV5 entry layout (see pyrekordbox PWV5AnlzTag.get()):
+                // bits 15-13 red, 12-10 green, 9-7 blue, 6-2 height.
+                const double red255 = ((value & 0xE000) >> 12) * 255.0 / 14.0;
+                const double green255 = ((value & 0x1C00) >> 10) * 255.0 / 14.0;
+                const double blue255 = ((value & 0x0380) >> 7) * 255.0 / 14.0;
+                const double amplitude = ((value & 0x007C) >> 2) / 31.0;
+
+                const double lowSimilarity = (red255 * kLowColor[0] +
+                                                      green255 * kLowColor[1] +
+                                                      blue255 * kLowColor[2]) /
+                        kLowColorDot;
+                const double midSimilarity = (red255 * kMidColor[0] +
+                                                      green255 * kMidColor[1] +
+                                                      blue255 * kMidColor[2]) /
+                        kMidColorDot;
+                const double highSimilarity = (red255 * kHighColor[0] +
+                                                       green255 * kHighColor[1] +
+                                                       blue255 * kHighColor[2]) /
+                        kHighColorDot;
+
+                WaveformData data(0);
+                data.filtered.low = toByte(lowSimilarity * amplitude);
+                data.filtered.mid = toByte(midSimilarity * amplitude);
+                data.filtered.high = toByte(highSimilarity * amplitude);
+                data.filtered.all = toByte(amplitude);
+                samples[static_cast<int>(i)] = data;
+            }
+
+            // Pioneer's "scrolling" waveform tags are fixed at 150 samples/sec.
+            constexpr double kPwv5VisualSampleRate = 150.0;
+            const double audioVisualRatio =
+                    static_cast<double>(sampleRate) / kPwv5VisualSampleRate;
+
+            const QByteArray waveformBytes = buildWaveformByteArray(
+                    samples, kPwv5VisualSampleRate, audioVisualRatio);
+            track->setWaveform(ConstWaveformPointer(new Waveform(waveformBytes)));
+
+            // Downsample (max-pooling) into a coarse overview summary,
+            // mirroring AnalyzerWaveform's own summary sizing.
+            constexpr int kSummarySamples = 2 * 1920;
+            const int sampleCount = static_cast<int>(samples.size());
+            const int factor = std::max(1, sampleCount / kSummarySamples);
+            QVector<WaveformData> summarySamples;
+            summarySamples.reserve(sampleCount / factor + 1);
+            for (int i = 0; i < sampleCount; i += factor) {
+                WaveformData maxSample(0);
+                const int end = std::min(i + factor, sampleCount);
+                for (int j = i; j < end; j++) {
+                    maxSample.filtered.low = std::max(
+                            maxSample.filtered.low, samples[j].filtered.low);
+                    maxSample.filtered.mid = std::max(
+                            maxSample.filtered.mid, samples[j].filtered.mid);
+                    maxSample.filtered.high = std::max(
+                            maxSample.filtered.high, samples[j].filtered.high);
+                    maxSample.filtered.all = std::max(
+                            maxSample.filtered.all, samples[j].filtered.all);
+                }
+                summarySamples << maxSample;
+            }
+
+            const double summaryVisualSampleRate = kPwv5VisualSampleRate / factor;
+            const double summaryAudioVisualRatio =
+                    static_cast<double>(sampleRate) / summaryVisualSampleRate;
+            const QByteArray summaryBytes = buildWaveformByteArray(
+                    summarySamples,
+                    summaryVisualSampleRate,
+                    summaryAudioVisualRatio);
+            track->setWaveformSummary(
+                    ConstWaveformPointer(new Waveform(summaryBytes)));
         } break;
         default:
             break;
@@ -1260,10 +1554,10 @@ TrackPointer RekordboxPlaylistModel::getTrack(const QModelIndex& index) const {
 
     if (QFile(anlzPathExt).exists()) {
         // Beatgrids appear to be only correct in legacy ANLZ file
-        readAnalyze(track, sampleRate, timingOffset, true, anlzPath);
-        readAnalyze(track, sampleRate, timingOffset, false, anlzPathExt);
+        readAnalyze(track, sampleRate, timingOffset, true, anlzPath, m_database);
+        readAnalyze(track, sampleRate, timingOffset, false, anlzPathExt, m_database);
     } else {
-        readAnalyze(track, sampleRate, timingOffset, false, anlzPath);
+        readAnalyze(track, sampleRate, timingOffset, false, anlzPath, m_database);
     }
 
     // Assume that the key of the file the has been analyzed in Recordbox is correct
@@ -1354,6 +1648,8 @@ RekordboxFeature::RekordboxFeature(
     createLibraryTable(database, kRekordboxLibraryTable);
     createPlaylistsTable(database, kRekordboxPlaylistsTable);
     createPlaylistTracksTable(database, kRekordboxPlaylistTracksTable);
+    // Not dropped above: this is a persistent cache, not ephemeral staging.
+    createPhrasesTable(database);
     transaction.commit();
 
     connect(&m_devicesFutureWatcher,
@@ -1543,6 +1839,8 @@ void RekordboxFeature::onRekordboxDevicesFound() {
         createLibraryTable(database, kRekordboxLibraryTable);
         createPlaylistsTable(database, kRekordboxPlaylistsTable);
         createPlaylistTracksTable(database, kRekordboxPlaylistTracksTable);
+    // Not dropped above: this is a persistent cache, not ephemeral staging.
+    createPhrasesTable(database);
 
         transaction.commit();
 
