@@ -67,6 +67,10 @@ void WTrackProperty::setup(const QDomNode& node, const SkinContext& context) {
         m_editProperty = m_displayProperty;
     }
     m_propertyIsWritable = true;
+    // Skin can mark a property read-only to prevent inline editing.
+    if (context.selectBool(node, "ReadOnly", false)) {
+        m_propertyIsWritable = false;
+    }
 }
 
 void WTrackProperty::slotTrackLoaded(TrackPointer pTrack) {

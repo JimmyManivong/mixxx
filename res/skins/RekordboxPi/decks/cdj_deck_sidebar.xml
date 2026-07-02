@@ -1,0 +1,452 @@
+<Template>
+  <!-- CUSTOM CDJ/XDJ-AZ left info column with two tabs.
+       Tab DECK: KEY / SYNC+Q / LOOP controls (default).
+       Tab GRID: beatgrid editing controls.
+       Caller SetVariable: Group, DeckNum. -->
+  <WidgetGroup>
+    <ObjectName>XdjSidebar</ObjectName>
+    <Layout>vertical</Layout>
+    <SizePolicy>max,me</SizePolicy>
+    <MinimumSize>140,130</MinimumSize>
+    <MaximumSize>140,-1</MaximumSize>
+    <Children>
+
+      <!-- ── Tab bar ── -->
+      <WidgetGroup>
+        <ObjectName>XdjTabBar</ObjectName>
+        <Layout>horizontal</Layout>
+        <SizePolicy>me,f</SizePolicy>
+        <MinimumSize>0,20</MinimumSize>
+        <MaximumSize>-1,20</MaximumSize>
+        <Children>
+          <!-- Tab 1 DECK: displayValue=0 (active) when show_grid_edit_N=0 -->
+          <PushButton>
+            <ObjectName>XdjTabNormal</ObjectName>
+            <SizePolicy>me,f</SizePolicy>
+            <MinimumSize>0,18</MinimumSize>
+            <MaximumSize>-1,18</MaximumSize>
+            <NumberStates>2</NumberStates>
+            <State><Number>0</Number><Text>DECK <Variable name="DeckNum"/></Text></State>
+            <State><Number>1</Number><Text>DECK <Variable name="DeckNum"/></Text></State>
+            <Connection>
+              <ConfigKey persist="true">[Skin],show_grid_edit_<Variable name="DeckNum"/></ConfigKey>
+              <ButtonState>LeftButton</ButtonState>
+            </Connection>
+            <Connection>
+              <ConfigKey persist="true">[Skin],show_grid_edit_<Variable name="DeckNum"/></ConfigKey>
+            </Connection>
+          </PushButton>
+          <!-- Tab 2 GRID: displayValue=1 (active) when show_grid_edit_N=1 -->
+          <PushButton>
+            <ObjectName>XdjTabGrid</ObjectName>
+            <SizePolicy>me,f</SizePolicy>
+            <MinimumSize>0,18</MinimumSize>
+            <MaximumSize>-1,18</MaximumSize>
+            <NumberStates>2</NumberStates>
+            <State><Number>0</Number><Text>GRID</Text></State>
+            <State><Number>1</Number><Text>GRID</Text></State>
+            <Connection>
+              <ConfigKey persist="true">[Skin],show_grid_edit_<Variable name="DeckNum"/></ConfigKey>
+              <ButtonState>LeftButton</ButtonState>
+            </Connection>
+            <Connection>
+              <ConfigKey persist="true">[Skin],show_grid_edit_<Variable name="DeckNum"/></ConfigKey>
+            </Connection>
+          </PushButton>
+        </Children>
+      </WidgetGroup>
+
+      <!-- ══════ TAB 1: DECK controls ══════ -->
+      <WidgetGroup>
+        <ObjectName>XdjTabDeckContent</ObjectName>
+        <Layout>vertical</Layout>
+        <SizePolicy>me,me</SizePolicy>
+        <Children>
+
+          <WidgetGroup><Size>1min,1me</Size></WidgetGroup>
+
+          <!-- KEY box -->
+          <WidgetGroup>
+            <ObjectName>XdjBox</ObjectName>
+            <Layout>horizontal</Layout>
+            <SizePolicy>me,f</SizePolicy>
+            <MinimumSize>0,18</MinimumSize>
+            <MaximumSize>-1,18</MaximumSize>
+            <Children>
+              <Label>
+                <ObjectName>XdjBoxLabel</ObjectName>
+                <Text>KEY</Text>
+                <SizePolicy>max,f</SizePolicy>
+                <MinimumSize>0,14</MinimumSize>
+                <MaximumSize>-1,14</MaximumSize>
+              </Label>
+              <WidgetGroup><Size>1me,1min</Size></WidgetGroup>
+              <Key>
+                <ObjectName>XdjKey</ObjectName>
+                <Group><Variable name="Group"/></Group>
+                <SizePolicy>max,f</SizePolicy>
+                <MinimumSize>0,14</MinimumSize>
+                <MaximumSize>-1,14</MaximumSize>
+                <Alignment>right</Alignment>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,visual_key</ConfigKey>
+                </Connection>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,key_compatible</ConfigKey>
+                  <BindProperty>highlight</BindProperty>
+                </Connection>
+              </Key>
+            </Children>
+          </WidgetGroup>
+
+          <WidgetGroup><Size>1min,3f</Size></WidgetGroup>
+
+          <!-- SYNC + Q row -->
+          <WidgetGroup>
+            <ObjectName>XdjBox</ObjectName>
+            <Layout>horizontal</Layout>
+            <SizePolicy>me,f</SizePolicy>
+            <MinimumSize>0,18</MinimumSize>
+            <MaximumSize>-1,18</MaximumSize>
+            <Children>
+              <PushButton>
+                <ObjectName>XdjSync</ObjectName>
+                <SizePolicy>me,f</SizePolicy>
+                <MinimumSize>0,14</MinimumSize>
+                <MaximumSize>-1,14</MaximumSize>
+                <NumberStates>2</NumberStates>
+                <State><Number>0</Number><Text>SYNC</Text></State>
+                <State><Number>1</Number><Text>SYNC</Text></State>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,sync_mode</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                </Connection>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,sync_enabled</ConfigKey>
+                </Connection>
+              </PushButton>
+              <WidgetGroup><Size>3f,1min</Size></WidgetGroup>
+              <PushButton>
+                <ObjectName>XdjQuant</ObjectName>
+                <SizePolicy>me,f</SizePolicy>
+                <MinimumSize>0,14</MinimumSize>
+                <MaximumSize>-1,14</MaximumSize>
+                <NumberStates>2</NumberStates>
+                <State><Number>0</Number><Text>Q</Text></State>
+                <State><Number>1</Number><Text>Q</Text></State>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,quantize</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                </Connection>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,quantize</ConfigKey>
+                </Connection>
+              </PushButton>
+            </Children>
+          </WidgetGroup>
+
+          <WidgetGroup><Size>1min,3f</Size></WidgetGroup>
+
+          <!-- LOOP box -->
+          <WidgetGroup>
+            <ObjectName>XdjLoopBox</ObjectName>
+            <Layout>vertical</Layout>
+            <SizePolicy>me,me</SizePolicy>
+            <MinimumSize>0,36</MinimumSize>
+            <MaximumSize>-1,60</MaximumSize>
+            <Children>
+              <WidgetGroup><Size>1min,1me</Size></WidgetGroup>
+              <Number>
+                <ObjectName>XdjLoopSize</ObjectName>
+                <SizePolicy>me,f</SizePolicy>
+                <MinimumSize>0,16</MinimumSize>
+                <MaximumSize>-1,16</MaximumSize>
+                <Alignment>center</Alignment>
+                <NumberOfDigits>0</NumberOfDigits>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,beatloop_size</ConfigKey>
+                </Connection>
+              </Number>
+              <WidgetGroup><Size>1min,1me</Size></WidgetGroup>
+              <WidgetGroup>
+                <Layout>horizontal</Layout>
+                <SizePolicy>me,f</SizePolicy>
+                <MinimumSize>0,16</MinimumSize>
+                <MaximumSize>-1,16</MaximumSize>
+                <Children>
+                  <PushButton>
+                    <ObjectName>XdjLoopDown</ObjectName>
+                    <Size>18f,14f</Size>
+                    <NumberStates>1</NumberStates>
+                    <State><Number>0</Number><Text>&#9664;</Text></State>
+                    <Connection>
+                      <ConfigKey><Variable name="Group"/>,loop_halve</ConfigKey>
+                      <ButtonState>LeftButton</ButtonState>
+                    </Connection>
+                  </PushButton>
+                  <PushButton>
+                    <ObjectName>XdjLoopBtn</ObjectName>
+                    <SizePolicy>me,f</SizePolicy>
+                    <MinimumSize>0,14</MinimumSize>
+                    <MaximumSize>-1,14</MaximumSize>
+                    <NumberStates>2</NumberStates>
+                    <State><Number>0</Number><Text>LOOP</Text></State>
+                    <State><Number>1</Number><Text>LOOP</Text></State>
+                    <Connection>
+                      <ConfigKey><Variable name="Group"/>,beatloop_activate</ConfigKey>
+                      <ButtonState>LeftButton</ButtonState>
+                    </Connection>
+                    <Connection>
+                      <ConfigKey><Variable name="Group"/>,loop_enabled</ConfigKey>
+                    </Connection>
+                  </PushButton>
+                  <PushButton>
+                    <ObjectName>XdjLoopUp</ObjectName>
+                    <Size>18f,14f</Size>
+                    <NumberStates>1</NumberStates>
+                    <State><Number>0</Number><Text>&#9654;</Text></State>
+                    <Connection>
+                      <ConfigKey><Variable name="Group"/>,loop_double</ConfigKey>
+                      <ButtonState>LeftButton</ButtonState>
+                    </Connection>
+                  </PushButton>
+                </Children>
+              </WidgetGroup>
+            </Children>
+          </WidgetGroup>
+
+          <WidgetGroup><Size>1min,1me</Size></WidgetGroup>
+
+        </Children>
+        <!-- Visible when show_grid_edit_N = 0 -->
+        <Connection>
+          <ConfigKey persist="true">[Skin],show_grid_edit_<Variable name="DeckNum"/></ConfigKey>
+          <Transform><Not/></Transform>
+          <BindProperty>visible</BindProperty>
+        </Connection>
+      </WidgetGroup>
+
+      <!-- ══════ TAB 2: GRID EDIT controls ══════ -->
+      <WidgetGroup>
+        <ObjectName>XdjTabGridContent</ObjectName>
+        <Layout>vertical</Layout>
+        <SizePolicy>me,me</SizePolicy>
+        <Children>
+
+          <WidgetGroup><Size>1min,1me</Size></WidgetGroup>
+
+          <!-- Row 1: PLAY · TAP -->
+          <WidgetGroup>
+            <Layout>horizontal</Layout>
+            <SizePolicy>me,f</SizePolicy>
+            <MinimumSize>0,16</MinimumSize>
+            <MaximumSize>-1,16</MaximumSize>
+            <Children>
+              <PushButton>
+                <ObjectName>XdjGePlay</ObjectName>
+                <SizePolicy>me,f</SizePolicy>
+                <MinimumSize>0,14</MinimumSize>
+                <MaximumSize>-1,14</MaximumSize>
+                <NumberStates>2</NumberStates>
+                <State><Number>0</Number><Text>&#9654;</Text><Alignment>center</Alignment></State>
+                <State><Number>1</Number><Text>&#10073;&#10073;</Text><Alignment>center</Alignment></State>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,play</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                </Connection>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,play</ConfigKey>
+                </Connection>
+              </PushButton>
+              <WidgetGroup><Size>3f,0min</Size></WidgetGroup>
+              <PushButton>
+                <ObjectName>XdjGeBtn</ObjectName>
+                <SizePolicy>me,f</SizePolicy>
+                <MinimumSize>0,14</MinimumSize>
+                <MaximumSize>-1,14</MaximumSize>
+                <NumberStates>1</NumberStates>
+                <State><Number>0</Number><Text>TAP</Text><Alignment>center</Alignment></State>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,bpm_tap</ConfigKey>
+                </Connection>
+              </PushButton>
+            </Children>
+          </WidgetGroup>
+
+          <WidgetGroup><Size>0min,2f</Size></WidgetGroup>
+
+          <!-- Row 2: BPM display · LOCK -->
+          <WidgetGroup>
+            <Layout>horizontal</Layout>
+            <SizePolicy>me,f</SizePolicy>
+            <MinimumSize>0,16</MinimumSize>
+            <MaximumSize>-1,16</MaximumSize>
+            <Children>
+              <Label><ObjectName>XdjGeLabel</ObjectName><Text>BPM</Text><SizePolicy>max,f</SizePolicy></Label>
+              <Number>
+                <ObjectName>XdjGeBpm</ObjectName>
+                <SizePolicy>me,f</SizePolicy>
+                <Alignment>right</Alignment>
+                <NumberOfDigits>2</NumberOfDigits>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,visual_bpm</ConfigKey>
+                </Connection>
+              </Number>
+              <WidgetGroup><Size>3f,0min</Size></WidgetGroup>
+              <PushButton>
+                <ObjectName>XdjGeLock</ObjectName>
+                <SizePolicy>max,f</SizePolicy>
+                <MinimumSize>28,14</MinimumSize>
+                <MaximumSize>28,14</MaximumSize>
+                <NumberStates>2</NumberStates>
+                <State><Number>0</Number><Text>&#128275;</Text><Alignment>center</Alignment></State>
+                <State><Number>1</Number><Text>&#128274;</Text><Alignment>center</Alignment></State>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,bpmlock</ConfigKey>
+                </Connection>
+              </PushButton>
+            </Children>
+          </WidgetGroup>
+
+          <WidgetGroup><Size>0min,2f</Size></WidgetGroup>
+
+          <!-- Row 3: ◄ translate · SET BEAT · translate ► -->
+          <WidgetGroup>
+            <Layout>horizontal</Layout>
+            <SizePolicy>me,f</SizePolicy>
+            <MinimumSize>0,16</MinimumSize>
+            <MaximumSize>-1,16</MaximumSize>
+            <Children>
+              <PushButton>
+                <ObjectName>XdjGeBtn</ObjectName>
+                <SizePolicy>me,f</SizePolicy>
+                <MinimumSize>0,14</MinimumSize>
+                <MaximumSize>-1,14</MaximumSize>
+                <NumberStates>1</NumberStates>
+                <State><Number>0</Number><Text>&#9664;</Text><Alignment>center</Alignment></State>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,beats_translate_earlier</ConfigKey>
+                </Connection>
+              </PushButton>
+              <WidgetGroup><Size>3f,0min</Size></WidgetGroup>
+              <PushButton>
+                <ObjectName>XdjGeSetBtn</ObjectName>
+                <SizePolicy>me,f</SizePolicy>
+                <MinimumSize>0,14</MinimumSize>
+                <MaximumSize>-1,14</MaximumSize>
+                <NumberStates>1</NumberStates>
+                <State><Number>0</Number><Text>SET</Text><Alignment>center</Alignment></State>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,beats_translate_curpos</ConfigKey>
+                </Connection>
+              </PushButton>
+              <WidgetGroup><Size>3f,0min</Size></WidgetGroup>
+              <PushButton>
+                <ObjectName>XdjGeBtn</ObjectName>
+                <SizePolicy>me,f</SizePolicy>
+                <MinimumSize>0,14</MinimumSize>
+                <MaximumSize>-1,14</MaximumSize>
+                <NumberStates>1</NumberStates>
+                <State><Number>0</Number><Text>&#9654;</Text><Alignment>center</Alignment></State>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,beats_translate_later</ConfigKey>
+                </Connection>
+              </PushButton>
+            </Children>
+          </WidgetGroup>
+
+          <WidgetGroup><Size>0min,2f</Size></WidgetGroup>
+
+          <!-- Row 4: − BPM · + BPM -->
+          <WidgetGroup>
+            <Layout>horizontal</Layout>
+            <SizePolicy>me,f</SizePolicy>
+            <MinimumSize>0,16</MinimumSize>
+            <MaximumSize>-1,16</MaximumSize>
+            <Children>
+              <PushButton>
+                <ObjectName>XdjGeBtn</ObjectName>
+                <SizePolicy>me,f</SizePolicy>
+                <MinimumSize>0,14</MinimumSize>
+                <MaximumSize>-1,14</MaximumSize>
+                <NumberStates>1</NumberStates>
+                <State><Number>0</Number><Text>&#8722; BPM</Text><Alignment>center</Alignment></State>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,beats_adjust_slower</ConfigKey>
+                </Connection>
+              </PushButton>
+              <WidgetGroup><Size>3f,0min</Size></WidgetGroup>
+              <PushButton>
+                <ObjectName>XdjGeBtn</ObjectName>
+                <SizePolicy>me,f</SizePolicy>
+                <MinimumSize>0,14</MinimumSize>
+                <MaximumSize>-1,14</MaximumSize>
+                <NumberStates>1</NumberStates>
+                <State><Number>0</Number><Text>+ BPM</Text><Alignment>center</Alignment></State>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,beats_adjust_faster</ConfigKey>
+                </Connection>
+              </PushButton>
+            </Children>
+          </WidgetGroup>
+
+          <WidgetGroup><Size>0min,2f</Size></WidgetGroup>
+
+          <!-- Row 5: x½ · x2 · UNDO -->
+          <WidgetGroup>
+            <Layout>horizontal</Layout>
+            <SizePolicy>me,f</SizePolicy>
+            <MinimumSize>0,16</MinimumSize>
+            <MaximumSize>-1,16</MaximumSize>
+            <Children>
+              <PushButton>
+                <ObjectName>XdjGeBtn</ObjectName>
+                <SizePolicy>me,f</SizePolicy>
+                <MinimumSize>0,14</MinimumSize>
+                <MaximumSize>-1,14</MaximumSize>
+                <NumberStates>1</NumberStates>
+                <State><Number>0</Number><Text>x&#189;</Text><Alignment>center</Alignment></State>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,beats_set_halve</ConfigKey>
+                </Connection>
+              </PushButton>
+              <WidgetGroup><Size>3f,0min</Size></WidgetGroup>
+              <PushButton>
+                <ObjectName>XdjGeBtn</ObjectName>
+                <SizePolicy>me,f</SizePolicy>
+                <MinimumSize>0,14</MinimumSize>
+                <MaximumSize>-1,14</MaximumSize>
+                <NumberStates>1</NumberStates>
+                <State><Number>0</Number><Text>x2</Text><Alignment>center</Alignment></State>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,beats_set_double</ConfigKey>
+                </Connection>
+              </PushButton>
+              <WidgetGroup><Size>3f,0min</Size></WidgetGroup>
+              <PushButton>
+                <ObjectName>XdjGeBtn</ObjectName>
+                <SizePolicy>me,f</SizePolicy>
+                <MinimumSize>0,14</MinimumSize>
+                <MaximumSize>-1,14</MaximumSize>
+                <NumberStates>1</NumberStates>
+                <State><Number>0</Number><Text>&#8634;</Text><Alignment>center</Alignment></State>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,beats_undo_adjustment</ConfigKey>
+                </Connection>
+              </PushButton>
+            </Children>
+          </WidgetGroup>
+
+          <WidgetGroup><Size>1min,1me</Size></WidgetGroup>
+
+        </Children>
+        <!-- Visible when show_grid_edit_N = 1 -->
+        <Connection>
+          <ConfigKey persist="true">[Skin],show_grid_edit_<Variable name="DeckNum"/></ConfigKey>
+          <BindProperty>visible</BindProperty>
+        </Connection>
+      </WidgetGroup>
+
+    </Children>
+  </WidgetGroup>
+</Template>

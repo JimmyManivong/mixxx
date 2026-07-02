@@ -271,6 +271,10 @@ void Tooltips::addStandardTooltips() {
     add("show_beatgrid_controls")
             << tr("Show/hide the beatgrid controls section");
 
+    add("show_grid_edit")
+            << tr("Beatgrid Editor")
+            << tr("Show or hide the beatgrid editing controls.");
+
     add("show_library")
             << tr("Show Library")
             << tr("Show or hide the track library.");
@@ -408,6 +412,10 @@ void Tooltips::addStandardTooltips() {
             << tr("Tempo")
             << tempoDisplay;
 
+    add("bpm")
+            << tr("BPM")
+            << tr("Displays the current BPM of the loaded track.");
+
     add("visual_key")
             //: The musical key of a track
             << tr("Key")
@@ -431,6 +439,14 @@ void Tooltips::addStandardTooltips() {
     add("beats_adjust_faster")
             << tr("Adjust BPM Up")
             << tr("When tapped, adjusts the average BPM up by a small amount.");
+
+    add("beats_set_halve")
+            << tr("Halve BPM")
+            << tr("When tapped, halves the BPM of the loaded track's beatgrid.");
+
+    add("beats_set_double")
+            << tr("Double BPM")
+            << tr("When tapped, doubles the BPM of the loaded track's beatgrid.");
 
     add("beats_translate_earlier")
             << tr("Adjust Beats Earlier")

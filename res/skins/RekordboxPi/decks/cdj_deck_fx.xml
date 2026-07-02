@@ -1,0 +1,211 @@
+<Template>
+  <!-- CUSTOM CDJ/XDJ-AZ right FX column, mirrors XdjSidebar's width/height so
+       both columns frame the waveform evenly. Rekordbox "Beat FX"-style panel
+       wired to a real Mixxx general-purpose effect unit (EffectRack1_EffectUnitN):
+       effect selector, LEVEL (meta) + MIX knobs, ON toggle, deck-assign buttons.
+       Caller SetVariable: FxUnit (1-4), FxKnobColor (green/blue), FxArcColor (hex). -->
+  <SetVariable name="FxGroup">[EffectRack1_EffectUnit<Variable name="FxUnit"/>]</SetVariable>
+  <SetVariable name="FxSlotGroup">[EffectRack1_EffectUnit<Variable name="FxUnit"/>_Effect1]</SetVariable>
+
+  <WidgetGroup>
+    <ObjectName>XdjFxPanel</ObjectName>
+    <Layout>vertical</Layout>
+    <SizePolicy>max,me</SizePolicy>
+    <MinimumSize>140,130</MinimumSize>
+    <MaximumSize>140,-1</MaximumSize>
+    <Children>
+
+      <WidgetGroup><Size>1min,1me</Size></WidgetGroup>
+
+      <!-- Header: FX N label + ON/OFF -->
+      <WidgetGroup>
+        <ObjectName>XdjBox</ObjectName>
+        <Layout>horizontal</Layout>
+        <SizePolicy>me,f</SizePolicy>
+        <MinimumSize>0,18</MinimumSize>
+        <MaximumSize>-1,18</MaximumSize>
+        <Children>
+          <Label>
+            <ObjectName>XdjBoxLabel</ObjectName>
+            <Text>FX <Variable name="FxUnit"/></Text>
+            <SizePolicy>max,f</SizePolicy>
+            <MinimumSize>0,14</MinimumSize>
+            <MaximumSize>-1,14</MaximumSize>
+          </Label>
+          <WidgetGroup><Size>1me,1min</Size></WidgetGroup>
+          <PushButton>
+            <ObjectName>XdjFxOn</ObjectName>
+            <SizePolicy>max,f</SizePolicy>
+            <MinimumSize>28,14</MinimumSize>
+            <MaximumSize>28,14</MaximumSize>
+            <NumberStates>2</NumberStates>
+            <State><Number>0</Number><Text>OFF</Text><Alignment>center</Alignment></State>
+            <State><Number>1</Number><Text>ON</Text><Alignment>center</Alignment></State>
+            <Connection>
+              <ConfigKey><Variable name="FxSlotGroup"/>,enabled</ConfigKey>
+              <ButtonState>LeftButton</ButtonState>
+            </Connection>
+            <Connection>
+              <ConfigKey><Variable name="FxSlotGroup"/>,enabled</ConfigKey>
+            </Connection>
+          </PushButton>
+        </Children>
+      </WidgetGroup>
+
+      <WidgetGroup><Size>1min,3f</Size></WidgetGroup>
+
+      <!-- Effect selector: shows/cycles the loaded effect -->
+      <WidgetGroup>
+        <ObjectName>XdjBox</ObjectName>
+        <Layout>horizontal</Layout>
+        <SizePolicy>me,f</SizePolicy>
+        <MinimumSize>0,18</MinimumSize>
+        <MaximumSize>-1,18</MaximumSize>
+        <Children>
+          <EffectSelector>
+            <ObjectName>XdjFxSelector</ObjectName>
+            <SizePolicy>me,f</SizePolicy>
+            <MinimumSize>0,16</MinimumSize>
+            <MaximumSize>-1,16</MaximumSize>
+            <EffectRack>1</EffectRack>
+            <EffectUnit><Variable name="FxUnit"/></EffectUnit>
+            <Effect>1</Effect>
+          </EffectSelector>
+        </Children>
+      </WidgetGroup>
+
+      <WidgetGroup><Size>1min,4f</Size></WidgetGroup>
+
+      <!-- Knobs: LEVEL (meta) + MIX (dry/wet) -->
+      <WidgetGroup>
+        <Layout>horizontal</Layout>
+        <SizePolicy>me,f</SizePolicy>
+        <MinimumSize>0,46</MinimumSize>
+        <MaximumSize>-1,46</MaximumSize>
+        <Children>
+          <WidgetGroup><Size>1me,0min</Size></WidgetGroup>
+
+          <WidgetGroup>
+            <ObjectName>XdjFxKnobBox</ObjectName>
+            <Layout>vertical</Layout>
+            <SizePolicy>max,f</SizePolicy>
+            <Children>
+              <EffectMetaKnob>
+                <ObjectName>XdjFxKnob</ObjectName>
+                <Size>34f,30f</Size>
+                <Knob>skins:RekordboxPi/palemoon/knobs/knob_indicator_small_<Variable name="FxKnobColor"/>.svg</Knob>
+                <BackPath>skins:RekordboxPi/palemoon/knobs/knob_bg_small.svg</BackPath>
+                <MinAngle><Variable name="PotiMinAngle"/></MinAngle>
+                <MaxAngle><Variable name="PotiMaxAngle"/></MaxAngle>
+                <KnobCenterYOffset>1.883</KnobCenterYOffset>
+                <ArcRadius><Variable name="ArcRadiusSmall"/></ArcRadius>
+                <ArcThickness><Variable name="ArcThicknessBig"/></ArcThickness>
+                <ArcRoundCaps><Variable name="ArcRoundCaps"/></ArcRoundCaps>
+                <ArcColor><Variable name="FxArcColor"/></ArcColor>
+                <EffectUnit><Variable name="FxUnit"/></EffectUnit>
+                <Effect>1</Effect>
+                <Connection>
+                  <ConfigKey><Variable name="FxSlotGroup"/>,meta</ConfigKey>
+                </Connection>
+              </EffectMetaKnob>
+              <Label>
+                <ObjectName>XdjFxKnobLabel</ObjectName>
+                <Text>LEVEL</Text>
+                <Alignment>center</Alignment>
+                <SizePolicy>max,f</SizePolicy>
+                <MinimumSize>34,10</MinimumSize>
+                <MaximumSize>34,10</MaximumSize>
+              </Label>
+            </Children>
+          </WidgetGroup>
+
+          <WidgetGroup><Size>8f,0min</Size></WidgetGroup>
+
+          <WidgetGroup>
+            <ObjectName>XdjFxKnobBox</ObjectName>
+            <Layout>vertical</Layout>
+            <SizePolicy>max,f</SizePolicy>
+            <Children>
+              <KnobComposed>
+                <ObjectName>XdjFxKnob</ObjectName>
+                <Size>34f,30f</Size>
+                <Knob>skins:RekordboxPi/palemoon/knobs/knob_indicator_small_<Variable name="FxKnobColor"/>.svg</Knob>
+                <BackPath>skins:RekordboxPi/palemoon/knobs/knob_bg_small.svg</BackPath>
+                <MinAngle><Variable name="PotiMinAngle"/></MinAngle>
+                <MaxAngle><Variable name="PotiMaxAngle"/></MaxAngle>
+                <KnobCenterYOffset>1.883</KnobCenterYOffset>
+                <ArcRadius><Variable name="ArcRadiusSmall"/></ArcRadius>
+                <ArcThickness><Variable name="ArcThicknessBig"/></ArcThickness>
+                <ArcRoundCaps><Variable name="ArcRoundCaps"/></ArcRoundCaps>
+                <ArcUnipolar>true</ArcUnipolar>
+                <ArcColor><Variable name="FxArcColor"/></ArcColor>
+                <Connection>
+                  <ConfigKey><Variable name="FxGroup"/>,mix</ConfigKey>
+                </Connection>
+              </KnobComposed>
+              <Label>
+                <ObjectName>XdjFxKnobLabel</ObjectName>
+                <Text>MIX</Text>
+                <Alignment>center</Alignment>
+                <SizePolicy>max,f</SizePolicy>
+                <MinimumSize>34,10</MinimumSize>
+                <MaximumSize>34,10</MaximumSize>
+              </Label>
+            </Children>
+          </WidgetGroup>
+
+          <WidgetGroup><Size>1me,0min</Size></WidgetGroup>
+        </Children>
+      </WidgetGroup>
+
+      <WidgetGroup><Size>1min,4f</Size></WidgetGroup>
+
+      <!-- Deck assign: apply this unit to deck 1 and/or deck 2 -->
+      <WidgetGroup>
+        <ObjectName>XdjBox</ObjectName>
+        <Layout>horizontal</Layout>
+        <SizePolicy>me,f</SizePolicy>
+        <MinimumSize>0,18</MinimumSize>
+        <MaximumSize>-1,18</MaximumSize>
+        <Children>
+          <PushButton>
+            <ObjectName>XdjFxAssign</ObjectName>
+            <SizePolicy>me,f</SizePolicy>
+            <MinimumSize>0,14</MinimumSize>
+            <MaximumSize>-1,14</MaximumSize>
+            <NumberStates>2</NumberStates>
+            <State><Number>0</Number><Text><Variable name="FxDeckA"/></Text><Alignment>center</Alignment></State>
+            <State><Number>1</Number><Text><Variable name="FxDeckA"/></Text><Alignment>center</Alignment></State>
+            <Connection>
+              <ConfigKey><Variable name="FxGroup"/>,group_[Channel<Variable name="FxDeckA"/>]_enable</ConfigKey>
+              <ButtonState>LeftButton</ButtonState>
+            </Connection>
+            <Connection>
+              <ConfigKey><Variable name="FxGroup"/>,group_[Channel<Variable name="FxDeckA"/>]_enable</ConfigKey>
+            </Connection>
+          </PushButton>
+          <WidgetGroup><Size>3f,0min</Size></WidgetGroup>
+          <PushButton>
+            <ObjectName>XdjFxAssign</ObjectName>
+            <SizePolicy>me,f</SizePolicy>
+            <MinimumSize>0,14</MinimumSize>
+            <MaximumSize>-1,14</MaximumSize>
+            <NumberStates>2</NumberStates>
+            <State><Number>0</Number><Text><Variable name="FxDeckB"/></Text><Alignment>center</Alignment></State>
+            <State><Number>1</Number><Text><Variable name="FxDeckB"/></Text><Alignment>center</Alignment></State>
+            <Connection>
+              <ConfigKey><Variable name="FxGroup"/>,group_[Channel<Variable name="FxDeckB"/>]_enable</ConfigKey>
+              <ButtonState>LeftButton</ButtonState>
+            </Connection>
+            <Connection>
+              <ConfigKey><Variable name="FxGroup"/>,group_[Channel<Variable name="FxDeckB"/>]_enable</ConfigKey>
+            </Connection>
+          </PushButton>
+        </Children>
+      </WidgetGroup>
+
+      <WidgetGroup><Size>1min,1me</Size></WidgetGroup>
+
+    </Children>
+  </WidgetGroup>
+</Template>

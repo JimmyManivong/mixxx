@@ -1,0 +1,134 @@
+<Template>
+  <!-- CUSTOM XDJ-AZ preview panel for one deck: badge + title + Play/Cue (stopgap
+       transport so decks without hardware can be tested), a framed BPM box with
+       -/+ nudge, and the full-track overview. Caller: Group, DeckNum, DeckBadgeObj. -->
+  <WidgetGroup>
+    <ObjectName>CdjMiniDeck</ObjectName>
+    <Layout>vertical</Layout>
+    <SizePolicy>me,me</SizePolicy>
+    <Children>
+
+      <!-- Row: badge | title | Play | Cue | remaining time -->
+      <WidgetGroup>
+        <Layout>horizontal</Layout>
+        <SizePolicy>me,min</SizePolicy>
+        <Children>
+          <Label>
+            <ObjectName><Variable name="DeckBadgeObj"/></ObjectName>
+            <Text><Variable name="DeckNum"/></Text>
+            <Size>18f,20f</Size>
+          </Label>
+          <WidgetGroup><Size>5f,1min</Size></WidgetGroup>
+          <TrackProperty>
+            <ObjectName>CdjMiniTitle</ObjectName>
+            <Group><Variable name="Group"/></Group>
+            <Property>title</Property>
+            <ReadOnly>true</ReadOnly>
+            <Elide>right</Elide>
+            <SizePolicy>me,f</SizePolicy>
+          </TrackProperty>
+          <WidgetGroup><Size>6f,1min</Size></WidgetGroup>
+
+          <!-- Play (toggle) -->
+          <PushButton>
+            <ObjectName>CdjMiniPlay</ObjectName>
+            <Size>30f,20f</Size>
+            <NumberStates>2</NumberStates>
+            <State><Number>0</Number><Text>&#9654;</Text></State>
+            <State><Number>1</Number><Text>&#10073;&#10073;</Text></State>
+            <Connection>
+              <ConfigKey><Variable name="Group"/>,play</ConfigKey>
+              <ButtonState>LeftButton</ButtonState>
+            </Connection>
+          </PushButton>
+          <!-- Cue (momentary) -->
+          <PushButton>
+            <ObjectName>CdjMiniCue</ObjectName>
+            <Size>32f,20f</Size>
+            <NumberStates>1</NumberStates>
+            <State><Number>0</Number><Text>CUE</Text></State>
+            <Connection>
+              <ConfigKey><Variable name="Group"/>,cue_default</ConfigKey>
+              <ButtonState>LeftButton</ButtonState>
+            </Connection>
+          </PushButton>
+
+          <WidgetGroup><Size>6f,1min</Size></WidgetGroup>
+          <NumberPos>
+            <ObjectName>CdjMiniTime</ObjectName>
+            <Group><Variable name="Group"/></Group>
+            <SizePolicy>max,f</SizePolicy>
+            <Alignment>right</Alignment>
+            <Connection>
+              <ConfigKey><Variable name="Group"/>,playposition</ConfigKey>
+            </Connection>
+          </NumberPos>
+        </Children>
+      </WidgetGroup>
+
+      <!-- Row: artist | [ - BPM 000 + ] -->
+      <WidgetGroup>
+        <Layout>horizontal</Layout>
+        <SizePolicy>me,min</SizePolicy>
+        <Children>
+          <TrackProperty>
+            <ObjectName>CdjMiniArtist</ObjectName>
+            <Group><Variable name="Group"/></Group>
+            <Property>artist</Property>
+            <ReadOnly>true</ReadOnly>
+            <Elide>right</Elide>
+            <SizePolicy>me,f</SizePolicy>
+          </TrackProperty>
+          <WidgetGroup><Size>6f,1min</Size></WidgetGroup>
+
+          <!-- Framed BPM box with -/+ nudge (adjusts the track BPM) -->
+          <WidgetGroup>
+            <ObjectName>CdjMiniBpmBox</ObjectName>
+            <Layout>horizontal</Layout>
+            <SizePolicy>max,f</SizePolicy>
+            <Children>
+              <PushButton>
+                <ObjectName>CdjMiniBpmDown</ObjectName>
+                <Size>18f,20f</Size>
+                <NumberStates>1</NumberStates>
+                <State><Number>0</Number><Text>&#8722;</Text></State>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,beats_adjust_slower</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                </Connection>
+              </PushButton>
+              <Label><ObjectName>CdjMiniBpmLabel</ObjectName><Text>BPM</Text><SizePolicy>max,f</SizePolicy></Label>
+              <Number>
+                <ObjectName>CdjMiniBpm</ObjectName>
+                <SizePolicy>max,f</SizePolicy>
+                <Alignment>right</Alignment>
+                <NumberOfDigits>2</NumberOfDigits>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,visual_bpm</ConfigKey>
+                </Connection>
+              </Number>
+              <PushButton>
+                <ObjectName>CdjMiniBpmUp</ObjectName>
+                <Size>18f,20f</Size>
+                <NumberStates>1</NumberStates>
+                <State><Number>0</Number><Text>+</Text></State>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,beats_adjust_faster</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                </Connection>
+              </PushButton>
+            </Children>
+          </WidgetGroup>
+        </Children>
+      </WidgetGroup>
+
+      <!-- Full-track overview (preview) -->
+      <Template src="skins:RekordboxPi/decks/overview.xml">
+        <SetVariable name="Group"><Variable name="Group"/></SetVariable>
+        <SetVariable name="SignalColor"><Variable name="SignalColor_12"/></SetVariable>
+        <SetVariable name="OverviewFontSize">8</SetVariable>
+      </Template>
+
+    </Children>
+  </WidgetGroup>
+</Template>

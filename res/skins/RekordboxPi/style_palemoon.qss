@@ -3413,16 +3413,14 @@ WLibraryTextBrowser {
 }
 #XdjStripRow1, #XdjStripRow2 { background-color: transparent; }
 
-/* deck number badge */
+/* deck number badge — plain number, no colored block */
 #XdjBadge1, #XdjBadge2 {
-  color: #ffffff;
-  font-size: 18px;
+  color: #8b9197;
+  font-size: 16px;
   font-weight: bold;
   qproperty-alignment: 'AlignCenter';
-  border-radius: 5px;
+  background-color: transparent;
 }
-#XdjBadge1 { background-color: #2196f3; }   /* deck 1 = blue */
-#XdjBadge2 { background-color: #e53935; }   /* deck 2 = red  */
 
 /* small caps labels (KEY / BPM / TIME) */
 #XdjLabel {
@@ -3433,9 +3431,312 @@ WLibraryTextBrowser {
 
 #XdjTitle  { color: #ffffff; font-size: 15px; font-weight: bold; }
 #XdjArtist { color: #9aa0a6; font-size: 12px; }
-#XdjTime   { color: #ffffff; font-size: 23px; font-weight: bold; }
+#XdjTime   { color: #ffffff; font-size: 14px; font-weight: bold; }
 #XdjBpm    { color: #ffffff; font-size: 23px; font-weight: bold; }
-#XdjKey    { color: #2bb6ff; font-size: 16px; font-weight: bold; }
+/* CUSTOM: key is white by default, and lights up blue only when it is
+   harmonically compatible with another loaded deck (key_compatible -> highlight). */
+#XdjKey    { color: #ffffff; font-size: 16px; font-weight: bold; }
+#XdjKey[highlight="true"] { color: #2bb6ff; }
+
+/* ===== CDJ/XDJ-AZ left deck info column ===== */
+/* Lighter-grey panel so it reads against the black waveform area. */
+#XdjSidebar {
+  background-color: #26282d;
+  border-right: 1px solid #15161a;
+  margin: 0px;
+  padding: 2px 8px 2px 10px;
+}
+/* DECK 1 / DECK 2 header */
+#XdjDeckHeader {
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: bold;
+  min-height: 14px;
+  max-height: 14px;
+  padding: 0px 2px;
+}
+/* Boxed value rows (KEY / SYNC+Q / LOOP) */
+#XdjBox {
+  background-color: #34373d;
+  border: 1px solid #15161a;
+  border-radius: 4px;
+  min-height: 18px;
+  max-height: 18px;
+  padding: 0px 6px;
+}
+#XdjBoxLabel {
+  color: #8b9197;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+/* ===== Bottom 4-Deck View (mini panels) ===== */
+/* Same grey surface as the left column, framing each preview overview */
+#CdjMiniDeck {
+  background-color: #26282d;
+  border: 1px solid #15161a;
+  border-radius: 4px;
+  margin: 2px;
+  padding: 4px 6px;
+}
+/* Horizontal divider between deck 1 and deck 2 in the left stack */
+#CdjDeckDivider {
+  background-color: #15161a;
+}
+#CdjMiniTitle {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: bold;
+}
+#CdjMiniArtist {
+  color: #aeb4ba;
+  font-size: 11px;
+}
+#CdjMiniTime {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: bold;
+}
+/* Framed BPM box: white value in a case labelled BPM, with -/+ nudge buttons */
+#CdjMiniBpmBox {
+  background-color: #34373d;
+  border: 1px solid #15161a;
+  border-radius: 4px;
+}
+#CdjMiniBpmLabel {
+  color: #8b9197;
+  font-size: 9px;
+  font-weight: bold;
+  padding-left: 4px;
+}
+#CdjMiniBpm {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 0px 4px;
+}
+#CdjMiniBpmDown, #CdjMiniBpmUp {
+  background-color: #3f434a;
+  color: #d6dade;
+  border: none;
+  border-radius: 3px;
+  font-size: 13px;
+  font-weight: bold;
+}
+#CdjMiniBpmDown:pressed, #CdjMiniBpmUp:pressed {
+  background-color: #2bb6ff;
+  color: #ffffff;
+}
+
+/* Stopgap Play / Cue on each preview panel (control decks without hardware) */
+#CdjMiniPlay {
+  background-color: #2f333a;
+  color: #37c66b;
+  border: 1px solid #15161a;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: bold;
+}
+#CdjMiniPlay[displayValue="1"] {
+  background-color: #1f8f47;
+  color: #ffffff;
+}
+#CdjMiniCue {
+  background-color: #2f333a;
+  color: #ff7a3d;
+  border: 1px solid #15161a;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: bold;
+}
+#CdjMiniCue[displayValue="1"] {
+  background-color: #ff7a3d;
+  color: #ffffff;
+}
+
+/* ── Sidebar: SYNC / Q / MSTR / Loop controls ── */
+/* WPushButton exposes displayValue (int) as Q_PROPERTY with NOTIFY;
+   use [displayValue="1"] not :checked which never fires on these widgets. */
+#XdjSync, #XdjQuant {
+  background-color: #2f333a;
+  color: #8b9197;
+  border: 1px solid #15161a;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: bold;
+}
+#XdjSync[displayValue="1"] {
+  background-color: #e07000;
+  color: #ffffff;
+}
+#XdjQuant[displayValue="1"] {
+  background-color: #c97800;
+  color: #ffffff;
+}
+/* ── Sidebar tabs: DECK | GRID ── */
+#XdjTabBar {
+  background-color: #111316;
+  border-bottom: 1px solid #0a0b0d;
+}
+/* DECK tab — active (white underline) when displayValue=0 (show_grid_edit_N=0) */
+#XdjTabNormal {
+  background-color: #111316;
+  color: #e0e4e8;
+  border: none;
+  border-bottom: 2px solid #e0e4e8;
+  border-radius: 0px;
+  font-size: 10px;
+  font-weight: bold;
+}
+#XdjTabNormal[displayValue="1"] {
+  color: #44484f;
+  border-bottom: 2px solid transparent;
+}
+/* GRID tab — active (blue underline) when displayValue=1 (show_grid_edit_N=1) */
+#XdjTabGrid {
+  background-color: #111316;
+  color: #44484f;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0px;
+  font-size: 10px;
+  font-weight: bold;
+}
+#XdjTabGrid[displayValue="1"] {
+  color: #4da6ff;
+  border-bottom: 2px solid #4da6ff;
+}
+/* ── Grid edit controls ── */
+#XdjGeLabel {
+  color: #6a7078;
+  font-size: 9px;
+  font-weight: bold;
+}
+#XdjGeBpm {
+  color: #e0e4e8;
+  font-size: 13px;
+  font-weight: bold;
+}
+#XdjGeBtn {
+  background-color: #2a2e35;
+  color: #c8cdd3;
+  border: 1px solid #12141a;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: bold;
+}
+#XdjGeSetBtn {
+  background-color: #1a3560;
+  color: #7ab4ff;
+  border: 1px solid #12203e;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: bold;
+}
+#XdjGeLock {
+  background-color: #2a2e35;
+  color: #c8cdd3;
+  border: 1px solid #12141a;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: bold;
+}
+#XdjGeLock[displayValue="1"] {
+  background-color: #7a1a10;
+  color: #ff6a5a;
+}
+#XdjGePlay {
+  background-color: #1a3a1a;
+  color: #5ae05a;
+  border: 1px solid #0e240e;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: bold;
+}
+#XdjGePlay[displayValue="1"] {
+  background-color: #3a1a1a;
+  color: #ff7a5a;
+}
+#XdjLoopBtn {
+  background-color: #2f333a;
+  color: #8b9197;
+  border: 1px solid #15161a;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: bold;
+}
+#XdjLoopBtn[displayValue="1"] {
+  background-color: #ff7a01;
+  color: #ffffff;
+}
+#XdjLoopDown, #XdjLoopUp {
+  background-color: #3f434a;
+  color: #d6dade;
+  border: none;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: bold;
+}
+#XdjLoopBox {
+  background-color: #34373d;
+  border: 1px solid #15161a;
+  border-radius: 4px;
+  min-height: 36px;
+  max-height: 60px;
+  padding: 2px 6px;
+}
+#XdjLoopSize {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: bold;
+  background-color: transparent;
+}
+
+/* ===== CDJ/XDJ-AZ right FX column (mirrors XdjSidebar) ===== */
+#XdjFxPanel {
+  background-color: #26282d;
+  border-left: 1px solid #15161a;
+  margin: 0px;
+  padding: 2px 10px 2px 8px;
+}
+#XdjFxOn {
+  background-color: #2f333a;
+  color: #8b9197;
+  border: 1px solid #15161a;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: bold;
+}
+#XdjFxOn[displayValue="1"] {
+  background-color: #37c66b;
+  color: #ffffff;
+}
+#XdjFxSelector {
+  background-color: #2a2e35;
+  color: #c8cdd3;
+  border: 1px solid #12141a;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: bold;
+  padding: 0px 4px;
+}
+#XdjFxKnobLabel {
+  color: #6a7078;
+  font-size: 8px;
+  font-weight: bold;
+}
+#XdjFxAssign {
+  background-color: #2f333a;
+  color: #8b9197;
+  border: 1px solid #15161a;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: bold;
+}
+#XdjFxAssign[displayValue="1"] {
+  background-color: #4da6ff;
+  color: #ffffff;
+}
 
 /* ===== CUSTOM Rekordbox / XDJ-AZ global dark theme (M3) ===== */
 /* Browser: near-black with a blue selection highlight, like the XDJ-AZ. */

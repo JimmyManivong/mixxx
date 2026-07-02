@@ -188,11 +188,12 @@
       <SetVariable name="SignalColor_12">#d9b28c</SetVariable>
       <SetVariable name="SignalColor_34">#7bc6c3</SetVariable>
 
-      <!-- Only named colors are accepted, see w3 color chart
-          https://www.w3.org/wiki/CSS/Properties/color/keywords -->
-      <SetVariable name="SignalHighColor">mediumblue</SetVariable><!-- #0000cd -->
-      <SetVariable name="SignalMidColor">darkgreen</SetVariable><!-- #006400 -->
-      <SetVariable name="SignalLowColor">orangered</SetVariable><!-- #ff4500 -->
+      <!-- Exact Rekordbox colours pixel-sampled from 2880x1800 capture -->
+      <!-- Pixel-sampled from a real Rekordbox waveform capture (2026-06-30):
+           low #1F4DD8, mid #F2A63B (bright amber), high #F2EAD7 (warm white). -->
+      <SetVariable name="SignalHighColor">#F2EAD7</SetVariable><!-- warm white / highs -->
+      <SetVariable name="SignalMidColor">#F2A63B</SetVariable><!-- bright amber / mids (blends to brown over blue) -->
+      <SetVariable name="SignalLowColor">#1F4DD8</SetVariable><!-- blue / bass -->
       <!-- Rekordbox "3Band" waveform colours — the EXACT literal fill colours,
            sampled from a 2880x1800 Rekordbox-software capture (mode of 30k-44k
            pixels per band; Rekordbox fills each band with one solid colour):
@@ -217,7 +218,7 @@
       <SetVariable name="BeatColor">#999</SetVariable>
       <SetVariable name="PlayPosColor">#00c6ff</SetVariable>
       <SetVariable name="CueColor">#ff7a01</SetVariable>
-      <SetVariable name="LoopColor">#00b400</SetVariable>
+      <SetVariable name="LoopColor">#ff7a01</SetVariable>
       <SetVariable name="IntroOutroColor">#2c5c9a</SetVariable>
       <SetVariable name="PlayedOverlayColor">#dd151515</SetVariable>
       <SetVariable name="EndOfTrackColor">#f856e7</SetVariable>
@@ -411,8 +412,35 @@
       </Children>
     </SingletonDefinition>
 
-    <!-- CUSTOM Rekordbox: 2-deck layout — Deck3/Deck4 singleton definitions removed.
-         (Their SingletonContainers in decks_*_*.xml are guarded by show_4decks=0.) -->
+    <!-- CUSTOM Rekordbox: Deck3/Deck4 singletons re-added so the BIG LIBRARY view
+         (and any 4-deck container) can show + load decks 3 & 4 when show_4decks=1.
+         Their mini strips only render when placed in a visible container, so this
+         stays cheap on the Pi while the primary perf view remains 2-deck. -->
+    <SingletonDefinition>
+      <ObjectName>Deck3_Src</ObjectName>
+      <Children>
+      <Template src="skins:RekordboxPi/decks/deck.xml">
+        <SetVariable name="ChanNum">3</SetVariable>
+        <SetVariable name="MirrorReverse"></SetVariable>
+        <SetVariable name="DeckGroup">34</SetVariable>
+        <SetVariable name="SignalColor"><Variable name="SignalColor_34"/></SetVariable>
+        <SetVariable name="BgColor"><Variable name="BgColorOverview_34"/></SetVariable>
+      </Template>
+      </Children>
+    </SingletonDefinition>
+
+    <SingletonDefinition>
+      <ObjectName>Deck4_Src</ObjectName>
+      <Children>
+        <Template src="skins:RekordboxPi/decks/deck.xml">
+          <SetVariable name="ChanNum">4</SetVariable>
+          <SetVariable name="MirrorReverse">-reverse</SetVariable>
+          <SetVariable name="DeckGroup">34</SetVariable>
+          <SetVariable name="SignalColor"><Variable name="SignalColor_34"/></SetVariable>
+          <SetVariable name="BgColor"><Variable name="BgColorOverview_34"/></SetVariable>
+        </Template>
+      </Children>
+    </SingletonDefinition>
 
     <Template src="skins:RekordboxPi/mixer/singletons.xml"/>
 
@@ -451,20 +479,22 @@
                 <!-- Waveforms, Decks, Effects... /  Library
                 This view needs to be set up first because it instantiates
                 the mini deck Singletons we need in maximized library view. -->
-                <Splitter>
-                  <ObjectName>WaveformSplitter</ObjectName>
-                  <Orientation>vertical</Orientation>
-                  <SizePolicy>me,min</SizePolicy>
-                  <SplitSizes>100,550</SplitSizes>
-                  <SplitSizesConfigKey>[Skin],stackedWaveforms_splitSize</SplitSizesConfigKey>
-                  <Collapsible>0,0</Collapsible>
+                <!-- CUSTOM CDJ-3000: perf page = waveforms FULL SCREEN. The deck
+                     info strips are interleaved with the waveforms in
+                     cdj_perf_stack.xml. The library is "parked" (kept instantiated
+                     in a zero-size group) and revealed full screen by the BIG
+                     LIBRARY button (= the CDJ "BROWSE/VIEW" toggle, page 1). -->
+                <WidgetGroup>
+                  <ObjectName>CdjPerfPage</ObjectName>
+                  <Layout>vertical</Layout>
+                  <SizePolicy>me,me</SizePolicy>
                   <Children>
 
                     <WidgetGroup>
                       <Layout>vertical</Layout>
                       <SizePolicy>me,me</SizePolicy>
                       <Children>
-                        <Template src="skins:RekordboxPi/waveforms_container.xml"/>
+                        <Template src="skins:RekordboxPi/decks/cdj_perf_stack.xml"/>
                       </Children>
                       <Connection>
                         <ConfigKey persist="true">[Skin],show_waveforms</ConfigKey>
@@ -472,56 +502,55 @@
                       </Connection>
                     </WidgetGroup>
 
+                    <!-- CUSTOM: full-track overview preview strip pinned at the
+                         bottom (2 previews in 2-deck mode, 4 in 4-deck mode). Height
+                         is capped so the scrolling lanes above always fill the rest,
+                         leaving no dead space. -->
                     <WidgetGroup>
-                      <ObjectName>DecksMixerContainer</ObjectName>
+                      <ObjectName>CdjPreviewStrip</ObjectName>
                       <Layout>vertical</Layout>
-                      <SizePolicy>me,me</SizePolicy>
+                      <SizePolicy>me,max</SizePolicy>
+                      <MinimumSize>0,90</MinimumSize>
+                      <MaximumSize>-1,192</MaximumSize>
                       <Children>
-                        <WidgetGroup><!-- Top spacer when waveforms are hidden -->
-                          <ObjectName>ToolbarDeckSpacer</ObjectName>
-                          <Connection>
-                            <ConfigKey persist="true">[Skin],show_waveforms</ConfigKey>
-                            <Transform><Not/></Transform>
-                            <BindProperty>visible</BindProperty>
-                          </Connection>
-                        </WidgetGroup><!-- ToolbarDeckSpacer -->
-
-                        <WidgetGroup>
-                          <Layout>horizontal</Layout>
-                          <SizePolicy>me,f</SizePolicy>
-                          <MinimumSize>0,92</MinimumSize>
-                          <MaximumSize>-1,92</MaximumSize>
-                          <Children>
-                            <!-- CUSTOM Rekordbox/XDJ-AZ: 2 info-only deck strips, no mixer
-                                 (FLX6 hardware handles mix + transport). -->
-                            <Template src="skins:RekordboxPi/decks/deck_xdj_strip.xml">
-                              <SetVariable name="Group">[Channel1]</SetVariable>
-                              <SetVariable name="DeckNum">1</SetVariable>
-                              <SetVariable name="DeckBadgeObj">XdjBadge1</SetVariable>
-                            </Template>
-                            <WidgetGroup><Size>12f,1min</Size></WidgetGroup><!-- center gap -->
-                            <Template src="skins:RekordboxPi/decks/deck_xdj_strip.xml">
-                              <SetVariable name="Group">[Channel2]</SetVariable>
-                              <SetVariable name="DeckNum">2</SetVariable>
-                              <SetVariable name="DeckBadgeObj">XdjBadge2</SetVariable>
-                            </Template>
-                          </Children>
-                        </WidgetGroup>
-
-                        <!-- CUSTOM Rekordbox: fx / samplers / mic racks hidden for a clean
-                             performance screen (can be brought back later). -->
-                        <!-- <Template src="skins:RekordboxPi/fx_rack.xml"/> -->
-                        <!-- <Template src="skins:RekordboxPi/samplers_rack.xml"/> -->
-                        <!-- <Template src="skins:RekordboxPi/mic_aux_rack.xml"/> -->
-
-                        <SingletonContainer>
-                          <ObjectName>LibrarySingleton</ObjectName>
-                        </SingletonContainer>
+                        <Template src="skins:RekordboxPi/decks/cdj_bottom_decks.xml"/>
                       </Children>
                     </WidgetGroup>
 
+                    <!-- CUSTOM: on-screen mixer (EQ Low/Mid/High + volume +
+                         crossfader) for controlling audio on PC without the FLX6.
+                         Toggle with the MIXER toolbar button. Hide it once the
+                         FLX6 is connected (it handles the mix in hardware). -->
+                    <WidgetGroup>
+                      <Layout>horizontal</Layout>
+                      <SizePolicy>me,min</SizePolicy>
+                      <ObjectName>AlignHCenter</ObjectName>
+                      <Children>
+                        <Template src="skins:RekordboxPi/mixer/mixer_2decks.xml"/>
+                      </Children>
+                      <Connection>
+                        <ConfigKey persist="true">[Skin],show_mixer</ConfigKey>
+                        <BindProperty>visible</BindProperty>
+                      </Connection>
+                    </WidgetGroup>
+
+                    <WidgetGroup><!-- Top spacer when waveforms are hidden -->
+                      <ObjectName>ToolbarDeckSpacer</ObjectName>
+                      <Connection>
+                        <ConfigKey persist="true">[Skin],show_waveforms</ConfigKey>
+                        <Transform><Not/></Transform>
+                        <BindProperty>visible</BindProperty>
+                      </Connection>
+                    </WidgetGroup><!-- ToolbarDeckSpacer -->
+
+                    <!-- NOTE: the library is NOT placed on the perf page. It is
+                         instantiated by its SingletonDefinition above and shown
+                         full screen on page 1 (BIG LIBRARY). Placing it here (even
+                         at zero size) made its search box steal keyboard focus,
+                         which broke the keyboard play/cue shortcuts. -->
+
                   </Children>
-                </Splitter>
+                </WidgetGroup>
                 <!-- Decks, Effects, Samplers, Mic/Aux, Library -->
 
                 <!-- Maximized Library & mini decks only -->

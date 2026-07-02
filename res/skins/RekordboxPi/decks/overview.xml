@@ -8,6 +8,8 @@
     </Connection>
     <!-- CUSTOM: pure black background behind the overview, like Rekordbox. -->
     <BgColor>#000000</BgColor>
+    <!-- CUSTOM: hide the white centre axis line (Rekordbox has no axis bar). -->
+    <AxesColor>#000000</AxesColor>
     <SignalColor><Variable name="SignalColor"/></SignalColor>
     <!-- Default colors are used for high/mid/low: blue/green/red -->
     <SignalHighColor></SignalHighColor>
@@ -38,13 +40,12 @@
       <TextColor>#FFFFFF</TextColor>
       <Text> %1 </Text>
     </DefaultMark>
-    <!-- Cue -->
+    <!-- Cue: raw SVG pixmap = pure orange triangle + line, no box (Rekordbox-style) -->
     <Mark>
       <Control>cue_point</Control>
-      <Text>C</Text>
-      <Align>top|right</Align>
+      <Pixmap>skins:RekordboxPi/classic/style/mark_cue.svg</Pixmap>
       <Color><Variable name="CueColor"/></Color>
-      <TextColor>#FFFFFF</TextColor>
+      <TextColor>#ff7a01</TextColor>
     </Mark>
     <!-- Loop -->
     <MarkRange>
@@ -53,12 +54,13 @@
       <EnabledControl>loop_enabled</EnabledControl>
       <Color><Variable name="LoopColor"/></Color>
       <Opacity>0.7</Opacity>
-      <DisabledColor>#FFFFFF</DisabledColor>
-      <DisabledOpacity>0.6</DisabledOpacity>
+      <DisabledColor>#000000</DisabledColor>
+      <DisabledOpacity>0</DisabledOpacity>
     </MarkRange>
     <Mark>
       <Control>loop_start_position</Control>
       <Text>&#8635;</Text>
+      <VisibilityControl><Variable name="Group"/>,loop_enabled</VisibilityControl>
       <Align>top|left</Align>
       <Color><Variable name="LoopColor"/></Color>
       <TextColor>#FFFFFF</TextColor>
