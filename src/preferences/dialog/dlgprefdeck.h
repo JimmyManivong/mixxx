@@ -54,7 +54,9 @@ namespace {
 const ConfigKey kConfigKeyLoadWhenDeckPlaying = ConfigKey("[Controls]", "LoadWhenDeckPlaying");
 const ConfigKey kConfigKeyAllowTrackLoadToPlayingDeck =
         ConfigKey("[Controls]", "AllowTrackLoadToPlayingDeck");
-constexpr LoadWhenDeckPlaying kDefaultLoadWhenDeckPlaying = LoadWhenDeckPlaying::Reject;
+// CUSTOM (Pi appliance): default to allowing a track to load onto a playing deck
+// (drag & drop / load while playing), like Rekordbox. Stock Mixxx default is Reject.
+constexpr LoadWhenDeckPlaying kDefaultLoadWhenDeckPlaying = LoadWhenDeckPlaying::Allow;
 } // namespace
 
 class DlgPrefDeck : public DlgPreferencePage, public Ui::DlgPrefDeckDlg  {

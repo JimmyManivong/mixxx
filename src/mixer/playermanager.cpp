@@ -392,7 +392,13 @@ void PlayerManager::addDeck() {
 }
 
 void PlayerManager::addConfiguredDecks() {
-    slotChangeNumDecks(m_pSoundManager->getConfiguredDeckCount());
+    // CUSTOM (RekordboxPi 4-deck view): always create at least 4 decks so decks
+    // 3 & 4 exist in the engine and can be loaded, even when the sound hardware
+    // only routes 2 deck outputs. Decks 3 & 4 sum into the Master mix, so no
+    // extra audio outputs are required.
+    constexpr int kMinDecks = 4;
+    int configuredDecks = m_pSoundManager->getConfiguredDeckCount();
+    slotChangeNumDecks(configuredDecks < kMinDecks ? kMinDecks : configuredDecks);
 }
 
 void PlayerManager::addDeckInner() {
