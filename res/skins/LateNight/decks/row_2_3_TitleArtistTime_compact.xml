@@ -38,7 +38,7 @@
                 <SizePolicy>i,me</SizePolicy>
                 <Children>
                   <TrackProperty>
-                    <ObjectName>TitleText</ObjectName>
+                    <ObjectName>TitleTextCompact</ObjectName>
                     <Size>0me,22f</Size>
                     <TooltipId>track_title</TooltipId>
                     <Property>title</Property>
@@ -53,28 +53,21 @@
                 </Children>
               </WidgetGroup>
 
-              <WidgetGroup>
-                <ObjectName>AlignRight</ObjectName>
-                <Layout>horizontal</Layout>
-                <SizePolicy>p,min</SizePolicy>
-                <MinimumSize>80,</MinimumSize>
-                <Children>
-                  <NumberPos>
-                    <ObjectName>PlayPositionText</ObjectName>
-                    <TooltipId>track_time</TooltipId>
-                    <Size>0min,22f</Size>
-                    <Alignment>right</Alignment>
-                    <Channel><Variable name="ChanNum"/></Channel>
-                    <Connection>
-                      <ConfigKey><Variable name="Group"/>,playposition</ConfigKey>
-                    </Connection>
-                  </NumberPos>
-                </Children>
+              <!-- CUSTOM: temps à droite du titre, hauteur fixe 22px -->
+              <NumberPos>
+                <ObjectName>PlayPositionText</ObjectName>
+                <TooltipId>track_time</TooltipId>
+                <Size>100f,22f</Size>
+                <Alignment>right</Alignment>
+                <Channel><Variable name="ChanNum"/></Channel>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,playposition</ConfigKey>
+                </Connection>
                 <Connection>
                   <ConfigKey><Variable name="Group"/>,track_loaded</ConfigKey>
                   <BindProperty>visible</BindProperty>
                 </Connection>
-              </WidgetGroup>
+              </NumberPos>
 
             </Children>
           </WidgetGroup><!-- TitleRow -->
