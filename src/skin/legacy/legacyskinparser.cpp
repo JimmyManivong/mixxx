@@ -40,7 +40,6 @@
 #include "widget/weffectchain.h"
 #include "widget/weffectchainpresetbutton.h"
 #include "widget/wbarspinner.h"
-#include "widget/wphrasebar.h"
 #include "widget/weffectchainpresetselector.h"
 #include "widget/weffectknobparametername.h"
 #include "widget/weffectmetaknob.h"
@@ -611,8 +610,6 @@ QList<QWidget*> LegacySkinParser::parseNode(const QDomElement& node) {
         result = wrapWidget(parseSpinny(node));
     } else if (nodeName == "BarSpinner") {
         result = wrapWidget(parseBarSpinner(node));
-    } else if (nodeName == "PhraseBar") {
-        result = wrapWidget(parsePhraseBar(node));
     } else if (nodeName == "Time") {
         result = wrapWidget(parseLabelWidget<WTime>(node));
     } else if (nodeName == "RecordingDuration") {
@@ -1232,31 +1229,6 @@ QWidget* LegacySkinParser::parseBarSpinner(const QDomElement& node) {
     commonWidgetSetup(node, pBarSpinner, false);
     pBarSpinner->setup(node, *m_pContext);
     return pBarSpinner;
-}
-
-QWidget* LegacySkinParser::parsePhraseBar(const QDomElement& node) {
-    QString group = lookupNodeGroup(node);
-    BaseTrackPlayer* pPlayer = m_pPlayerManager->getPlayer(group);
-    if (!pPlayer) {
-        SKIN_WARNING(node,
-                *m_pContext,
-                QStringLiteral("No player found for group: %1").arg(group));
-        return nullptr;
-    }
-    WPhraseBar* pPhraseBar = new WPhraseBar(m_pParent, group);
-    commonWidgetSetup(node, pPhraseBar, false);
-    pPhraseBar->setup(node, *m_pContext);
-
-    connect(pPlayer,
-            &BaseTrackPlayer::newTrackLoaded,
-            pPhraseBar,
-            &WPhraseBar::slotTrackLoaded);
-    connect(pPlayer,
-            &BaseTrackPlayer::loadingTrack,
-            pPhraseBar,
-            &WPhraseBar::slotLoadingTrack);
-    pPhraseBar->slotTrackLoaded(pPlayer->getLoadedTrack());
-    return pPhraseBar;
 }
 
 QWidget* LegacySkinParser::parseRateRange(const QDomElement& node) {

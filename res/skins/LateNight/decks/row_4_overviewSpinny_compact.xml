@@ -3,8 +3,7 @@
 
   <WidgetGroup>
     <ObjectName>DeckRow_4_OverviewSpinny</ObjectName>
-    <!-- CUSTOM: vertical so the Rekordbox-style phrase bar sits BELOW the
-         overview waveform. -->
+    <!-- CUSTOM (Rekordbox layout): overview waveform spans the full width. -->
     <Layout>vertical</Layout>
     <SizePolicy>me,min</SizePolicy>
     <Children>
@@ -28,15 +27,6 @@
           <BindProperty>highlight</BindProperty>
         </Connection>
       </WidgetGroup>
-
-      <!-- CUSTOM (Rekordbox phrase analysis): coloured section strip
-           (INTRO / UP / CHORUS / DOWN / OUTRO) below the overview, fed by the
-           offline analyzer cache (tools/phrase_analysis.py). -->
-      <PhraseBar>
-        <ObjectName>DeckPhraseBar</ObjectName>
-        <Group><Variable name="Group"/></Group>
-        <Size>me,15f</Size>
-      </PhraseBar>
 
       <!-- CUSTOM (Rekordbox layout): the DeckSettings icon panel (slip, quantize,
            keylock, eject, stars) that used to sit here on the right of the overview
