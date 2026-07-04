@@ -3492,10 +3492,12 @@ WLibraryTextBrowser {
 }
 
 /* ===== Bottom 4-Deck View (mini panels) ===== */
-/* CUSTOM: dark frame behind the preview cards - without this the overview
-   waveforms ran flush to the bottom screen edge with no breathing room. */
+/* CUSTOM: no background here on purpose - it should blend into the main
+   #080808 page background (#SkinContainer), not stand out as its own darker
+   band around the whole 2x2 preview grid. Padding is still needed though,
+   purely for breathing room so the overview waveforms don't run flush to
+   the screen edge. */
 #CdjPreviewStrip {
-  background-color: #15161a;
   padding: 4px 4px 8px 4px;
 }
 /* CUSTOM: reserved slot for a future phrase bar - subtle stripe so it reads
