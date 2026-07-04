@@ -3705,33 +3705,47 @@ WLibraryTextBrowser {
   color: #8b9197;
   border: 1px solid #15161a;
   border-radius: 3px;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: bold;
 }
 #XdjFxOn[displayValue="1"] {
   background-color: #37c66b;
   color: #ffffff;
 }
-#XdjFxSelector {
+/* Big effect-name display - still a real dropdown (tap it to pick any
+   effect directly), but sized/styled to read like the hardware's large
+   "DELAY"-style name label rather than a normal small combobox. */
+#XdjFxName {
   background-color: #2a2e35;
-  color: #c8cdd3;
+  color: #ffffff;
   border: 1px solid #12141a;
   border-radius: 3px;
-  font-size: 9px;
+  font-size: 13px;
   font-weight: bold;
   padding: 0px 4px;
 }
-#XdjFxKnobLabel {
-  color: #6a7078;
-  font-size: 8px;
+/* prev/next effect step buttons flanking the name, mirroring the small
+   "►" arrow next to KEY on the XDJ-AZ reference. */
+#XdjFxStepBtn {
+  background-color: #3f434a;
+  color: #d6dade;
+  border: 1px solid #15161a;
+  border-radius: 3px;
+  font-size: 12px;
   font-weight: bold;
 }
+#XdjFxKnobLabel {
+  color: #8b9197;
+  font-size: 10px;
+  font-weight: bold;
+}
+/* Numeric readout of the effect's own first parameter - closest on-screen
+   analog to the hardware's big "1000ms" TIME display. */
 #XdjFxParamNumber {
-  background-color: #2a2e35;
-  color: #c8cdd3;
-  border: 1px solid #12141a;
-  border-radius: 3px;
-  font-size: 11px;
+  background-color: transparent;
+  color: #ffffff;
+  border: none;
+  font-size: 28px;
   font-weight: bold;
 }
 #XdjFxAssign {
@@ -3739,7 +3753,7 @@ WLibraryTextBrowser {
   color: #8b9197;
   border: 1px solid #15161a;
   border-radius: 3px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: bold;
 }
 #XdjFxAssign[displayValue="1"] {
