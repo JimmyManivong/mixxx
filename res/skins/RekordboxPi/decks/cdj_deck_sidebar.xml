@@ -1,13 +1,17 @@
 <Template>
   <!-- CUSTOM CDJ/XDJ-AZ left info column with two tabs.
-       Tab DECK: KEY / SYNC+Q / LOOP controls (default).
+       Tab DECK: KEY / SYNC+Q controls (default). No loop controls - dropped
+       in favor of bigger KEY/SYNC+Q touch targets (loop wasn't used from the
+       touchscreen; the FLX6 hardware has loop controls for decks 1/2, and
+       decks 3/4 don't get on-screen loop controls either - keeping it simple
+       and consistent).
        Tab GRID: beatgrid editing controls.
        Caller SetVariable: Group, DeckNum. -->
   <WidgetGroup>
     <ObjectName>XdjSidebar</ObjectName>
     <Layout>vertical</Layout>
     <SizePolicy>max,me</SizePolicy>
-    <MinimumSize>140,80</MinimumSize>
+    <MinimumSize>140,88</MinimumSize>
     <MaximumSize>140,-1</MaximumSize>
     <Children>
 
@@ -67,11 +71,11 @@
 
           <!-- KEY box -->
           <WidgetGroup>
-            <ObjectName>XdjBox</ObjectName>
+            <ObjectName>XdjKeyBox</ObjectName>
             <Layout>horizontal</Layout>
             <SizePolicy>me,f</SizePolicy>
-            <MinimumSize>0,16</MinimumSize>
-            <MaximumSize>-1,16</MaximumSize>
+            <MinimumSize>0,32</MinimumSize>
+            <MaximumSize>-1,32</MaximumSize>
             <Children>
               <Label>
                 <ObjectName>XdjBoxLabel</ObjectName>
@@ -85,8 +89,8 @@
                 <ObjectName>XdjKey</ObjectName>
                 <Group><Variable name="Group"/></Group>
                 <SizePolicy>max,f</SizePolicy>
-                <MinimumSize>0,14</MinimumSize>
-                <MaximumSize>-1,14</MaximumSize>
+                <MinimumSize>0,22</MinimumSize>
+                <MaximumSize>-1,22</MaximumSize>
                 <Alignment>right</Alignment>
                 <Connection>
                   <ConfigKey><Variable name="Group"/>,visual_key</ConfigKey>
@@ -103,8 +107,8 @@
               <PushButton>
                 <ObjectName>XdjKeyLock</ObjectName>
                 <SizePolicy>max,f</SizePolicy>
-                <MinimumSize>16,14</MinimumSize>
-                <MaximumSize>16,14</MaximumSize>
+                <MinimumSize>24,24</MinimumSize>
+                <MaximumSize>24,24</MaximumSize>
                 <NumberStates>2</NumberStates>
                 <State><Number>0</Number><Text>&#128275;</Text><Alignment>center</Alignment></State>
                 <State><Number>1</Number><Text>&#128274;</Text><Alignment>center</Alignment></State>
@@ -119,21 +123,21 @@
             </Children>
           </WidgetGroup>
 
-          <WidgetGroup><Size>1min,2f</Size></WidgetGroup>
+          <WidgetGroup><Size>1min,3f</Size></WidgetGroup>
 
           <!-- SYNC + Q row -->
           <WidgetGroup>
-            <ObjectName>XdjBox</ObjectName>
+            <ObjectName>XdjSyncBox</ObjectName>
             <Layout>horizontal</Layout>
             <SizePolicy>me,f</SizePolicy>
-            <MinimumSize>0,16</MinimumSize>
-            <MaximumSize>-1,16</MaximumSize>
+            <MinimumSize>0,36</MinimumSize>
+            <MaximumSize>-1,36</MaximumSize>
             <Children>
               <PushButton>
                 <ObjectName>XdjSync</ObjectName>
                 <SizePolicy>me,f</SizePolicy>
-                <MinimumSize>0,14</MinimumSize>
-                <MaximumSize>-1,14</MaximumSize>
+                <MinimumSize>0,28</MinimumSize>
+                <MaximumSize>-1,28</MaximumSize>
                 <NumberStates>2</NumberStates>
                 <State><Number>0</Number><Text>SYNC</Text></State>
                 <State><Number>1</Number><Text>SYNC</Text></State>
@@ -148,9 +152,9 @@
               <WidgetGroup><Size>3f,1min</Size></WidgetGroup>
               <PushButton>
                 <ObjectName>XdjQuant</ObjectName>
-                <SizePolicy>me,f</SizePolicy>
-                <MinimumSize>0,14</MinimumSize>
-                <MaximumSize>-1,14</MaximumSize>
+                <SizePolicy>max,f</SizePolicy>
+                <MinimumSize>36,28</MinimumSize>
+                <MaximumSize>36,28</MaximumSize>
                 <NumberStates>2</NumberStates>
                 <State><Number>0</Number><Text>Q</Text></State>
                 <State><Number>1</Number><Text>Q</Text></State>
@@ -162,76 +166,6 @@
                   <ConfigKey><Variable name="Group"/>,quantize</ConfigKey>
                 </Connection>
               </PushButton>
-            </Children>
-          </WidgetGroup>
-
-          <WidgetGroup><Size>1min,2f</Size></WidgetGroup>
-
-          <!-- LOOP box -->
-          <WidgetGroup>
-            <ObjectName>XdjLoopBox</ObjectName>
-            <Layout>vertical</Layout>
-            <SizePolicy>me,me</SizePolicy>
-            <MinimumSize>0,28</MinimumSize>
-            <MaximumSize>-1,50</MaximumSize>
-            <Children>
-              <WidgetGroup><Size>1min,1me</Size></WidgetGroup>
-              <Number>
-                <ObjectName>XdjLoopSize</ObjectName>
-                <SizePolicy>me,f</SizePolicy>
-                <MinimumSize>0,14</MinimumSize>
-                <MaximumSize>-1,14</MaximumSize>
-                <Alignment>center</Alignment>
-                <NumberOfDigits>0</NumberOfDigits>
-                <Connection>
-                  <ConfigKey><Variable name="Group"/>,beatloop_size</ConfigKey>
-                </Connection>
-              </Number>
-              <WidgetGroup><Size>1min,1me</Size></WidgetGroup>
-              <WidgetGroup>
-                <Layout>horizontal</Layout>
-                <SizePolicy>me,f</SizePolicy>
-                <MinimumSize>0,14</MinimumSize>
-                <MaximumSize>-1,14</MaximumSize>
-                <Children>
-                  <PushButton>
-                    <ObjectName>XdjLoopDown</ObjectName>
-                    <Size>18f,14f</Size>
-                    <NumberStates>1</NumberStates>
-                    <State><Number>0</Number><Text>&#9664;</Text></State>
-                    <Connection>
-                      <ConfigKey><Variable name="Group"/>,loop_halve</ConfigKey>
-                      <ButtonState>LeftButton</ButtonState>
-                    </Connection>
-                  </PushButton>
-                  <PushButton>
-                    <ObjectName>XdjLoopBtn</ObjectName>
-                    <SizePolicy>me,f</SizePolicy>
-                    <MinimumSize>0,14</MinimumSize>
-                    <MaximumSize>-1,14</MaximumSize>
-                    <NumberStates>2</NumberStates>
-                    <State><Number>0</Number><Text>LOOP</Text></State>
-                    <State><Number>1</Number><Text>LOOP</Text></State>
-                    <Connection>
-                      <ConfigKey><Variable name="Group"/>,beatloop_activate</ConfigKey>
-                      <ButtonState>LeftButton</ButtonState>
-                    </Connection>
-                    <Connection>
-                      <ConfigKey><Variable name="Group"/>,loop_enabled</ConfigKey>
-                    </Connection>
-                  </PushButton>
-                  <PushButton>
-                    <ObjectName>XdjLoopUp</ObjectName>
-                    <Size>18f,14f</Size>
-                    <NumberStates>1</NumberStates>
-                    <State><Number>0</Number><Text>&#9654;</Text></State>
-                    <Connection>
-                      <ConfigKey><Variable name="Group"/>,loop_double</ConfigKey>
-                      <ButtonState>LeftButton</ButtonState>
-                    </Connection>
-                  </PushButton>
-                </Children>
-              </WidgetGroup>
             </Children>
           </WidgetGroup>
 

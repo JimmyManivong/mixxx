@@ -22,7 +22,7 @@
             <ObjectName>CdjDeckRow</ObjectName>
             <Layout>horizontal</Layout>
             <SizePolicy>me,me</SizePolicy>
-            <MinimumSize>0,80</MinimumSize>
+            <MinimumSize>0,88</MinimumSize>
             <Children>
               <Template src="skins:RekordboxPi/decks/cdj_deck_sidebar.xml">
                 <SetVariable name="Group">[Channel1]</SetVariable>
@@ -65,7 +65,7 @@
             <ObjectName>CdjDeckRow</ObjectName>
             <Layout>horizontal</Layout>
             <SizePolicy>me,me</SizePolicy>
-            <MinimumSize>0,80</MinimumSize>
+            <MinimumSize>0,88</MinimumSize>
             <Children>
               <Template src="skins:RekordboxPi/decks/cdj_deck_sidebar.xml">
                 <SetVariable name="Group">[Channel2]</SetVariable>
@@ -114,7 +114,7 @@
             <ObjectName>CdjDeckRow</ObjectName>
             <Layout>horizontal</Layout>
             <SizePolicy>me,me</SizePolicy>
-            <MinimumSize>0,80</MinimumSize>
+            <MinimumSize>0,88</MinimumSize>
             <Children>
               <Template src="skins:RekordboxPi/decks/cdj_deck_sidebar.xml">
                 <SetVariable name="Group">[Channel3]</SetVariable>
@@ -167,7 +167,7 @@
             <ObjectName>CdjDeckRow</ObjectName>
             <Layout>horizontal</Layout>
             <SizePolicy>me,me</SizePolicy>
-            <MinimumSize>0,80</MinimumSize>
+            <MinimumSize>0,88</MinimumSize>
             <Children>
               <Template src="skins:RekordboxPi/decks/cdj_deck_sidebar.xml">
                 <SetVariable name="Group">[Channel4]</SetVariable>

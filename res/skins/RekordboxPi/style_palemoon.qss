@@ -3443,7 +3443,7 @@ WLibraryTextBrowser {
   color: #c8cdd3;
   border: 1px solid #12141a;
   border-radius: 3px;
-  font-size: 10px;
+  font-size: 14px;
   font-weight: bold;
 }
 #XdjKeyLock[displayValue="1"] {
@@ -3468,14 +3468,22 @@ WLibraryTextBrowser {
   max-height: 14px;
   padding: 0px 2px;
 }
-/* Boxed value rows (KEY / SYNC+Q / LOOP) */
-#XdjBox {
+/* Boxed value rows (KEY / SYNC+Q). Bigger touch targets than a plain info
+   readout needs, since SYNC/Q/keylock are actually tapped on the touchscreen
+   (dropped the LOOP row entirely to make room - it wasn't used from here). */
+#XdjKeyBox, #XdjSyncBox {
   background-color: #34373d;
   border: 1px solid #15161a;
   border-radius: 4px;
-  min-height: 16px;
-  max-height: 16px;
   padding: 0px 6px;
+}
+#XdjKeyBox {
+  min-height: 32px;
+  max-height: 32px;
+}
+#XdjSyncBox {
+  min-height: 36px;
+  max-height: 36px;
 }
 #XdjBoxLabel {
   color: #8b9197;
@@ -3579,7 +3587,7 @@ WLibraryTextBrowser {
   color: #ffffff;
 }
 
-/* ── Sidebar: SYNC / Q / MSTR / Loop controls ── */
+/* ── Sidebar: SYNC / Q ── */
 /* WPushButton exposes displayValue (int) as Q_PROPERTY with NOTIFY;
    use [displayValue="1"] not :checked which never fires on these widgets. */
 #XdjSync, #XdjQuant {
@@ -3587,7 +3595,7 @@ WLibraryTextBrowser {
   color: #8b9197;
   border: 1px solid #15161a;
   border-radius: 3px;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: bold;
 }
 #XdjSync[displayValue="1"] {
@@ -3681,40 +3689,6 @@ WLibraryTextBrowser {
 #XdjGePlay[displayValue="1"] {
   background-color: #3a1a1a;
   color: #ff7a5a;
-}
-#XdjLoopBtn {
-  background-color: #2f333a;
-  color: #8b9197;
-  border: 1px solid #15161a;
-  border-radius: 3px;
-  font-size: 10px;
-  font-weight: bold;
-}
-#XdjLoopBtn[displayValue="1"] {
-  background-color: #ff7a01;
-  color: #ffffff;
-}
-#XdjLoopDown, #XdjLoopUp {
-  background-color: #3f434a;
-  color: #d6dade;
-  border: none;
-  border-radius: 3px;
-  font-size: 12px;
-  font-weight: bold;
-}
-#XdjLoopBox {
-  background-color: #34373d;
-  border: 1px solid #15161a;
-  border-radius: 4px;
-  min-height: 28px;
-  max-height: 50px;
-  padding: 2px 6px;
-}
-#XdjLoopSize {
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: bold;
-  background-color: transparent;
 }
 
 /* ===== CDJ/XDJ-AZ right FX column (mirrors XdjSidebar) ===== */
