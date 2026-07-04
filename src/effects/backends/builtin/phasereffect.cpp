@@ -32,11 +32,11 @@ EffectManifestPointer PhaserEffect::getManifest() {
     period->setShortName(QObject::tr("Period"));
     period->setDescription(QObject::tr(
             "Period of the LFO (low frequency oscillator)\n"
-            "1/4 - 4 beats rounded to 1/2 beat if tempo is detected\n"
-            "1/4 - 4 seconds if no tempo is detected"));
+            "1/16 - 32 beats rounded to 1/16 beat if tempo is detected\n"
+            "1/16 - 4 seconds if no tempo is detected"));
     period->setValueScaler(EffectManifestParameter::ValueScaler::Linear);
     period->setUnitsHint(EffectManifestParameter::UnitsHint::Beats);
-    period->setRange(0.0, 1.0, 4.0);
+    period->setRange(0.0, 1.0, 32.0);
 
     EffectManifestParameterPointer fb = pManifest->addParameter();
     fb->setId("feedback");
@@ -84,7 +84,7 @@ EffectManifestPointer PhaserEffect::getManifest() {
     triplet->setName(QObject::tr("Triplets"));
     triplet->setShortName(QObject::tr("Triplets"));
     triplet->setDescription(QObject::tr(
-            "Divide rounded 1/2 beats of the Period parameter by 3."));
+            "Divide rounded 1/16 beats of the Period parameter by 3."));
     triplet->setValueScaler(EffectManifestParameter::ValueScaler::Toggle);
     triplet->setUnitsHint(EffectManifestParameter::UnitsHint::Unknown);
     triplet->setRange(0, 0, 1);
@@ -134,14 +134,14 @@ void PhaserEffect::processChannel(
     double periodSamples;
     if (groupFeatures.beat_length.has_value()) {
         // periodParameter is a number of beats
-        periodParameter = std::max(roundToFraction(periodParameter, 2.0), 1 / 4.0);
+        periodParameter = std::max(roundToFraction(periodParameter, 16.0), 1 / 16.0);
         if (m_pTripletParameter->toBool()) {
             periodParameter /= 3.0;
         }
         periodSamples = periodParameter * groupFeatures.beat_length->frames;
     } else {
         // periodParameter is a number of seconds
-        periodSamples = std::max(periodParameter, 1 / 4.0) * engineParameters.sampleRate();
+        periodSamples = std::max(periodParameter, 1 / 16.0) * engineParameters.sampleRate();
     }
     // freqSkip is used to calculate the phase independently for each channel,
     // so do not multiply periodSamples by the number of channels.

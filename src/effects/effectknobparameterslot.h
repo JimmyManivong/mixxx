@@ -3,8 +3,10 @@
 #include <QObject>
 #include <QString>
 #include <QVariant>
+#include <memory>
 #include <optional>
 
+#include "effects/effectbeatdivisioncontrols.h"
 #include "effects/effectparameterslotbase.h"
 #include "util/class.h"
 
@@ -43,6 +45,8 @@ class EffectKnobParameterSlot : public EffectParameterSlotBase {
     // Solely for handling control changes
     void slotLinkTypeChanging(double v);
     void slotLinkInverseChanged(double v);
+    void slotValueChangedForBeatDivisions(double value);
+    void slotBeatDivisionActivated(double rawBeats);
 
   private:
     QString debugString() const {
@@ -55,6 +59,10 @@ class EffectKnobParameterSlot : public EffectParameterSlotBase {
     ControlEffectKnob* m_pControlValue;
     ControlPushButton* m_pControlLinkType;
     ControlPushButton* m_pControlLinkInverse;
+
+    // Generic beat-division quick-select buttons (1/16 - 32 beats) + lit
+    // indicators for this parameter slot. See effectbeatdivisioncontrols.h.
+    std::unique_ptr<EffectBeatDivisionControls> m_pBeatDivisionControls;
 
     DISALLOW_COPY_AND_ASSIGN(EffectKnobParameterSlot);
 };

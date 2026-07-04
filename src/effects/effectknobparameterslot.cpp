@@ -1,5 +1,7 @@
 #include "effects/effectknobparameterslot.h"
 
+#include <algorithm>
+
 #include "control/controleffectknob.h"
 #include "control/controlobject.h"
 #include "control/controlpushbutton.h"
@@ -19,6 +21,17 @@ EffectKnobParameterSlot::EffectKnobParameterSlot(
             &ControlObject::valueChanged,
             this,
             &EffectKnobParameterSlot::slotValueChanged);
+
+    m_pBeatDivisionControls = std::make_unique<EffectBeatDivisionControls>(
+            m_group, itemPrefix);
+    connect(m_pBeatDivisionControls.get(),
+            &EffectBeatDivisionControls::divisionActivated,
+            this,
+            &EffectKnobParameterSlot::slotBeatDivisionActivated);
+    connect(m_pControlValue,
+            &ControlObject::valueChanged,
+            this,
+            &EffectKnobParameterSlot::slotValueChangedForBeatDivisions);
 
     m_pControlLoaded = new ControlObject(
             ConfigKey(m_group, itemPrefix + QString("_loaded")));
@@ -87,6 +100,8 @@ void EffectKnobParameterSlot::loadParameter(EffectParameterPointer pEffectParame
                 static_cast<double>(pEffectParameter->linkInversion()));
     }
 
+    slotValueChangedForBeatDivisions(m_pControlValue->get());
+
     emit updated();
 }
 
@@ -104,11 +119,34 @@ void EffectKnobParameterSlot::clear() {
             static_cast<double>(EffectManifestParameter::LinkType::None));
     m_pMetaknobSoftTakeover->setThreshold(SoftTakeover::kDefaultTakeoverThreshold);
     m_pControlLinkInverse->set(0.0);
+    m_pBeatDivisionControls->updateActiveIndicators(0.0, false);
     emit updated();
 }
 
 void EffectKnobParameterSlot::setParameter(double value) {
     m_pControlValue->setParameterFrom(value, this);
+}
+
+void EffectKnobParameterSlot::slotValueChangedForBeatDivisions(double value) {
+    bool unitsAreBeats = m_pManifestParameter != nullptr &&
+            m_pManifestParameter->unitsHint() ==
+                    EffectManifestParameter::UnitsHint::Beats;
+    m_pBeatDivisionControls->updateActiveIndicators(value, unitsAreBeats);
+}
+
+void EffectKnobParameterSlot::slotBeatDivisionActivated(double rawBeats) {
+    if (m_pManifestParameter == nullptr) {
+        return;
+    }
+    double clamped = std::min(
+            m_pManifestParameter->getMaximum(),
+            std::max(m_pManifestParameter->getMinimum(), rawBeats));
+    m_pControlValue->set(clamped);
+    // Don't rely solely on valueChanged looping back here - ControlObject
+    // implementations commonly skip re-notifying the same object that just
+    // called set() on itself (loop-avoidance), so update the indicators
+    // directly to guarantee the lit button always matches reality.
+    slotValueChangedForBeatDivisions(clamped);
 }
 
 void EffectKnobParameterSlot::slotLinkTypeChanging(double v) {

@@ -30,8 +30,8 @@ EffectManifestPointer GlitchEffect::getManifest() {
     delay->setShortName(QObject::tr("Time"));
     delay->setDescription(QObject::tr(
             "Delay time\n"
-            "1/8 - 2 beats if tempo is detected\n"
-            "1/8 - 2 seconds if no tempo is detected"));
+            "1/16 - 32 beats if tempo is detected\n"
+            "1/16 - 2 seconds if no tempo is detected"));
     delay->setValueScaler(EffectManifestParameter::ValueScaler::Linear);
     delay->setUnitsHint(EffectManifestParameter::UnitsHint::Beats);
     delay->setRange(0.0, 0.5, kMaxDelay);
@@ -41,7 +41,7 @@ EffectManifestPointer GlitchEffect::getManifest() {
     quantize->setName(QObject::tr("Quantize"));
     quantize->setShortName(QObject::tr("Quantize"));
     quantize->setDescription(QObject::tr(
-            "Round the Time parameter to the nearest 1/8 beat."));
+            "Round the Time parameter to the nearest 1/16 beat."));
     quantize->setValueScaler(EffectManifestParameter::ValueScaler::Toggle);
     quantize->setUnitsHint(EffectManifestParameter::UnitsHint::Unknown);
     quantize->setRange(0, 1, 1);
@@ -83,17 +83,17 @@ void GlitchEffect::processChannel(
     double min_delay;
     if (groupFeatures.beat_length.has_value()) {
         if (m_pQuantizeParameter->toBool()) {
-            period = roundToFraction(period, 8);
+            period = roundToFraction(period, 16);
             if (m_pTripletParameter->toBool()) {
                 period /= 3.0;
             }
         }
-        period = std::max(period, 1 / 8.0);
+        period = std::max(period, 1 / 16.0);
         delay_frames = static_cast<int>(period * groupFeatures.beat_length->frames);
-        min_delay = 1 / 8.0 * groupFeatures.beat_length->frames;
+        min_delay = 1 / 16.0 * groupFeatures.beat_length->frames;
     } else {
         delay_frames = static_cast<int>(period * engineParameters.sampleRate());
-        min_delay = 1 / 8.0 * engineParameters.sampleRate();
+        min_delay = 1 / 16.0 * engineParameters.sampleRate();
     }
 
     if (delay_frames < min_delay) {

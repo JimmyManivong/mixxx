@@ -814,6 +814,7 @@ add_library(mixxx-lib STATIC EXCLUDE_FROM_ALL
   src/effects/chains/pergroupeffectchain.cpp
   src/effects/chains/quickeffectchain.cpp
   src/effects/chains/standardeffectchain.cpp
+  src/effects/effectbeatdivisioncontrols.cpp
   src/effects/effectbuttonparameterslot.cpp
   src/effects/effectchain.cpp
   src/effects/effectchainmixmode.cpp
@@ -3542,7 +3543,13 @@ if(LILV)
   )
   target_compile_definitions(mixxx-lib PUBLIC __LILV__)
   target_link_libraries(mixxx-lib PRIVATE lilv::lilv)
-  target_link_libraries(mixxx-test PRIVATE lilv::lilv)
+  # CUSTOM: mixxx-test only exists when BUILD_TESTING is ON (see the
+  # "CUSTOM: Only build tests if BUILD_TESTING is ON" guard above) - this
+  # call was missed when that guard was added, breaking a fresh configure
+  # with BUILD_TESTING off (its default here).
+  if(BUILD_TESTING)
+    target_link_libraries(mixxx-test PRIVATE lilv::lilv)
+  endif()
 endif()
 
 # Live Broadcasting (Shoutcast)

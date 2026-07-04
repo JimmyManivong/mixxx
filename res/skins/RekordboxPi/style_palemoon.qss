@@ -3760,6 +3760,20 @@ WLibraryTextBrowser {
   background-color: #4da6ff;
   color: #ffffff;
 }
+/* Beat division quick-select row - lit blue like CH SELECT when the
+   effect's beat-synced parameter matches that exact division. */
+#XdjFxDivision {
+  background-color: #2f333a;
+  color: #8b9197;
+  border: 1px solid #15161a;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: bold;
+}
+#XdjFxDivision[displayValue="1"] {
+  background-color: #4da6ff;
+  color: #ffffff;
+}
 
 /* ===== CUSTOM Rekordbox / XDJ-AZ global dark theme (M3) ===== */
 /* Browser: near-black with a blue selection highlight, like the XDJ-AZ. */
