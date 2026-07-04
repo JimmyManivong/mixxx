@@ -1,17 +1,18 @@
 <Template>
-  <!-- BEAT FX hardware panel as ONE column spanning the full height of the
-       perf stack (all decks), placed once as a sibling of the deck stack -
-       not nested inside any single deck's row. The FLX6 only has 2 real
-       effect engines (FX1 = EffectUnit1, FX2 = EffectUnit2). Decks 3/4 have
-       no on-screen FX panel at all (no hardware control reaches
-       EffectUnit3/4).
-       CUSTOM: CH SELECT is a SINGLE row governing both FX1 and FX2 together
-       (each button toggles both EffectUnit1's and EffectUnit2's routing for
-       that channel) - having two separate identical CH SELECT rows, one per
-       effect unit, was pure duplication in practice: FX1/FX2 are always
-       aimed at whichever deck is playing, never split across two different
-       channels. One row frees up vertical space for taller, easier-to-tap
-       FX1/FX2 on/off buttons. -->
+  <!-- CUSTOM Rekordbox/XDJ-AZ "BEAT FX" panel - ONE shared effect unit
+       (EffectRack1_EffectUnit1) assignable to any channel via CH SELECT,
+       matching the real XDJ-AZ hardware (which has a single Beat FX engine,
+       not two independent FX1/FX2 racks like Mixxx's default skin
+       assumption - see the reference screenshot on the user's Desktop).
+       One effect active at a time (no 3-slot chaining): big effect name,
+       prev/next arrows instead of only a dropdown, one main LEVEL knob
+       (the effect's "meta" control - whichever parameter(s) that effect
+       maps to it) + a MIX (dry/wet) knob, and a numeric readout of the
+       effect's own first parameter (closest on-screen analog to the
+       hardware's literal "1000ms" readout - it's normalized 0-1, not a
+       real ms value, since that unit varies per effect in Mixxx).
+       EffectUnit2 is intentionally unused by this skin now - only one
+       Beat FX engine is exposed, matching the hardware. -->
   <WidgetGroup>
     <ObjectName>XdjFxPanel</ObjectName>
     <Layout>vertical</Layout>
@@ -20,20 +21,190 @@
     <MaximumSize>150,-1</MaximumSize>
     <Children>
 
-      <WidgetGroup><Size>1min,2f</Size></WidgetGroup>
+      <WidgetGroup><Size>1min,3f</Size></WidgetGroup>
 
-      <Label>
-        <ObjectName>XdjDeckHeader</ObjectName>
-        <Text>EFFECT</Text>
-        <Alignment>center</Alignment>
+      <!-- Header: BEAT FX label + ON/OFF -->
+      <WidgetGroup>
+        <Layout>horizontal</Layout>
         <SizePolicy>me,f</SizePolicy>
-        <MinimumSize>0,16</MinimumSize>
-        <MaximumSize>-1,16</MaximumSize>
-      </Label>
+        <MinimumSize>0,22</MinimumSize>
+        <MaximumSize>-1,22</MaximumSize>
+        <Children>
+          <Label>
+            <ObjectName>XdjDeckHeader</ObjectName>
+            <Text>BEAT FX</Text>
+            <Alignment>left</Alignment>
+            <SizePolicy>me,f</SizePolicy>
+          </Label>
+          <PushButton>
+            <ObjectName>XdjFxOn</ObjectName>
+            <SizePolicy>max,f</SizePolicy>
+            <MinimumSize>36,20</MinimumSize>
+            <MaximumSize>36,20</MaximumSize>
+            <NumberStates>2</NumberStates>
+            <State><Number>0</Number><Text>OFF</Text><Alignment>center</Alignment></State>
+            <State><Number>1</Number><Text>ON</Text><Alignment>center</Alignment></State>
+            <Connection>
+              <ConfigKey>[EffectRack1_EffectUnit1_Effect1],enabled</ConfigKey>
+              <ButtonState>LeftButton</ButtonState>
+            </Connection>
+            <Connection>
+              <ConfigKey>[EffectRack1_EffectUnit1_Effect1],enabled</ConfigKey>
+            </Connection>
+          </PushButton>
+        </Children>
+      </WidgetGroup>
 
-      <WidgetGroup><Size>1min,4f</Size></WidgetGroup>
+      <WidgetGroup><Size>1min,6f</Size></WidgetGroup>
 
-      <!-- ===== CH SELECT - governs FX1 + FX2 together ===== -->
+      <!-- Effect name: prev arrow | big name (still a real dropdown if
+           tapped) | next arrow - mirrors the small "<Key> ►" arrow on the
+           reference photo, but for stepping through effects one-tap
+           instead of opening a full list every time. -->
+      <WidgetGroup>
+        <Layout>horizontal</Layout>
+        <SizePolicy>me,f</SizePolicy>
+        <MinimumSize>0,26</MinimumSize>
+        <MaximumSize>-1,26</MaximumSize>
+        <Children>
+          <PushButton>
+            <ObjectName>XdjFxStepBtn</ObjectName>
+            <Size>18f,24f</Size>
+            <NumberStates>1</NumberStates>
+            <State><Number>0</Number><Text>&#9664;</Text><Alignment>center</Alignment></State>
+            <Connection>
+              <ConfigKey>[EffectRack1_EffectUnit1_Effect1],prev_effect</ConfigKey>
+              <ButtonState>LeftButton</ButtonState>
+            </Connection>
+          </PushButton>
+          <EffectSelector>
+            <ObjectName>XdjFxName</ObjectName>
+            <SizePolicy>me,f</SizePolicy>
+            <MinimumSize>0,24</MinimumSize>
+            <MaximumSize>-1,24</MaximumSize>
+            <EffectRack>1</EffectRack>
+            <EffectUnit>1</EffectUnit>
+            <Effect>1</Effect>
+          </EffectSelector>
+          <PushButton>
+            <ObjectName>XdjFxStepBtn</ObjectName>
+            <Size>18f,24f</Size>
+            <NumberStates>1</NumberStates>
+            <State><Number>0</Number><Text>&#9654;</Text><Alignment>center</Alignment></State>
+            <Connection>
+              <ConfigKey>[EffectRack1_EffectUnit1_Effect1],next_effect</ConfigKey>
+              <ButtonState>LeftButton</ButtonState>
+            </Connection>
+          </PushButton>
+        </Children>
+      </WidgetGroup>
+
+      <WidgetGroup><Size>1min,10f</Size></WidgetGroup>
+
+      <!-- Numeric readout of the effect's own first parameter - the
+           closest on-screen analog to the hardware's big "1000ms" TIME
+           display (normalized 0-1 here, not literal ms - that unit is
+           effect-specific in Mixxx's generic engine). -->
+      <Number>
+        <ObjectName>XdjFxParamNumber</ObjectName>
+        <SizePolicy>me,f</SizePolicy>
+        <MinimumSize>0,32</MinimumSize>
+        <MaximumSize>-1,32</MaximumSize>
+        <Alignment>center</Alignment>
+        <NumberOfDigits>3</NumberOfDigits>
+        <Connection>
+          <ConfigKey>[EffectRack1_EffectUnit1_Effect1],parameter1</ConfigKey>
+        </Connection>
+      </Number>
+
+      <WidgetGroup><Size>1min,8f</Size></WidgetGroup>
+
+      <!-- LEVEL (meta) + MIX (dry/wet) knobs, side by side, big touch
+           targets since these get twisted mid-set. -->
+      <WidgetGroup>
+        <Layout>horizontal</Layout>
+        <SizePolicy>me,f</SizePolicy>
+        <MinimumSize>0,72</MinimumSize>
+        <MaximumSize>-1,72</MaximumSize>
+        <Children>
+          <WidgetGroup><Size>1me,0min</Size></WidgetGroup>
+
+          <WidgetGroup>
+            <ObjectName>XdjFxKnobBox</ObjectName>
+            <Layout>vertical</Layout>
+            <SizePolicy>max,f</SizePolicy>
+            <Children>
+              <EffectMetaKnob>
+                <ObjectName>XdjFxKnob</ObjectName>
+                <Size>48f,42f</Size>
+                <Knob>skins:RekordboxPi/palemoon/knobs/knob_indicator_fx_grey.svg</Knob>
+                <BackPath>skins:RekordboxPi/palemoon/knobs/knob_bg_fx.svg</BackPath>
+                <MinAngle><Variable name="PotiMinAngle"/></MinAngle>
+                <MaxAngle><Variable name="PotiMaxAngle"/></MaxAngle>
+                <KnobCenterYOffset>1.883</KnobCenterYOffset>
+                <ArcRadius><Variable name="ArcRadiusBig"/></ArcRadius>
+                <ArcThickness><Variable name="ArcThicknessBig"/></ArcThickness>
+                <ArcRoundCaps><Variable name="ArcRoundCaps"/></ArcRoundCaps>
+                <ArcColor><Variable name="ArcColorFx12Quick"/></ArcColor>
+                <EffectUnit>1</EffectUnit>
+                <Effect>1</Effect>
+                <Connection>
+                  <ConfigKey>[EffectRack1_EffectUnit1_Effect1],meta</ConfigKey>
+                </Connection>
+              </EffectMetaKnob>
+              <Label>
+                <ObjectName>XdjFxKnobLabel</ObjectName>
+                <Text>LEVEL</Text>
+                <Alignment>center</Alignment>
+                <SizePolicy>max,f</SizePolicy>
+                <MinimumSize>48,12</MinimumSize>
+                <MaximumSize>48,12</MaximumSize>
+              </Label>
+            </Children>
+          </WidgetGroup>
+
+          <WidgetGroup><Size>10f,0min</Size></WidgetGroup>
+
+          <WidgetGroup>
+            <ObjectName>XdjFxKnobBox</ObjectName>
+            <Layout>vertical</Layout>
+            <SizePolicy>max,f</SizePolicy>
+            <Children>
+              <KnobComposed>
+                <ObjectName>XdjFxKnob</ObjectName>
+                <Size>48f,42f</Size>
+                <Knob>skins:RekordboxPi/palemoon/knobs/knob_indicator_fx_grey.svg</Knob>
+                <BackPath>skins:RekordboxPi/palemoon/knobs/knob_bg_fx.svg</BackPath>
+                <MinAngle><Variable name="PotiMinAngle"/></MinAngle>
+                <MaxAngle><Variable name="PotiMaxAngle"/></MaxAngle>
+                <KnobCenterYOffset>1.883</KnobCenterYOffset>
+                <ArcRadius><Variable name="ArcRadiusBig"/></ArcRadius>
+                <ArcThickness><Variable name="ArcThicknessBig"/></ArcThickness>
+                <ArcRoundCaps><Variable name="ArcRoundCaps"/></ArcRoundCaps>
+                <ArcUnipolar>true</ArcUnipolar>
+                <ArcColor><Variable name="ArcColorFx12Quick"/></ArcColor>
+                <Connection>
+                  <ConfigKey>[EffectRack1_EffectUnit1],mix</ConfigKey>
+                </Connection>
+              </KnobComposed>
+              <Label>
+                <ObjectName>XdjFxKnobLabel</ObjectName>
+                <Text>MIX</Text>
+                <Alignment>center</Alignment>
+                <SizePolicy>max,f</SizePolicy>
+                <MinimumSize>48,12</MinimumSize>
+                <MaximumSize>48,12</MaximumSize>
+              </Label>
+            </Children>
+          </WidgetGroup>
+
+          <WidgetGroup><Size>1me,0min</Size></WidgetGroup>
+        </Children>
+      </WidgetGroup>
+
+      <WidgetGroup><Size>1min,10f</Size></WidgetGroup>
+
+      <!-- CH SELECT - which channel(s) hear this Beat FX -->
       <Label>
         <ObjectName>XdjBoxLabel</ObjectName>
         <Text>CH SELECT</Text>
@@ -64,10 +235,6 @@
               <ButtonState>LeftButton</ButtonState>
             </Connection>
             <Connection>
-              <ConfigKey>[EffectRack1_EffectUnit2],group_[Channel1]_enable</ConfigKey>
-              <ButtonState>LeftButton</ButtonState>
-            </Connection>
-            <Connection>
               <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel1]_enable</ConfigKey>
             </Connection>
           </PushButton>
@@ -82,10 +249,6 @@
             <State><Number>1</Number><Text>2</Text><Alignment>center</Alignment></State>
             <Connection>
               <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel2]_enable</ConfigKey>
-              <ButtonState>LeftButton</ButtonState>
-            </Connection>
-            <Connection>
-              <ConfigKey>[EffectRack1_EffectUnit2],group_[Channel2]_enable</ConfigKey>
               <ButtonState>LeftButton</ButtonState>
             </Connection>
             <Connection>
@@ -106,10 +269,6 @@
               <ButtonState>LeftButton</ButtonState>
             </Connection>
             <Connection>
-              <ConfigKey>[EffectRack1_EffectUnit2],group_[Channel3]_enable</ConfigKey>
-              <ButtonState>LeftButton</ButtonState>
-            </Connection>
-            <Connection>
               <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel3]_enable</ConfigKey>
             </Connection>
           </PushButton>
@@ -124,10 +283,6 @@
             <State><Number>1</Number><Text>4</Text><Alignment>center</Alignment></State>
             <Connection>
               <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel4]_enable</ConfigKey>
-              <ButtonState>LeftButton</ButtonState>
-            </Connection>
-            <Connection>
-              <ConfigKey>[EffectRack1_EffectUnit2],group_[Channel4]_enable</ConfigKey>
               <ButtonState>LeftButton</ButtonState>
             </Connection>
             <Connection>
@@ -148,255 +303,7 @@
               <ButtonState>LeftButton</ButtonState>
             </Connection>
             <Connection>
-              <ConfigKey>[EffectRack1_EffectUnit2],group_[Master]_enable</ConfigKey>
-              <ButtonState>LeftButton</ButtonState>
-            </Connection>
-            <Connection>
               <ConfigKey>[EffectRack1_EffectUnit1],group_[Master]_enable</ConfigKey>
-            </Connection>
-          </PushButton>
-        </Children>
-      </WidgetGroup>
-
-      <WidgetGroup><Size>1min,8f</Size></WidgetGroup>
-
-      <!-- ===== FX1 = EffectRack1_EffectUnit1 ===== -->
-      <Label>
-        <ObjectName>XdjBoxLabel</ObjectName>
-        <Text>FX1</Text>
-        <SizePolicy>me,f</SizePolicy>
-        <MinimumSize>0,12</MinimumSize>
-        <MaximumSize>-1,12</MaximumSize>
-      </Label>
-
-      <WidgetGroup><Size>1min,2f</Size></WidgetGroup>
-
-      <WidgetGroup>
-        <Layout>horizontal</Layout>
-        <SizePolicy>me,f</SizePolicy>
-        <MinimumSize>0,22</MinimumSize>
-        <MaximumSize>-1,22</MaximumSize>
-        <Children>
-          <EffectSelector>
-            <ObjectName>XdjFxSelector</ObjectName>
-            <SizePolicy>me,f</SizePolicy>
-            <MinimumSize>0,20</MinimumSize>
-            <MaximumSize>-1,20</MaximumSize>
-            <EffectRack>1</EffectRack>
-            <EffectUnit>1</EffectUnit>
-            <Effect>1</Effect>
-          </EffectSelector>
-          <WidgetGroup><Size>3f,0min</Size></WidgetGroup>
-          <PushButton>
-            <ObjectName>XdjFxOn</ObjectName>
-            <SizePolicy>max,f</SizePolicy>
-            <MinimumSize>34,20</MinimumSize>
-            <MaximumSize>34,20</MaximumSize>
-            <NumberStates>2</NumberStates>
-            <State><Number>0</Number><Text>OFF</Text><Alignment>center</Alignment></State>
-            <State><Number>1</Number><Text>ON</Text><Alignment>center</Alignment></State>
-            <Connection>
-              <ConfigKey>[EffectRack1_EffectUnit1_Effect1],enabled</ConfigKey>
-              <ButtonState>LeftButton</ButtonState>
-            </Connection>
-            <Connection>
-              <ConfigKey>[EffectRack1_EffectUnit1_Effect1],enabled</ConfigKey>
-            </Connection>
-          </PushButton>
-        </Children>
-      </WidgetGroup>
-
-      <WidgetGroup><Size>1min,2f</Size></WidgetGroup>
-
-      <WidgetGroup>
-        <Layout>horizontal</Layout>
-        <SizePolicy>me,f</SizePolicy>
-        <MinimumSize>0,22</MinimumSize>
-        <MaximumSize>-1,22</MaximumSize>
-        <Children>
-          <EffectSelector>
-            <ObjectName>XdjFxSelector</ObjectName>
-            <SizePolicy>me,f</SizePolicy>
-            <MinimumSize>0,20</MinimumSize>
-            <MaximumSize>-1,20</MaximumSize>
-            <EffectRack>1</EffectRack>
-            <EffectUnit>1</EffectUnit>
-            <Effect>2</Effect>
-          </EffectSelector>
-          <WidgetGroup><Size>3f,0min</Size></WidgetGroup>
-          <PushButton>
-            <ObjectName>XdjFxOn</ObjectName>
-            <SizePolicy>max,f</SizePolicy>
-            <MinimumSize>34,20</MinimumSize>
-            <MaximumSize>34,20</MaximumSize>
-            <NumberStates>2</NumberStates>
-            <State><Number>0</Number><Text>OFF</Text><Alignment>center</Alignment></State>
-            <State><Number>1</Number><Text>ON</Text><Alignment>center</Alignment></State>
-            <Connection>
-              <ConfigKey>[EffectRack1_EffectUnit1_Effect2],enabled</ConfigKey>
-              <ButtonState>LeftButton</ButtonState>
-            </Connection>
-            <Connection>
-              <ConfigKey>[EffectRack1_EffectUnit1_Effect2],enabled</ConfigKey>
-            </Connection>
-          </PushButton>
-        </Children>
-      </WidgetGroup>
-
-      <WidgetGroup><Size>1min,2f</Size></WidgetGroup>
-
-      <WidgetGroup>
-        <Layout>horizontal</Layout>
-        <SizePolicy>me,f</SizePolicy>
-        <MinimumSize>0,22</MinimumSize>
-        <MaximumSize>-1,22</MaximumSize>
-        <Children>
-          <EffectSelector>
-            <ObjectName>XdjFxSelector</ObjectName>
-            <SizePolicy>me,f</SizePolicy>
-            <MinimumSize>0,20</MinimumSize>
-            <MaximumSize>-1,20</MaximumSize>
-            <EffectRack>1</EffectRack>
-            <EffectUnit>1</EffectUnit>
-            <Effect>3</Effect>
-          </EffectSelector>
-          <WidgetGroup><Size>3f,0min</Size></WidgetGroup>
-          <PushButton>
-            <ObjectName>XdjFxOn</ObjectName>
-            <SizePolicy>max,f</SizePolicy>
-            <MinimumSize>34,20</MinimumSize>
-            <MaximumSize>34,20</MaximumSize>
-            <NumberStates>2</NumberStates>
-            <State><Number>0</Number><Text>OFF</Text><Alignment>center</Alignment></State>
-            <State><Number>1</Number><Text>ON</Text><Alignment>center</Alignment></State>
-            <Connection>
-              <ConfigKey>[EffectRack1_EffectUnit1_Effect3],enabled</ConfigKey>
-              <ButtonState>LeftButton</ButtonState>
-            </Connection>
-            <Connection>
-              <ConfigKey>[EffectRack1_EffectUnit1_Effect3],enabled</ConfigKey>
-            </Connection>
-          </PushButton>
-        </Children>
-      </WidgetGroup>
-
-      <WidgetGroup><Size>1min,10f</Size></WidgetGroup>
-
-      <!-- ===== FX2 = EffectRack1_EffectUnit2 ===== -->
-      <Label>
-        <ObjectName>XdjBoxLabel</ObjectName>
-        <Text>FX2</Text>
-        <SizePolicy>me,f</SizePolicy>
-        <MinimumSize>0,12</MinimumSize>
-        <MaximumSize>-1,12</MaximumSize>
-      </Label>
-
-      <WidgetGroup><Size>1min,2f</Size></WidgetGroup>
-
-      <WidgetGroup>
-        <Layout>horizontal</Layout>
-        <SizePolicy>me,f</SizePolicy>
-        <MinimumSize>0,22</MinimumSize>
-        <MaximumSize>-1,22</MaximumSize>
-        <Children>
-          <EffectSelector>
-            <ObjectName>XdjFxSelector</ObjectName>
-            <SizePolicy>me,f</SizePolicy>
-            <MinimumSize>0,20</MinimumSize>
-            <MaximumSize>-1,20</MaximumSize>
-            <EffectRack>1</EffectRack>
-            <EffectUnit>2</EffectUnit>
-            <Effect>1</Effect>
-          </EffectSelector>
-          <WidgetGroup><Size>3f,0min</Size></WidgetGroup>
-          <PushButton>
-            <ObjectName>XdjFxOn</ObjectName>
-            <SizePolicy>max,f</SizePolicy>
-            <MinimumSize>34,20</MinimumSize>
-            <MaximumSize>34,20</MaximumSize>
-            <NumberStates>2</NumberStates>
-            <State><Number>0</Number><Text>OFF</Text><Alignment>center</Alignment></State>
-            <State><Number>1</Number><Text>ON</Text><Alignment>center</Alignment></State>
-            <Connection>
-              <ConfigKey>[EffectRack1_EffectUnit2_Effect1],enabled</ConfigKey>
-              <ButtonState>LeftButton</ButtonState>
-            </Connection>
-            <Connection>
-              <ConfigKey>[EffectRack1_EffectUnit2_Effect1],enabled</ConfigKey>
-            </Connection>
-          </PushButton>
-        </Children>
-      </WidgetGroup>
-
-      <WidgetGroup><Size>1min,2f</Size></WidgetGroup>
-
-      <WidgetGroup>
-        <Layout>horizontal</Layout>
-        <SizePolicy>me,f</SizePolicy>
-        <MinimumSize>0,22</MinimumSize>
-        <MaximumSize>-1,22</MaximumSize>
-        <Children>
-          <EffectSelector>
-            <ObjectName>XdjFxSelector</ObjectName>
-            <SizePolicy>me,f</SizePolicy>
-            <MinimumSize>0,20</MinimumSize>
-            <MaximumSize>-1,20</MaximumSize>
-            <EffectRack>1</EffectRack>
-            <EffectUnit>2</EffectUnit>
-            <Effect>2</Effect>
-          </EffectSelector>
-          <WidgetGroup><Size>3f,0min</Size></WidgetGroup>
-          <PushButton>
-            <ObjectName>XdjFxOn</ObjectName>
-            <SizePolicy>max,f</SizePolicy>
-            <MinimumSize>34,20</MinimumSize>
-            <MaximumSize>34,20</MaximumSize>
-            <NumberStates>2</NumberStates>
-            <State><Number>0</Number><Text>OFF</Text><Alignment>center</Alignment></State>
-            <State><Number>1</Number><Text>ON</Text><Alignment>center</Alignment></State>
-            <Connection>
-              <ConfigKey>[EffectRack1_EffectUnit2_Effect2],enabled</ConfigKey>
-              <ButtonState>LeftButton</ButtonState>
-            </Connection>
-            <Connection>
-              <ConfigKey>[EffectRack1_EffectUnit2_Effect2],enabled</ConfigKey>
-            </Connection>
-          </PushButton>
-        </Children>
-      </WidgetGroup>
-
-      <WidgetGroup><Size>1min,2f</Size></WidgetGroup>
-
-      <WidgetGroup>
-        <Layout>horizontal</Layout>
-        <SizePolicy>me,f</SizePolicy>
-        <MinimumSize>0,22</MinimumSize>
-        <MaximumSize>-1,22</MaximumSize>
-        <Children>
-          <EffectSelector>
-            <ObjectName>XdjFxSelector</ObjectName>
-            <SizePolicy>me,f</SizePolicy>
-            <MinimumSize>0,20</MinimumSize>
-            <MaximumSize>-1,20</MaximumSize>
-            <EffectRack>1</EffectRack>
-            <EffectUnit>2</EffectUnit>
-            <Effect>3</Effect>
-          </EffectSelector>
-          <WidgetGroup><Size>3f,0min</Size></WidgetGroup>
-          <PushButton>
-            <ObjectName>XdjFxOn</ObjectName>
-            <SizePolicy>max,f</SizePolicy>
-            <MinimumSize>34,20</MinimumSize>
-            <MaximumSize>34,20</MaximumSize>
-            <NumberStates>2</NumberStates>
-            <State><Number>0</Number><Text>OFF</Text><Alignment>center</Alignment></State>
-            <State><Number>1</Number><Text>ON</Text><Alignment>center</Alignment></State>
-            <Connection>
-              <ConfigKey>[EffectRack1_EffectUnit2_Effect3],enabled</ConfigKey>
-              <ButtonState>LeftButton</ButtonState>
-            </Connection>
-            <Connection>
-              <ConfigKey>[EffectRack1_EffectUnit2_Effect3],enabled</ConfigKey>
             </Connection>
           </PushButton>
         </Children>
