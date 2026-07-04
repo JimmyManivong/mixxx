@@ -1,176 +1,216 @@
 <Template>
   <!-- CUSTOM CDJ-3000 performance area (1024x600). One scrolling lane per deck
        (DECK N info column + waveform). Decks 1 & 2 always shown; decks 3 & 4 (and
-       their dividers) appear only in 4-deck mode ([Skin],show_4decks). All lanes
-       are direct children with equal stretch so they split the height evenly with
-       no dead space. Transport stays on the FLX6 hardware. -->
+       their dividers) appear only in 4-deck mode ([Skin],show_4decks). All 4 deck
+       rows are direct children of the same vertical stack so they always split the
+       height evenly - the EFFECT column is a sibling to that whole stack (not
+       nested inside deck 1/2's rows), so it spans the full height without
+       disturbing the deck rows' equal stretch. -->
   <WidgetGroup>
     <ObjectName>CdjPerfStack</ObjectName>
-    <Layout>vertical</Layout>
+    <Layout>horizontal</Layout>
     <SizePolicy>me,me</SizePolicy>
     <Children>
 
-      <!-- ===== DECK 1 ===== -->
       <WidgetGroup>
-        <ObjectName>CdjDeckRow</ObjectName>
-        <Layout>horizontal</Layout>
+        <Layout>vertical</Layout>
         <SizePolicy>me,me</SizePolicy>
-        <MinimumSize>0,90</MinimumSize>
         <Children>
-          <Template src="skins:RekordboxPi/decks/cdj_deck_sidebar.xml">
-            <SetVariable name="Group">[Channel1]</SetVariable>
-            <SetVariable name="DeckNum">1</SetVariable>
-          </Template>
+
+          <!-- ===== DECK 1 ===== -->
           <WidgetGroup>
-            <ObjectName>CdjWave1</ObjectName>
-            <Layout>vertical</Layout>
+            <ObjectName>CdjDeckRow</ObjectName>
+            <Layout>horizontal</Layout>
             <SizePolicy>me,me</SizePolicy>
+            <MinimumSize>0,80</MinimumSize>
             <Children>
-              <Template src="skins:RekordboxPi/waveform.xml">
-                <SetVariable name="ChanNum">1</SetVariable>
-                <SetVariable name="SignalColor"><Variable name="SignalColor_12"/></SetVariable>
-                <SetVariable name="BgColorWaveform"><Variable name="BgColorWaveform_12"/></SetVariable>
+              <Template src="skins:RekordboxPi/decks/cdj_deck_sidebar.xml">
+                <SetVariable name="Group">[Channel1]</SetVariable>
+                <SetVariable name="DeckNum">1</SetVariable>
               </Template>
+              <!-- CUSTOM: per-deck level meter (green->red), directly beside the
+                   waveform like a CDJ - was missing entirely from this perf page. -->
+              <WidgetGroup>
+                <ObjectName>CdjVuMeter</ObjectName>
+                <Layout>horizontal</Layout>
+                <SizePolicy>min,me</SizePolicy>
+                <Children>
+                  <Template src="skins:RekordboxPi/mixer/vumeter_single.xml">
+                    <SetVariable name="Group">[Channel1]</SetVariable>
+                    <SetVariable name="ChannelType">channel</SetVariable>
+                    <SetVariable name="VuSize">deck</SetVariable>
+                    <SetVariable name="VuColor">light</SetVariable>
+                  </Template>
+                </Children>
+              </WidgetGroup>
+              <WidgetGroup>
+                <ObjectName>CdjWave1</ObjectName>
+                <Layout>vertical</Layout>
+                <SizePolicy>me,me</SizePolicy>
+                <Children>
+                  <Template src="skins:RekordboxPi/waveform.xml">
+                    <SetVariable name="ChanNum">1</SetVariable>
+                    <SetVariable name="SignalColor"><Variable name="SignalColor_12"/></SetVariable>
+                    <SetVariable name="BgColorWaveform"><Variable name="BgColorWaveform_12"/></SetVariable>
+                  </Template>
+                </Children>
+              </WidgetGroup>
             </Children>
           </WidgetGroup>
-          <Template src="skins:RekordboxPi/decks/cdj_deck_fx.xml">
-            <SetVariable name="FxUnit">1</SetVariable>
-            <SetVariable name="FxKnobColor"><Variable name="KnobColorFx12"/></SetVariable>
-            <SetVariable name="FxArcColor"><Variable name="ArcColorFx12Quick"/></SetVariable>
-            <SetVariable name="FxDeckA">1</SetVariable>
-            <SetVariable name="FxDeckB">2</SetVariable>
-          </Template>
+
+          <WidgetGroup><ObjectName>CdjDeckDivider</ObjectName><Size>1me,2f</Size></WidgetGroup>
+
+          <!-- ===== DECK 2 ===== -->
+          <WidgetGroup>
+            <ObjectName>CdjDeckRow</ObjectName>
+            <Layout>horizontal</Layout>
+            <SizePolicy>me,me</SizePolicy>
+            <MinimumSize>0,80</MinimumSize>
+            <Children>
+              <Template src="skins:RekordboxPi/decks/cdj_deck_sidebar.xml">
+                <SetVariable name="Group">[Channel2]</SetVariable>
+                <SetVariable name="DeckNum">2</SetVariable>
+              </Template>
+              <WidgetGroup>
+                <ObjectName>CdjVuMeter</ObjectName>
+                <Layout>horizontal</Layout>
+                <SizePolicy>min,me</SizePolicy>
+                <Children>
+                  <Template src="skins:RekordboxPi/mixer/vumeter_single.xml">
+                    <SetVariable name="Group">[Channel2]</SetVariable>
+                    <SetVariable name="ChannelType">channel</SetVariable>
+                    <SetVariable name="VuSize">deck</SetVariable>
+                    <SetVariable name="VuColor">light</SetVariable>
+                  </Template>
+                </Children>
+              </WidgetGroup>
+              <WidgetGroup>
+                <ObjectName>CdjWave2</ObjectName>
+                <Layout>vertical</Layout>
+                <SizePolicy>me,me</SizePolicy>
+                <Children>
+                  <Template src="skins:RekordboxPi/waveform.xml">
+                    <SetVariable name="ChanNum">2</SetVariable>
+                    <SetVariable name="SignalColor"><Variable name="SignalColor_12"/></SetVariable>
+                    <SetVariable name="BgColorWaveform"><Variable name="BgColorWaveform_12"/></SetVariable>
+                  </Template>
+                </Children>
+              </WidgetGroup>
+            </Children>
+          </WidgetGroup>
+
+          <!-- divider before deck 3 (only in 4-deck mode) -->
+          <WidgetGroup>
+            <ObjectName>CdjDeckDivider</ObjectName>
+            <Size>1me,2f</Size>
+            <Connection>
+              <ConfigKey persist="true">[Skin],show_4decks</ConfigKey>
+              <BindProperty>visible</BindProperty>
+            </Connection>
+          </WidgetGroup>
+
+          <!-- ===== DECK 3 (only in 4-deck mode) ===== -->
+          <WidgetGroup>
+            <ObjectName>CdjDeckRow</ObjectName>
+            <Layout>horizontal</Layout>
+            <SizePolicy>me,me</SizePolicy>
+            <MinimumSize>0,80</MinimumSize>
+            <Children>
+              <Template src="skins:RekordboxPi/decks/cdj_deck_sidebar.xml">
+                <SetVariable name="Group">[Channel3]</SetVariable>
+                <SetVariable name="DeckNum">3</SetVariable>
+              </Template>
+              <WidgetGroup>
+                <ObjectName>CdjVuMeter</ObjectName>
+                <Layout>horizontal</Layout>
+                <SizePolicy>min,me</SizePolicy>
+                <Children>
+                  <Template src="skins:RekordboxPi/mixer/vumeter_single.xml">
+                    <SetVariable name="Group">[Channel3]</SetVariable>
+                    <SetVariable name="ChannelType">channel</SetVariable>
+                    <SetVariable name="VuSize">deck</SetVariable>
+                    <SetVariable name="VuColor">light</SetVariable>
+                  </Template>
+                </Children>
+              </WidgetGroup>
+              <WidgetGroup>
+                <ObjectName>CdjWave3</ObjectName>
+                <Layout>vertical</Layout>
+                <SizePolicy>me,me</SizePolicy>
+                <Children>
+                  <Template src="skins:RekordboxPi/waveform.xml">
+                    <SetVariable name="ChanNum">3</SetVariable>
+                    <SetVariable name="SignalColor"><Variable name="SignalColor_34"/></SetVariable>
+                    <SetVariable name="BgColorWaveform"><Variable name="BgColorWaveform_12"/></SetVariable>
+                  </Template>
+                </Children>
+              </WidgetGroup>
+            </Children>
+            <Connection>
+              <ConfigKey persist="true">[Skin],show_4decks</ConfigKey>
+              <BindProperty>visible</BindProperty>
+            </Connection>
+          </WidgetGroup>
+
+          <!-- divider before deck 4 (only in 4-deck mode) -->
+          <WidgetGroup>
+            <ObjectName>CdjDeckDivider</ObjectName>
+            <Size>1me,2f</Size>
+            <Connection>
+              <ConfigKey persist="true">[Skin],show_4decks</ConfigKey>
+              <BindProperty>visible</BindProperty>
+            </Connection>
+          </WidgetGroup>
+
+          <!-- ===== DECK 4 (only in 4-deck mode) ===== -->
+          <WidgetGroup>
+            <ObjectName>CdjDeckRow</ObjectName>
+            <Layout>horizontal</Layout>
+            <SizePolicy>me,me</SizePolicy>
+            <MinimumSize>0,80</MinimumSize>
+            <Children>
+              <Template src="skins:RekordboxPi/decks/cdj_deck_sidebar.xml">
+                <SetVariable name="Group">[Channel4]</SetVariable>
+                <SetVariable name="DeckNum">4</SetVariable>
+              </Template>
+              <WidgetGroup>
+                <ObjectName>CdjVuMeter</ObjectName>
+                <Layout>horizontal</Layout>
+                <SizePolicy>min,me</SizePolicy>
+                <Children>
+                  <Template src="skins:RekordboxPi/mixer/vumeter_single.xml">
+                    <SetVariable name="Group">[Channel4]</SetVariable>
+                    <SetVariable name="ChannelType">channel</SetVariable>
+                    <SetVariable name="VuSize">deck</SetVariable>
+                    <SetVariable name="VuColor">light</SetVariable>
+                  </Template>
+                </Children>
+              </WidgetGroup>
+              <WidgetGroup>
+                <ObjectName>CdjWave4</ObjectName>
+                <Layout>vertical</Layout>
+                <SizePolicy>me,me</SizePolicy>
+                <Children>
+                  <Template src="skins:RekordboxPi/waveform.xml">
+                    <SetVariable name="ChanNum">4</SetVariable>
+                    <SetVariable name="SignalColor"><Variable name="SignalColor_34"/></SetVariable>
+                    <SetVariable name="BgColorWaveform"><Variable name="BgColorWaveform_12"/></SetVariable>
+                  </Template>
+                </Children>
+              </WidgetGroup>
+            </Children>
+            <Connection>
+              <ConfigKey persist="true">[Skin],show_4decks</ConfigKey>
+              <BindProperty>visible</BindProperty>
+            </Connection>
+          </WidgetGroup>
+
         </Children>
       </WidgetGroup>
 
-      <WidgetGroup><ObjectName>CdjDeckDivider</ObjectName><Size>1me,2f</Size></WidgetGroup>
-
-      <!-- ===== DECK 2 ===== -->
-      <WidgetGroup>
-        <ObjectName>CdjDeckRow</ObjectName>
-        <Layout>horizontal</Layout>
-        <SizePolicy>me,me</SizePolicy>
-        <MinimumSize>0,90</MinimumSize>
-        <Children>
-          <Template src="skins:RekordboxPi/decks/cdj_deck_sidebar.xml">
-            <SetVariable name="Group">[Channel2]</SetVariable>
-            <SetVariable name="DeckNum">2</SetVariable>
-          </Template>
-          <WidgetGroup>
-            <ObjectName>CdjWave2</ObjectName>
-            <Layout>vertical</Layout>
-            <SizePolicy>me,me</SizePolicy>
-            <Children>
-              <Template src="skins:RekordboxPi/waveform.xml">
-                <SetVariable name="ChanNum">2</SetVariable>
-                <SetVariable name="SignalColor"><Variable name="SignalColor_12"/></SetVariable>
-                <SetVariable name="BgColorWaveform"><Variable name="BgColorWaveform_12"/></SetVariable>
-              </Template>
-            </Children>
-          </WidgetGroup>
-          <Template src="skins:RekordboxPi/decks/cdj_deck_fx.xml">
-            <SetVariable name="FxUnit">2</SetVariable>
-            <SetVariable name="FxKnobColor"><Variable name="KnobColorFx12"/></SetVariable>
-            <SetVariable name="FxArcColor"><Variable name="ArcColorFx12Quick"/></SetVariable>
-            <SetVariable name="FxDeckA">1</SetVariable>
-            <SetVariable name="FxDeckB">2</SetVariable>
-          </Template>
-        </Children>
-      </WidgetGroup>
-
-      <!-- divider before deck 3 (only in 4-deck mode) -->
-      <WidgetGroup>
-        <ObjectName>CdjDeckDivider</ObjectName>
-        <Size>1me,2f</Size>
-        <Connection>
-          <ConfigKey persist="true">[Skin],show_4decks</ConfigKey>
-          <BindProperty>visible</BindProperty>
-        </Connection>
-      </WidgetGroup>
-
-      <!-- ===== DECK 3 (only in 4-deck mode) ===== -->
-      <WidgetGroup>
-        <ObjectName>CdjDeckRow</ObjectName>
-        <Layout>horizontal</Layout>
-        <SizePolicy>me,me</SizePolicy>
-        <MinimumSize>0,90</MinimumSize>
-        <Children>
-          <Template src="skins:RekordboxPi/decks/cdj_deck_sidebar.xml">
-            <SetVariable name="Group">[Channel3]</SetVariable>
-            <SetVariable name="DeckNum">3</SetVariable>
-          </Template>
-          <WidgetGroup>
-            <ObjectName>CdjWave3</ObjectName>
-            <Layout>vertical</Layout>
-            <SizePolicy>me,me</SizePolicy>
-            <Children>
-              <Template src="skins:RekordboxPi/waveform.xml">
-                <SetVariable name="ChanNum">3</SetVariable>
-                <SetVariable name="SignalColor"><Variable name="SignalColor_34"/></SetVariable>
-                <SetVariable name="BgColorWaveform"><Variable name="BgColorWaveform_12"/></SetVariable>
-              </Template>
-            </Children>
-          </WidgetGroup>
-          <Template src="skins:RekordboxPi/decks/cdj_deck_fx.xml">
-            <SetVariable name="FxUnit">3</SetVariable>
-            <SetVariable name="FxKnobColor"><Variable name="KnobColorFx34"/></SetVariable>
-            <SetVariable name="FxArcColor"><Variable name="ArcColorFx34"/></SetVariable>
-            <SetVariable name="FxDeckA">3</SetVariable>
-            <SetVariable name="FxDeckB">4</SetVariable>
-          </Template>
-        </Children>
-        <Connection>
-          <ConfigKey persist="true">[Skin],show_4decks</ConfigKey>
-          <BindProperty>visible</BindProperty>
-        </Connection>
-      </WidgetGroup>
-
-      <!-- divider before deck 4 (only in 4-deck mode) -->
-      <WidgetGroup>
-        <ObjectName>CdjDeckDivider</ObjectName>
-        <Size>1me,2f</Size>
-        <Connection>
-          <ConfigKey persist="true">[Skin],show_4decks</ConfigKey>
-          <BindProperty>visible</BindProperty>
-        </Connection>
-      </WidgetGroup>
-
-      <!-- ===== DECK 4 (only in 4-deck mode) ===== -->
-      <WidgetGroup>
-        <ObjectName>CdjDeckRow</ObjectName>
-        <Layout>horizontal</Layout>
-        <SizePolicy>me,me</SizePolicy>
-        <MinimumSize>0,90</MinimumSize>
-        <Children>
-          <Template src="skins:RekordboxPi/decks/cdj_deck_sidebar.xml">
-            <SetVariable name="Group">[Channel4]</SetVariable>
-            <SetVariable name="DeckNum">4</SetVariable>
-          </Template>
-          <WidgetGroup>
-            <ObjectName>CdjWave4</ObjectName>
-            <Layout>vertical</Layout>
-            <SizePolicy>me,me</SizePolicy>
-            <Children>
-              <Template src="skins:RekordboxPi/waveform.xml">
-                <SetVariable name="ChanNum">4</SetVariable>
-                <SetVariable name="SignalColor"><Variable name="SignalColor_34"/></SetVariable>
-                <SetVariable name="BgColorWaveform"><Variable name="BgColorWaveform_12"/></SetVariable>
-              </Template>
-            </Children>
-          </WidgetGroup>
-          <Template src="skins:RekordboxPi/decks/cdj_deck_fx.xml">
-            <SetVariable name="FxUnit">4</SetVariable>
-            <SetVariable name="FxKnobColor"><Variable name="KnobColorFx34"/></SetVariable>
-            <SetVariable name="FxArcColor"><Variable name="ArcColorFx34"/></SetVariable>
-            <SetVariable name="FxDeckA">3</SetVariable>
-            <SetVariable name="FxDeckB">4</SetVariable>
-          </Template>
-        </Children>
-        <Connection>
-          <ConfigKey persist="true">[Skin],show_4decks</ConfigKey>
-          <BindProperty>visible</BindProperty>
-        </Connection>
-      </WidgetGroup>
+      <!-- EFFECT column: full height, sibling of the deck stack, always visible
+           regardless of 2-deck/4-deck mode (FX1/FX2 aren't tied to deck count). -->
+      <Template src="skins:RekordboxPi/decks/cdj_fx_column.xml"/>
 
     </Children>
   </WidgetGroup>

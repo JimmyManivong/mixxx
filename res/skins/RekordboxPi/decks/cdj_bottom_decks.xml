@@ -13,7 +13,7 @@
       <WidgetGroup>
         <Layout>horizontal</Layout>
         <SizePolicy>me,me</SizePolicy>
-        <MinimumSize>0,84</MinimumSize>
+        <MinimumSize>0,64</MinimumSize>
         <Children>
           <Template src="skins:RekordboxPi/decks/cdj_mini_deck.xml">
             <SetVariable name="Group">[Channel1]</SetVariable>
@@ -32,7 +32,7 @@
       <WidgetGroup>
         <Layout>horizontal</Layout>
         <SizePolicy>me,me</SizePolicy>
-        <MinimumSize>0,84</MinimumSize>
+        <MinimumSize>0,64</MinimumSize>
         <Children>
           <Template src="skins:RekordboxPi/decks/cdj_mini_deck.xml">
             <SetVariable name="Group">[Channel3]</SetVariable>

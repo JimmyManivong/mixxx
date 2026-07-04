@@ -7,7 +7,7 @@
     <ObjectName>XdjSidebar</ObjectName>
     <Layout>vertical</Layout>
     <SizePolicy>max,me</SizePolicy>
-    <MinimumSize>140,130</MinimumSize>
+    <MinimumSize>140,80</MinimumSize>
     <MaximumSize>140,-1</MaximumSize>
     <Children>
 
@@ -16,15 +16,15 @@
         <ObjectName>XdjTabBar</ObjectName>
         <Layout>horizontal</Layout>
         <SizePolicy>me,f</SizePolicy>
-        <MinimumSize>0,20</MinimumSize>
-        <MaximumSize>-1,20</MaximumSize>
+        <MinimumSize>0,16</MinimumSize>
+        <MaximumSize>-1,16</MaximumSize>
         <Children>
           <!-- Tab 1 DECK: displayValue=0 (active) when show_grid_edit_N=0 -->
           <PushButton>
             <ObjectName>XdjTabNormal</ObjectName>
             <SizePolicy>me,f</SizePolicy>
-            <MinimumSize>0,18</MinimumSize>
-            <MaximumSize>-1,18</MaximumSize>
+            <MinimumSize>0,16</MinimumSize>
+            <MaximumSize>-1,16</MaximumSize>
             <NumberStates>2</NumberStates>
             <State><Number>0</Number><Text>DECK <Variable name="DeckNum"/></Text></State>
             <State><Number>1</Number><Text>DECK <Variable name="DeckNum"/></Text></State>
@@ -40,8 +40,8 @@
           <PushButton>
             <ObjectName>XdjTabGrid</ObjectName>
             <SizePolicy>me,f</SizePolicy>
-            <MinimumSize>0,18</MinimumSize>
-            <MaximumSize>-1,18</MaximumSize>
+            <MinimumSize>0,16</MinimumSize>
+            <MaximumSize>-1,16</MaximumSize>
             <NumberStates>2</NumberStates>
             <State><Number>0</Number><Text>GRID</Text></State>
             <State><Number>1</Number><Text>GRID</Text></State>
@@ -70,8 +70,8 @@
             <ObjectName>XdjBox</ObjectName>
             <Layout>horizontal</Layout>
             <SizePolicy>me,f</SizePolicy>
-            <MinimumSize>0,18</MinimumSize>
-            <MaximumSize>-1,18</MaximumSize>
+            <MinimumSize>0,16</MinimumSize>
+            <MaximumSize>-1,16</MaximumSize>
             <Children>
               <Label>
                 <ObjectName>XdjBoxLabel</ObjectName>
@@ -96,18 +96,38 @@
                   <BindProperty>highlight</BindProperty>
                 </Connection>
               </Key>
+              <WidgetGroup><Size>4f,1min</Size></WidgetGroup>
+              <!-- CUSTOM: keylock toggle - was previously not shown anywhere
+                   in this skin, so its state (which affects whether pitch
+                   moves with tempo, e.g. on SYNC) was invisible/uncontrollable. -->
+              <PushButton>
+                <ObjectName>XdjKeyLock</ObjectName>
+                <SizePolicy>max,f</SizePolicy>
+                <MinimumSize>16,14</MinimumSize>
+                <MaximumSize>16,14</MaximumSize>
+                <NumberStates>2</NumberStates>
+                <State><Number>0</Number><Text>&#128275;</Text><Alignment>center</Alignment></State>
+                <State><Number>1</Number><Text>&#128274;</Text><Alignment>center</Alignment></State>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,keylock</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                </Connection>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,keylock</ConfigKey>
+                </Connection>
+              </PushButton>
             </Children>
           </WidgetGroup>
 
-          <WidgetGroup><Size>1min,3f</Size></WidgetGroup>
+          <WidgetGroup><Size>1min,2f</Size></WidgetGroup>
 
           <!-- SYNC + Q row -->
           <WidgetGroup>
             <ObjectName>XdjBox</ObjectName>
             <Layout>horizontal</Layout>
             <SizePolicy>me,f</SizePolicy>
-            <MinimumSize>0,18</MinimumSize>
-            <MaximumSize>-1,18</MaximumSize>
+            <MinimumSize>0,16</MinimumSize>
+            <MaximumSize>-1,16</MaximumSize>
             <Children>
               <PushButton>
                 <ObjectName>XdjSync</ObjectName>
@@ -145,22 +165,22 @@
             </Children>
           </WidgetGroup>
 
-          <WidgetGroup><Size>1min,3f</Size></WidgetGroup>
+          <WidgetGroup><Size>1min,2f</Size></WidgetGroup>
 
           <!-- LOOP box -->
           <WidgetGroup>
             <ObjectName>XdjLoopBox</ObjectName>
             <Layout>vertical</Layout>
             <SizePolicy>me,me</SizePolicy>
-            <MinimumSize>0,36</MinimumSize>
-            <MaximumSize>-1,60</MaximumSize>
+            <MinimumSize>0,28</MinimumSize>
+            <MaximumSize>-1,50</MaximumSize>
             <Children>
               <WidgetGroup><Size>1min,1me</Size></WidgetGroup>
               <Number>
                 <ObjectName>XdjLoopSize</ObjectName>
                 <SizePolicy>me,f</SizePolicy>
-                <MinimumSize>0,16</MinimumSize>
-                <MaximumSize>-1,16</MaximumSize>
+                <MinimumSize>0,14</MinimumSize>
+                <MaximumSize>-1,14</MaximumSize>
                 <Alignment>center</Alignment>
                 <NumberOfDigits>0</NumberOfDigits>
                 <Connection>
@@ -171,8 +191,8 @@
               <WidgetGroup>
                 <Layout>horizontal</Layout>
                 <SizePolicy>me,f</SizePolicy>
-                <MinimumSize>0,16</MinimumSize>
-                <MaximumSize>-1,16</MaximumSize>
+                <MinimumSize>0,14</MinimumSize>
+                <MaximumSize>-1,14</MaximumSize>
                 <Children>
                   <PushButton>
                     <ObjectName>XdjLoopDown</ObjectName>

@@ -79,7 +79,7 @@
       <attribute persist="true" config_key="[Skin],show_vumeters_compact">1</attribute>
 
     <!-- Mixer -->
-      <attribute persist="true" config_key="[Skin],show_mixer">1</attribute>
+      <attribute persist="true" config_key="[Skin],show_mixer">0</attribute>
       <attribute persist="true" config_key="[Skin],show_main_head_mixer">1</attribute>
       <attribute persist="true" config_key="[Skin],show_eq_knobs">1</attribute>
       <attribute persist="true" config_key="[Skin],show_eq_kill_buttons">1</attribute>
@@ -490,11 +490,61 @@
                   <SizePolicy>me,me</SizePolicy>
                   <Children>
 
+                    <!-- CUSTOM: pinned height for the SCROLLING per-deck
+                         waveforms - the thing actually needed while mixing -
+                         out of the 556px perf-page content height (600 screen
+                         - 44 top chrome), leaving the rest for CdjPreviewStrip's
+                         overview waveforms below. Needs BOTH Minimum and
+                         Maximum: Qt's "me,me" Expanding policy settles this at
+                         its own natural size (observed ~288px) if only a
+                         Maximum is given (a Maximum only ever shrinks, never
+                         forces growth) - Minimum alone risks it also
+                         swallowing whatever surplus CdjPreviewStrip didn't
+                         claim. Pinning both makes the split exact and
+                         predictable.
+                         Two mutually-exclusive copies inside, gated by the same
+                         [Skin],show_4decks the rows themselves use (nested one
+                         level inside a single show_waveforms-gated wrapper,
+                         rather than each having its own show_waveforms
+                         Connection too - two Connections on the same "visible"
+                         property on one widget don't AND together, they just
+                         fight over which fired last): 2-deck gets 445px since 1
+                         preview row fits comfortably in the remaining space;
+                         4-deck gets 400px since 2 preview rows need more of the
+                         548px budget (148px) to both stay legible without
+                         shrinking below cdj_bottom_decks.xml's per-row
+                         MinimumSize. -->
                     <WidgetGroup>
                       <Layout>vertical</Layout>
                       <SizePolicy>me,me</SizePolicy>
                       <Children>
-                        <Template src="skins:RekordboxPi/decks/cdj_perf_stack.xml"/>
+                        <WidgetGroup>
+                          <Layout>vertical</Layout>
+                          <SizePolicy>me,me</SizePolicy>
+                          <MinimumSize>-1,445</MinimumSize>
+                          <MaximumSize>-1,445</MaximumSize>
+                          <Children>
+                            <Template src="skins:RekordboxPi/decks/cdj_perf_stack.xml"/>
+                          </Children>
+                          <Connection>
+                            <ConfigKey persist="true">[Skin],show_4decks</ConfigKey>
+                            <Transform><Not/></Transform>
+                            <BindProperty>visible</BindProperty>
+                          </Connection>
+                        </WidgetGroup>
+                        <WidgetGroup>
+                          <Layout>vertical</Layout>
+                          <SizePolicy>me,me</SizePolicy>
+                          <MinimumSize>-1,400</MinimumSize>
+                          <MaximumSize>-1,400</MaximumSize>
+                          <Children>
+                            <Template src="skins:RekordboxPi/decks/cdj_perf_stack.xml"/>
+                          </Children>
+                          <Connection>
+                            <ConfigKey persist="true">[Skin],show_4decks</ConfigKey>
+                            <BindProperty>visible</BindProperty>
+                          </Connection>
+                        </WidgetGroup>
                       </Children>
                       <Connection>
                         <ConfigKey persist="true">[Skin],show_waveforms</ConfigKey>
@@ -503,17 +553,72 @@
                     </WidgetGroup>
 
                     <!-- CUSTOM: full-track overview preview strip pinned at the
-                         bottom (2 previews in 2-deck mode, 4 in 4-deck mode). Height
-                         is capped so the scrolling lanes above always fill the rest,
-                         leaving no dead space. -->
+                         bottom (1 row of 2 previews in 2-deck mode, 2 rows of 4 in
+                         4-deck mode). No explicit Min/MaxSize here on purpose: a
+                         static number here can't know which mode is active, and a
+                         hardcoded value tuned for one mode starves or wastes space
+                         in the other. Vertical policy is "min" (protected floor,
+                         can still grow) - NOT "max", which shrinks first under
+                         pressure and let the perf stack above crush this strip's
+                         overview waveforms to a sliver on the 1024x600 CDJ page.
+                         Each row in cdj_bottom_decks.xml has its own MinimumSize
+                         (84) and NO MaximumSize, so on a spacious screen (2-deck
+                         mode) they freely grow to fill leftover space instead of
+                         leaving it as a dead gap; on the tight 4-deck screen they
+                         settle a bit under 84 but stay clearly visible, never
+                         crushed to nothing. -->
                     <WidgetGroup>
                       <ObjectName>CdjPreviewStrip</ObjectName>
                       <Layout>vertical</Layout>
-                      <SizePolicy>me,max</SizePolicy>
-                      <MinimumSize>0,90</MinimumSize>
-                      <MaximumSize>-1,192</MaximumSize>
+                      <SizePolicy>me,min</SizePolicy>
                       <Children>
-                        <Template src="skins:RekordboxPi/decks/cdj_bottom_decks.xml"/>
+                        <!-- CUSTOM: cdj_bottom_decks.xml's rows are "me,me"
+                             (Expanding, no Maximum) so they can fill leftover
+                             space in 2-deck mode - but that same Expanding
+                             appetite also swallows a plain sibling spacer meant
+                             as a bottom margin (tried that first: had zero
+                             effect, the row just took all the room anyway).
+                             Wrapping the template call itself in an explicit
+                             MaximumSize forces the actual cap from the outside,
+                             which Qt does reliably respect, leaving genuine
+                             leftover space for the spacer below to claim.
+                             103px in 2-deck mode (1 row, MinimumSize 64 in
+                             cdj_bottom_decks.xml); 148px in 4-deck mode (2 rows
+                             at 64px min = 128px content, leaving slack instead
+                             of the old 132px cap that was smaller than the two
+                             rows' combined 168px minimum and forced them to
+                             overlap - matches the 445/400 split above on the
+                             scrolling waveforms. -->
+                        <WidgetGroup>
+                          <Layout>vertical</Layout>
+                          <SizePolicy>me,me</SizePolicy>
+                          <MaximumSize>-1,103</MaximumSize>
+                          <Children>
+                            <Template src="skins:RekordboxPi/decks/cdj_bottom_decks.xml"/>
+                          </Children>
+                          <Connection>
+                            <ConfigKey persist="true">[Skin],show_4decks</ConfigKey>
+                            <Transform><Not/></Transform>
+                            <BindProperty>visible</BindProperty>
+                          </Connection>
+                        </WidgetGroup>
+                        <WidgetGroup>
+                          <Layout>vertical</Layout>
+                          <SizePolicy>me,me</SizePolicy>
+                          <MaximumSize>-1,148</MaximumSize>
+                          <Children>
+                            <Template src="skins:RekordboxPi/decks/cdj_bottom_decks.xml"/>
+                          </Children>
+                          <Connection>
+                            <ConfigKey persist="true">[Skin],show_4decks</ConfigKey>
+                            <BindProperty>visible</BindProperty>
+                          </Connection>
+                        </WidgetGroup>
+                        <!-- Fixed bottom margin so the preview cards don't run
+                             flush to the screen edge - shows CdjPreviewStrip's
+                             own dark grey background (#15161a in the QSS) as a
+                             real frame. -->
+                        <WidgetGroup><Size>1min,8f</Size></WidgetGroup>
                       </Children>
                     </WidgetGroup>
 
