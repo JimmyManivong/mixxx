@@ -38,9 +38,10 @@ EffectManifestPointer FlangerEffect::getManifest() {
     speed->setShortName(QObject::tr("Speed"));
     speed->setDescription(QObject::tr(
             "Speed of the LFO (low frequency oscillator)\n"
-            "32 - 1/4 beats rounded to 1/2 beat per LFO cycle if tempo is detected\n"
+            "32 - 1/16 beats rounded to 1/16 beat per LFO cycle if tempo is detected\n"
             "1/32 - 4 Hz if no tempo is detected"));
     speed->setValueScaler(EffectManifestParameter::ValueScaler::LogarithmicInverse);
+    speed->setUnitsHint(EffectManifestParameter::UnitsHint::Beats);
     speed->setRange(kMinLfoBeats, 8, kMaxLfoBeats);
 
     EffectManifestParameterPointer width = pManifest->addParameter();
@@ -90,7 +91,7 @@ EffectManifestPointer FlangerEffect::getManifest() {
     triplet->setName(QObject::tr("Triplets"));
     triplet->setShortName(QObject::tr("Triplets"));
     triplet->setDescription(QObject::tr(
-            "Divide rounded 1/2 beats of the Period parameter by 3."));
+            "Divide rounded 1/16 beats of the Period parameter by 3."));
     triplet->setValueScaler(EffectManifestParameter::ValueScaler::Toggle);
     triplet->setUnitsHint(EffectManifestParameter::UnitsHint::Unknown);
     triplet->setRange(0, 0, 1);
@@ -119,7 +120,7 @@ void FlangerEffect::processChannel(
     double lfoPeriodFrames;
     if (groupFeatures.beat_length.has_value()) {
         // lfoPeriodParameter is a number of beats
-        lfoPeriodParameter = std::max(roundToFraction(lfoPeriodParameter, 2.0), kMinLfoBeats);
+        lfoPeriodParameter = std::max(roundToFraction(lfoPeriodParameter, 16.0), kMinLfoBeats);
         if (m_pTripletParameter->toBool()) {
             lfoPeriodParameter /= 3.0;
         }

@@ -29,13 +29,13 @@ EffectManifestPointer AutoPanEffect::getManifest() {
     period->setShortName(QObject::tr("Period"));
     period->setDescription(QObject::tr(
             "How fast the sound goes from one side to another\n"
-            "1/4 - 4 beats rounded to 1/2 beat if tempo is detected\n"
-            "1/4 - 4 seconds if no tempo is detected"));
+            "1/16 - 32 beats rounded to 1/16 beat if tempo is detected\n"
+            "1/16 - 4 seconds if no tempo is detected"));
     period->setValueScaler(EffectManifestParameter::ValueScaler::Linear);
-    period->setUnitsHint(EffectManifestParameter::UnitsHint::Unknown);
+    period->setUnitsHint(EffectManifestParameter::UnitsHint::Beats);
     period->setDefaultLinkType(EffectManifestParameter::LinkType::Linked);
     period->setDefaultLinkInversion(EffectManifestParameter::LinkInversion::Inverted);
-    period->setRange(0.0, 2.0, 4.0);
+    period->setRange(0.0, 2.0, 32.0);
 
     EffectManifestParameterPointer smoothing = pManifest->addParameter();
     smoothing->setId("smoothing");
@@ -90,7 +90,7 @@ void AutoPanEffect::processChannel(
 
     if (groupFeatures.beat_length.has_value()) {
         // period is a number of beats
-        double beats = std::max(roundToFraction(period, 2), 0.25);
+        double beats = std::max(roundToFraction(period, 16), 1 / 16.0);
         period = beats * groupFeatures.beat_length->frames;
 
         // TODO(xxx) sync phase
@@ -98,7 +98,7 @@ void AutoPanEffect::processChannel(
 
     } else {
         // period is a number of seconds
-        period = std::max(period, 0.25) * engineParameters.sampleRate();
+        period = std::max(period, 1 / 16.0) * engineParameters.sampleRate();
     }
 
     // When the period is changed, the position of the sound shouldn't

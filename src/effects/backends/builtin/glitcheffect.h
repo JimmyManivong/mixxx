@@ -12,7 +12,10 @@
 #include "util/samplebuffer.h"
 
 namespace {
-constexpr double kMaxDelay = 2.0;
+// Not tied to any fixed-size buffer (repeat_buf is sized to the audio
+// buffer, not to this range - see GlitchGroupState::audioParametersChanged),
+// so this can go all the way to the top of the beat-division row.
+constexpr double kMaxDelay = 32.0;
 }
 
 class GlitchGroupState : public EffectState {

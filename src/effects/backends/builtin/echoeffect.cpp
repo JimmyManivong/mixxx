@@ -46,11 +46,11 @@ EffectManifestPointer EchoEffect::getManifest() {
     delay->setShortName(QObject::tr("Time"));
     delay->setDescription(QObject::tr(
             "Delay time\n"
-            "1/8 - 2 beats if tempo is detected\n"
+            "1/16 - 8 beats if tempo is detected\n"
             "1/8 - 2 seconds if no tempo is detected"));
     delay->setValueScaler(EffectManifestParameter::ValueScaler::Linear);
     delay->setUnitsHint(EffectManifestParameter::UnitsHint::Beats);
-    delay->setRange(0.0, 0.5, 2.0);
+    delay->setRange(0.0, 0.5, 8.0);
 
     EffectManifestParameterPointer feedback = pManifest->addParameter();
     feedback->setId("feedback_amount");
@@ -89,7 +89,7 @@ EffectManifestPointer EchoEffect::getManifest() {
     quantize->setName(QObject::tr("Quantize"));
     quantize->setShortName(QObject::tr("Quantize"));
     quantize->setDescription(QObject::tr(
-            "Round the Time parameter to the nearest 1/4 beat."));
+            "Round the Time parameter to the nearest 1/16 beat."));
     quantize->setValueScaler(EffectManifestParameter::ValueScaler::Toggle);
     quantize->setUnitsHint(EffectManifestParameter::UnitsHint::Unknown);
     quantize->setRange(0, 1, 1);
@@ -135,12 +135,12 @@ void EchoEffect::processChannel(
     if (groupFeatures.beat_length.has_value()) {
         // period is a number of beats
         if (m_pQuantizeParameter->toBool()) {
-            period = std::max(roundToFraction(period, 4), 1 / 8.0);
+            period = std::max(roundToFraction(period, 16), 1 / 16.0);
             if (m_pTripletParameter->toBool()) {
                 period /= 3.0;
             }
-        } else if (period < 1 / 8.0) {
-            period = 1 / 8.0;
+        } else if (period < 1 / 16.0) {
+            period = 1 / 16.0;
         }
         delay_frames = static_cast<int>(period * groupFeatures.beat_length->frames);
     } else {
