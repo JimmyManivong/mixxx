@@ -3438,6 +3438,19 @@ WLibraryTextBrowser {
 #XdjKey    { color: #ffffff; font-size: 16px; font-weight: bold; }
 #XdjKey[highlight="true"] { color: #2bb6ff; }
 
+#XdjKeyLock {
+  background-color: #2a2e35;
+  color: #c8cdd3;
+  border: 1px solid #12141a;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: bold;
+}
+#XdjKeyLock[displayValue="1"] {
+  background-color: #7a1a10;
+  color: #ff6a5a;
+}
+
 /* ===== CDJ/XDJ-AZ left deck info column ===== */
 /* Lighter-grey panel so it reads against the black waveform area. */
 #XdjSidebar {
@@ -3460,8 +3473,8 @@ WLibraryTextBrowser {
   background-color: #34373d;
   border: 1px solid #15161a;
   border-radius: 4px;
-  min-height: 18px;
-  max-height: 18px;
+  min-height: 16px;
+  max-height: 16px;
   padding: 0px 6px;
 }
 #XdjBoxLabel {
@@ -3471,6 +3484,18 @@ WLibraryTextBrowser {
 }
 
 /* ===== Bottom 4-Deck View (mini panels) ===== */
+/* CUSTOM: dark frame behind the preview cards - without this the overview
+   waveforms ran flush to the bottom screen edge with no breathing room. */
+#CdjPreviewStrip {
+  background-color: #15161a;
+  padding: 4px 4px 8px 4px;
+}
+/* CUSTOM: reserved slot for a future phrase bar - subtle stripe so it reads
+   as "space held for something" rather than a stray gap or rendering bug. */
+#XdjPhraseBarPlaceholder {
+  background-color: #202329;
+  border-radius: 2px;
+}
 /* Same grey surface as the left column, framing each preview overview */
 #CdjMiniDeck {
   background-color: #26282d;
@@ -3681,8 +3706,8 @@ WLibraryTextBrowser {
   background-color: #34373d;
   border: 1px solid #15161a;
   border-radius: 4px;
-  min-height: 36px;
-  max-height: 60px;
+  min-height: 28px;
+  max-height: 50px;
   padding: 2px 6px;
 }
 #XdjLoopSize {
@@ -3723,6 +3748,14 @@ WLibraryTextBrowser {
 #XdjFxKnobLabel {
   color: #6a7078;
   font-size: 8px;
+  font-weight: bold;
+}
+#XdjFxParamNumber {
+  background-color: #2a2e35;
+  color: #c8cdd3;
+  border: 1px solid #12141a;
+  border-radius: 3px;
+  font-size: 11px;
   font-weight: bold;
 }
 #XdjFxAssign {

@@ -16,7 +16,7 @@
           <Label>
             <ObjectName><Variable name="DeckBadgeObj"/></ObjectName>
             <Text><Variable name="DeckNum"/></Text>
-            <Size>18f,20f</Size>
+            <Size>18f,16f</Size>
           </Label>
           <WidgetGroup><Size>5f,1min</Size></WidgetGroup>
           <TrackProperty>
@@ -32,7 +32,7 @@
           <!-- Play (toggle) -->
           <PushButton>
             <ObjectName>CdjMiniPlay</ObjectName>
-            <Size>30f,20f</Size>
+            <Size>30f,16f</Size>
             <NumberStates>2</NumberStates>
             <State><Number>0</Number><Text>&#9654;</Text></State>
             <State><Number>1</Number><Text>&#10073;&#10073;</Text></State>
@@ -44,7 +44,7 @@
           <!-- Cue (momentary) -->
           <PushButton>
             <ObjectName>CdjMiniCue</ObjectName>
-            <Size>32f,20f</Size>
+            <Size>32f,16f</Size>
             <NumberStates>1</NumberStates>
             <State><Number>0</Number><Text>CUE</Text></State>
             <Connection>
@@ -89,7 +89,7 @@
             <Children>
               <PushButton>
                 <ObjectName>CdjMiniBpmDown</ObjectName>
-                <Size>18f,20f</Size>
+                <Size>18f,16f</Size>
                 <NumberStates>1</NumberStates>
                 <State><Number>0</Number><Text>&#8722;</Text></State>
                 <Connection>
@@ -109,7 +109,7 @@
               </Number>
               <PushButton>
                 <ObjectName>CdjMiniBpmUp</ObjectName>
-                <Size>18f,20f</Size>
+                <Size>18f,16f</Size>
                 <NumberStates>1</NumberStates>
                 <State><Number>0</Number><Text>+</Text></State>
                 <Connection>
@@ -128,6 +128,17 @@
         <SetVariable name="SignalColor"><Variable name="SignalColor_12"/></SetVariable>
         <SetVariable name="OverviewFontSize">8</SetVariable>
       </Template>
+
+      <!-- CUSTOM: reserved slot for a future Rekordbox-style phrase bar
+           (song-structure segments - intro/verse/drop/etc) below the preview
+           overview. Empty placeholder for now, just holding its height so the
+           overview above doesn't reclaim the space once the real widget lands. -->
+      <WidgetGroup>
+        <ObjectName>XdjPhraseBarPlaceholder</ObjectName>
+        <SizePolicy>me,f</SizePolicy>
+        <MinimumSize>0,6</MinimumSize>
+        <MaximumSize>-1,6</MaximumSize>
+      </WidgetGroup>
 
     </Children>
   </WidgetGroup>
