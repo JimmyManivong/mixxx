@@ -3435,7 +3435,7 @@ WLibraryTextBrowser {
 #XdjBpm    { color: #ffffff; font-size: 23px; font-weight: bold; }
 /* CUSTOM: key is white by default, and lights up blue only when it is
    harmonically compatible with another loaded deck (key_compatible -> highlight). */
-#XdjKey    { color: #ffffff; font-size: 16px; font-weight: bold; }
+#XdjKey    { color: #ffffff; font-size: 20px; font-weight: bold; }
 #XdjKey[highlight="true"] { color: #2bb6ff; }
 
 #XdjKeyLock {
@@ -3467,28 +3467,6 @@ WLibraryTextBrowser {
   min-height: 14px;
   max-height: 14px;
   padding: 0px 2px;
-}
-/* Boxed value rows (KEY / SYNC+Q). Bigger touch targets than a plain info
-   readout needs, since SYNC/Q/keylock are actually tapped on the touchscreen
-   (dropped the LOOP row entirely to make room - it wasn't used from here). */
-#XdjKeyBox, #XdjSyncBox {
-  background-color: #34373d;
-  border: 1px solid #15161a;
-  border-radius: 4px;
-  padding: 0px 6px;
-}
-#XdjKeyBox {
-  min-height: 32px;
-  max-height: 32px;
-}
-#XdjSyncBox {
-  min-height: 36px;
-  max-height: 36px;
-}
-#XdjBoxLabel {
-  color: #8b9197;
-  font-size: 10px;
-  font-weight: bold;
 }
 
 /* ===== Bottom 4-Deck View (mini panels) ===== */
@@ -3616,19 +3594,19 @@ WLibraryTextBrowser {
   background-color: transparent;
   color: #ffffff;
   border: none;
-  font-size: 16px;
+  font-size: 20px;
   font-weight: bold;
 }
 #XdjQLabel {
   color: #e8813f;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: bold;
 }
 #XdjQValue {
   background-color: transparent;
   color: #e8813f;
   border: none;
-  font-size: 15px;
+  font-size: 18px;
   font-weight: bold;
 }
 /* ── Sidebar tabs: DECK | GRID ── */
