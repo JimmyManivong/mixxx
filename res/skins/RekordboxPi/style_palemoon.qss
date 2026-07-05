@@ -3485,10 +3485,12 @@ WLibraryTextBrowser {
   border-radius: 2px;
 }
 /* Same grey surface as the left column, framing each preview overview */
+/* Same white-bordered look as XdjFxBorderedBox/the deck sidebar, for a
+   homogeneous design language across the whole screen. */
 #CdjMiniDeck {
-  background-color: #26282d;
-  border: 1px solid #15161a;
-  border-radius: 4px;
+  background-color: #16171b;
+  border: 1px solid #d8dade;
+  border-radius: 2px;
   margin: 2px;
   padding: 4px 6px;
 }
