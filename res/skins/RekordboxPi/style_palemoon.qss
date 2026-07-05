@@ -3886,8 +3886,9 @@ WLibraryTextBrowser {
   background-color: transparent;
   color: #c8cdd3;
   border: none;
-  font-size: 11px;
+  font-size: 8px;
   font-weight: bold;
+  padding: 0px;
 }
 #XdjFxDivision[displayValue="1"] {
   background-color: transparent;
@@ -3900,8 +3901,9 @@ WLibraryTextBrowser {
   background-color: transparent;
   color: #6a7078;
   border: none;
-  font-size: 9px;
+  font-size: 7px;
   font-weight: bold;
+  padding: 0px;
 }
 #XdjFxDivisionSmall[displayValue="1"] {
   background-color: transparent;

@@ -224,7 +224,33 @@
 
           <!-- CH SELECT - one segmented control (shared border, thin
                dividers), no label text above it (the reference doesn't
-               have one) - selected cell fills solid white/black. -->
+               have one) - selected cell fills solid white/black.
+               CUSTOM: mutually exclusive like the real hardware - each
+               button keeps its native POWERWINDOW toggle (NumberStates=2,
+               unmodified) but ALSO writes to the other 4 channels' enable
+               keys through a <Not/> transform: ControlWidgetConnection::
+               setControlParameter runs each connection's transformInverse
+               on the SAME emitted toggle value before writing it to that
+               connection's own key, so clicking an unselected channel
+               turns it on and forces every other channel off in the same
+               click.
+               Each cross connection also sets ConnectValueToWidget=false.
+               Without it, LegacySkinParser::setupConnections picks the
+               LAST ButtonState=LeftButton connection with DIR_TO_WIDGET as
+               the button's display/highlight source (see
+               pLastLeftOrNoButtonConnection) - since these cross
+               connections come after the real one in document order, the
+               highlight silently latched onto !Master_enable (via its own
+               <Not/>) instead of this button's own channel, so every
+               button but MST appeared permanently "selected" regardless
+               of its actual state. ConnectValueToWidget=false keeps them
+               write-only so the own-channel connection stays the display
+               source.
+               Known edge case: re-clicking the ALREADY selected channel
+               toggles it off and (via the same cross wiring) turns every
+               other channel on instead of leaving nothing selected -
+               acceptable since normal use is always "click a different
+               channel to switch", never "click the active one again". -->
           <WidgetGroup>
             <ObjectName>XdjFxSegmented</ObjectName>
             <Layout>horizontal</Layout>
@@ -247,6 +273,30 @@
                 <Connection>
                   <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel1]_enable</ConfigKey>
                 </Connection>
+                <Connection>
+                  <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel2]_enable</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                  <Transform><Not/></Transform>
+                  <ConnectValueToWidget>false</ConnectValueToWidget>
+                </Connection>
+                <Connection>
+                  <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel3]_enable</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                  <Transform><Not/></Transform>
+                  <ConnectValueToWidget>false</ConnectValueToWidget>
+                </Connection>
+                <Connection>
+                  <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel4]_enable</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                  <Transform><Not/></Transform>
+                  <ConnectValueToWidget>false</ConnectValueToWidget>
+                </Connection>
+                <Connection>
+                  <ConfigKey>[EffectRack1_EffectUnit1],group_[Master]_enable</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                  <Transform><Not/></Transform>
+                  <ConnectValueToWidget>false</ConnectValueToWidget>
+                </Connection>
               </PushButton>
               <PushButton>
                 <ObjectName>XdjFxSeg</ObjectName>
@@ -262,6 +312,30 @@
                 </Connection>
                 <Connection>
                   <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel2]_enable</ConfigKey>
+                </Connection>
+                <Connection>
+                  <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel1]_enable</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                  <Transform><Not/></Transform>
+                  <ConnectValueToWidget>false</ConnectValueToWidget>
+                </Connection>
+                <Connection>
+                  <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel3]_enable</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                  <Transform><Not/></Transform>
+                  <ConnectValueToWidget>false</ConnectValueToWidget>
+                </Connection>
+                <Connection>
+                  <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel4]_enable</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                  <Transform><Not/></Transform>
+                  <ConnectValueToWidget>false</ConnectValueToWidget>
+                </Connection>
+                <Connection>
+                  <ConfigKey>[EffectRack1_EffectUnit1],group_[Master]_enable</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                  <Transform><Not/></Transform>
+                  <ConnectValueToWidget>false</ConnectValueToWidget>
                 </Connection>
               </PushButton>
               <PushButton>
@@ -279,6 +353,30 @@
                 <Connection>
                   <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel3]_enable</ConfigKey>
                 </Connection>
+                <Connection>
+                  <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel1]_enable</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                  <Transform><Not/></Transform>
+                  <ConnectValueToWidget>false</ConnectValueToWidget>
+                </Connection>
+                <Connection>
+                  <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel2]_enable</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                  <Transform><Not/></Transform>
+                  <ConnectValueToWidget>false</ConnectValueToWidget>
+                </Connection>
+                <Connection>
+                  <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel4]_enable</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                  <Transform><Not/></Transform>
+                  <ConnectValueToWidget>false</ConnectValueToWidget>
+                </Connection>
+                <Connection>
+                  <ConfigKey>[EffectRack1_EffectUnit1],group_[Master]_enable</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                  <Transform><Not/></Transform>
+                  <ConnectValueToWidget>false</ConnectValueToWidget>
+                </Connection>
               </PushButton>
               <PushButton>
                 <ObjectName>XdjFxSeg</ObjectName>
@@ -295,6 +393,30 @@
                 <Connection>
                   <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel4]_enable</ConfigKey>
                 </Connection>
+                <Connection>
+                  <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel1]_enable</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                  <Transform><Not/></Transform>
+                  <ConnectValueToWidget>false</ConnectValueToWidget>
+                </Connection>
+                <Connection>
+                  <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel2]_enable</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                  <Transform><Not/></Transform>
+                  <ConnectValueToWidget>false</ConnectValueToWidget>
+                </Connection>
+                <Connection>
+                  <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel3]_enable</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                  <Transform><Not/></Transform>
+                  <ConnectValueToWidget>false</ConnectValueToWidget>
+                </Connection>
+                <Connection>
+                  <ConfigKey>[EffectRack1_EffectUnit1],group_[Master]_enable</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                  <Transform><Not/></Transform>
+                  <ConnectValueToWidget>false</ConnectValueToWidget>
+                </Connection>
               </PushButton>
               <PushButton>
                 <ObjectName>XdjFxSegLast</ObjectName>
@@ -310,6 +432,30 @@
                 </Connection>
                 <Connection>
                   <ConfigKey>[EffectRack1_EffectUnit1],group_[Master]_enable</ConfigKey>
+                </Connection>
+                <Connection>
+                  <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel1]_enable</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                  <Transform><Not/></Transform>
+                  <ConnectValueToWidget>false</ConnectValueToWidget>
+                </Connection>
+                <Connection>
+                  <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel2]_enable</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                  <Transform><Not/></Transform>
+                  <ConnectValueToWidget>false</ConnectValueToWidget>
+                </Connection>
+                <Connection>
+                  <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel3]_enable</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                  <Transform><Not/></Transform>
+                  <ConnectValueToWidget>false</ConnectValueToWidget>
+                </Connection>
+                <Connection>
+                  <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel4]_enable</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                  <Transform><Not/></Transform>
+                  <ConnectValueToWidget>false</ConnectValueToWidget>
                 </Connection>
               </PushButton>
             </Children>
