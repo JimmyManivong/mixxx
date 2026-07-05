@@ -3510,7 +3510,7 @@ WLibraryTextBrowser {
    purely for breathing room so the overview waveforms don't run flush to
    the screen edge. */
 #CdjPreviewStrip {
-  padding: 4px 4px 8px 4px;
+  padding: 0px 4px 8px 4px;
 }
 /* CUSTOM: reserved slot for a future phrase bar - subtle stripe so it reads
    as "space held for something" rather than a stray gap or rendering bug. */
@@ -3518,15 +3518,53 @@ WLibraryTextBrowser {
   background-color: #202329;
   border-radius: 2px;
 }
-/* Same grey surface as the left column, framing each preview overview */
-/* Same white-bordered look as XdjFxBorderedBox/the deck sidebar, for a
-   homogeneous design language across the whole screen. */
-#CdjMiniDeck {
+/* Same grey surface as the left column and Beat FX panel, framing each
+   preview overview. The 4 preview cards merge into ONE continuous 2x2
+   grid frame - only the outermost edges get the full white border,
+   internal boundaries between cards get a dimmer 1px divider, exactly
+   like the deck sidebar merge. The top row additionally grows a full
+   bottom border + radius when it's the actual last visible row (2-deck
+   mode, bottom row hidden) via the isLastVisible property. */
+#XdjMiniBoxTopLeft, #XdjMiniBoxTopRight,
+#XdjMiniBoxBottomLeft, #XdjMiniBoxBottomRight {
   background-color: #16171b;
-  border: 1px solid #d8dade;
-  border-radius: 2px;
-  margin: 2px;
   padding: 4px 6px;
+}
+#XdjMiniBoxTopLeft {
+  border-left: 1px solid #d8dade;
+  border-top: 1px solid #d8dade;
+  border-right: 1px solid #4a4e55;
+  border-bottom: 1px solid #4a4e55;
+  border-top-left-radius: 2px;
+}
+#XdjMiniBoxTopRight {
+  border-right: 1px solid #d8dade;
+  border-top: 1px solid #d8dade;
+  border-left: 1px solid #4a4e55;
+  border-bottom: 1px solid #4a4e55;
+  border-top-right-radius: 2px;
+}
+#XdjMiniBoxTopLeft[isLastVisible="true"] {
+  border-bottom: 1px solid #d8dade;
+  border-bottom-left-radius: 2px;
+}
+#XdjMiniBoxTopRight[isLastVisible="true"] {
+  border-bottom: 1px solid #d8dade;
+  border-bottom-right-radius: 2px;
+}
+#XdjMiniBoxBottomLeft {
+  border-left: 1px solid #d8dade;
+  border-bottom: 1px solid #d8dade;
+  border-right: 1px solid #4a4e55;
+  border-top: 1px solid #4a4e55;
+  border-bottom-left-radius: 2px;
+}
+#XdjMiniBoxBottomRight {
+  border-right: 1px solid #d8dade;
+  border-bottom: 1px solid #d8dade;
+  border-left: 1px solid #4a4e55;
+  border-top: 1px solid #4a4e55;
+  border-bottom-right-radius: 2px;
 }
 /* Horizontal divider between deck 1 and deck 2 in the left stack */
 #CdjDeckDivider {

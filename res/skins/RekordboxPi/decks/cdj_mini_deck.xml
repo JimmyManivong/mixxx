@@ -3,7 +3,7 @@
        transport so decks without hardware can be tested), a framed BPM box with
        -/+ nudge, and the full-track overview. Caller: Group, DeckNum, DeckBadgeObj. -->
   <WidgetGroup>
-    <ObjectName>CdjMiniDeck</ObjectName>
+    <ObjectName><Variable name="MiniDeckBoxObj"/></ObjectName>
     <Layout>vertical</Layout>
     <SizePolicy>me,me</SizePolicy>
     <Children>
@@ -141,5 +141,14 @@
       </WidgetGroup>
 
     </Children>
+    <!-- Only meaningful on the top row's boxes (XdjMiniBoxTopLeft/TopRight):
+         true when the bottom row (decks 3/4) is hidden, i.e. this box is
+         actually the last visible row and needs its own closing bottom
+         border/radius. Harmless no-op on the bottom row's boxes. -->
+    <Connection>
+      <ConfigKey persist="true">[Skin],show_4decks</ConfigKey>
+      <Transform><Not/></Transform>
+      <BindProperty>isLastVisible</BindProperty>
+    </Connection>
   </WidgetGroup>
 </Template>
