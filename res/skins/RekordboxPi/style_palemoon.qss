@@ -3452,46 +3452,30 @@ WLibraryTextBrowser {
 }
 
 /* ===== CDJ/XDJ-AZ left deck info column ===== */
-/* Lighter-grey panel so it reads against the black waveform area. */
+/* Near-black flat panel, like the reference: the left column on the real
+   XDJ-AZ has NO bright frame at all - just small grey labels and big white
+   values on a dark surface, with decks separated by a dim hairline. The
+   previous all-white merged frame read as visual noise ("surchargé"). */
 #XdjSidebar {
-  background-color: #26282d;
+  background-color: #101115;
   border-right: 1px solid #15161a;
   margin: 0px;
-  padding: 2px 8px 2px 10px;
+  padding: 2px 6px 2px 8px;
 }
-/* Deck boxes merged into ONE continuous frame across all 4 decks,
-   exactly like adjacent CH SELECT cells: only the outermost edges get
-   the full white border, internal boundaries between decks get a
-   dimmer 1px divider instead. Deck 2 additionally grows a full bottom
-   border + radius when it's the actual last visible deck (2-deck
-   mode) via the isLastVisible property. */
+/* Per-deck blocks: flat, borderless, hairline divider between decks.
+   Deck 2 drops its divider when it's the last visible deck (2-deck mode)
+   via the isLastVisible property. */
 #XdjFxBorderedBoxFirst, #XdjFxBorderedBoxSecond,
 #XdjFxBorderedBoxThird, #XdjFxBorderedBoxLast {
-  background-color: #16171b;
-  border-left: 1px solid #d8dade;
-  border-right: 1px solid #d8dade;
-  padding: 4px 6px;
+  background-color: transparent;
+  border: none;
+  padding: 3px 2px;
 }
-#XdjFxBorderedBoxFirst {
-  border-top: 1px solid #d8dade;
-  border-bottom: 1px solid #4a4e55;
-  border-top-left-radius: 2px;
-  border-top-right-radius: 2px;
-}
-#XdjFxBorderedBoxSecond, #XdjFxBorderedBoxThird {
-  border-top: 1px solid #4a4e55;
-  border-bottom: 1px solid #4a4e55;
+#XdjFxBorderedBoxFirst, #XdjFxBorderedBoxSecond, #XdjFxBorderedBoxThird {
+  border-bottom: 1px solid #26282d;
 }
 #XdjFxBorderedBoxSecond[isLastVisible="true"] {
-  border-bottom: 1px solid #d8dade;
-  border-bottom-left-radius: 2px;
-  border-bottom-right-radius: 2px;
-}
-#XdjFxBorderedBoxLast {
-  border-top: 1px solid #4a4e55;
-  border-bottom: 1px solid #d8dade;
-  border-bottom-left-radius: 2px;
-  border-bottom-right-radius: 2px;
+  border-bottom: none;
 }
 /* DECK 1 / DECK 2 header */
 #XdjDeckHeader {
@@ -3575,39 +3559,57 @@ WLibraryTextBrowser {
   font-size: 12px;
   font-weight: bold;
 }
-#CdjMiniArtist {
-  color: #aeb4ba;
-  font-size: 11px;
+/* Big REMAIN readout, like the reference's huge per-deck remaining time.
+   Tiny grey label above, big white mono-ish value below. */
+#CdjMiniTimeLabel {
+  color: #7c828a;
+  font-size: 8px;
+  font-weight: bold;
 }
 #CdjMiniTime {
   color: #ffffff;
-  font-size: 12px;
+  font-size: 24px;
   font-weight: bold;
 }
-/* Framed BPM box: white value in a case labelled BPM, with -/+ nudge buttons */
+/* ON AIR badge: dark and quiet when stopped, bright red while playing,
+   like the reference's per-card ON AIR indicator. Display-only. */
+#CdjMiniOnAir {
+  background-color: transparent;
+  color: #3a3e45;
+  border: 1px solid #2a2d33;
+  border-radius: 2px;
+  font-size: 8px;
+  font-weight: bold;
+}
+#CdjMiniOnAir[displayValue="1"] {
+  background-color: #d02a1e;
+  color: #ffffff;
+  border: 1px solid #d02a1e;
+}
+/* Big framed BPM readout, like the reference's boxed BPM on each card. */
 #CdjMiniBpmBox {
-  background-color: #34373d;
-  border: 1px solid #15161a;
-  border-radius: 4px;
+  background-color: transparent;
+  border: 1px solid #8a8f98;
+  border-radius: 2px;
+  padding: 1px 3px;
 }
 #CdjMiniBpmLabel {
-  color: #8b9197;
-  font-size: 9px;
+  color: #7c828a;
+  font-size: 8px;
   font-weight: bold;
-  padding-left: 4px;
 }
 #CdjMiniBpm {
   color: #ffffff;
-  font-size: 12px;
+  font-size: 20px;
   font-weight: bold;
-  padding: 0px 4px;
+  padding: 0px 2px;
 }
 #CdjMiniBpmDown, #CdjMiniBpmUp {
-  background-color: #3f434a;
-  color: #d6dade;
+  background-color: transparent;
+  color: #6a7078;
   border: none;
   border-radius: 3px;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: bold;
 }
 #CdjMiniBpmDown:pressed, #CdjMiniBpmUp:pressed {
@@ -3684,13 +3686,15 @@ WLibraryTextBrowser {
   font-weight: bold;
 }
 /* ── Sidebar tabs: DECK | GRID ── */
+/* Subtle grey band behind the whole header row, like the reference's
+   DECK 1 header strip on the XDJ-AZ. */
 #XdjTabBar {
-  background-color: #111316;
-  border-bottom: 1px solid #0a0b0d;
+  background-color: #22252a;
+  border-radius: 2px;
 }
 /* DECK tab — active (white underline) when displayValue=0 (show_grid_edit_N=0) */
 #XdjTabNormal {
-  background-color: #111316;
+  background-color: transparent;
   color: #e0e4e8;
   border: none;
   border-bottom: 2px solid #e0e4e8;
@@ -3704,7 +3708,7 @@ WLibraryTextBrowser {
 }
 /* GRID tab — active (blue underline) when displayValue=1 (show_grid_edit_N=1) */
 #XdjTabGrid {
-  background-color: #111316;
+  background-color: transparent;
   color: #44484f;
   border: none;
   border-bottom: 2px solid transparent;

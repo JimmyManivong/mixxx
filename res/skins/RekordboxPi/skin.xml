@@ -97,6 +97,12 @@
       <attribute persist="true" config_key="[LateNight],expand_samplers_9-16">0</attribute>
     <!-- Mic / Aux -->
       <attribute persist="true" config_key="[Skin],show_microphones">0</attribute>
+    <!-- CUSTOM: XDJ-AZ style time readout on the preview cards - show
+         REMAINING time only (1), coarse M:SS format without centiseconds (1),
+         matching the reference's big "REMAIN 03:36" display. Forced at skin
+         load (persist=false) since this skin IS the appliance UI. -->
+      <attribute persist="false" config_key="[Controls],ShowDurationRemaining">1</attribute>
+      <attribute persist="false" config_key="[Controls],TimeFormat">1</attribute>
     <!-- Library -->
       <attribute config_key="[Skin],show_maximized_library">0</attribute>
       <attribute persist="true" config_key="[LateNight],max_lib_show_decks">1</attribute>
