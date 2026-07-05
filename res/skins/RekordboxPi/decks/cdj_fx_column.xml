@@ -90,15 +90,70 @@
             <MaximumSize>-1,26</MaximumSize>
             <Children>
               <WidgetGroup><Size>1me,0min</Size></WidgetGroup>
-              <Number>
-                <ObjectName>XdjFxBpm</ObjectName>
+              <!-- CUSTOM: follows CH SELECT below - one Number per channel,
+                   only the one whose group_[ChannelN]_enable is on shows
+                   (matches the real XDJ-AZ, where this readout tracks
+                   whichever deck is currently assigned to Beat FX). Was
+                   hardcoded to [Channel1] before, so switching CH SELECT
+                   never updated it. -->
+              <WidgetGroup>
+                <Layout>stacked</Layout>
                 <SizePolicy>max,f</SizePolicy>
-                <Alignment>right</Alignment>
-                <NumberOfDigits>2</NumberOfDigits>
-                <Connection>
-                  <ConfigKey>[Channel1],visual_bpm</ConfigKey>
-                </Connection>
-              </Number>
+                <Children>
+                  <Number>
+                    <ObjectName>XdjFxBpm</ObjectName>
+                    <SizePolicy>max,f</SizePolicy>
+                    <Alignment>right</Alignment>
+                    <NumberOfDigits>2</NumberOfDigits>
+                    <Connection>
+                      <ConfigKey>[Channel1],visual_bpm</ConfigKey>
+                    </Connection>
+                    <Connection>
+                      <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel1]_enable</ConfigKey>
+                      <BindProperty>visible</BindProperty>
+                    </Connection>
+                  </Number>
+                  <Number>
+                    <ObjectName>XdjFxBpm</ObjectName>
+                    <SizePolicy>max,f</SizePolicy>
+                    <Alignment>right</Alignment>
+                    <NumberOfDigits>2</NumberOfDigits>
+                    <Connection>
+                      <ConfigKey>[Channel2],visual_bpm</ConfigKey>
+                    </Connection>
+                    <Connection>
+                      <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel2]_enable</ConfigKey>
+                      <BindProperty>visible</BindProperty>
+                    </Connection>
+                  </Number>
+                  <Number>
+                    <ObjectName>XdjFxBpm</ObjectName>
+                    <SizePolicy>max,f</SizePolicy>
+                    <Alignment>right</Alignment>
+                    <NumberOfDigits>2</NumberOfDigits>
+                    <Connection>
+                      <ConfigKey>[Channel3],visual_bpm</ConfigKey>
+                    </Connection>
+                    <Connection>
+                      <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel3]_enable</ConfigKey>
+                      <BindProperty>visible</BindProperty>
+                    </Connection>
+                  </Number>
+                  <Number>
+                    <ObjectName>XdjFxBpm</ObjectName>
+                    <SizePolicy>max,f</SizePolicy>
+                    <Alignment>right</Alignment>
+                    <NumberOfDigits>2</NumberOfDigits>
+                    <Connection>
+                      <ConfigKey>[Channel4],visual_bpm</ConfigKey>
+                    </Connection>
+                    <Connection>
+                      <ConfigKey>[EffectRack1_EffectUnit1],group_[Channel4]_enable</ConfigKey>
+                      <BindProperty>visible</BindProperty>
+                    </Connection>
+                  </Number>
+                </Children>
+              </WidgetGroup>
               <WidgetGroup><Size>3f,0min</Size></WidgetGroup>
               <WidgetGroup>
                 <ObjectName>XdjFxAutoBadgeBox</ObjectName>
