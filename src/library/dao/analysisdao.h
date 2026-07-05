@@ -16,7 +16,11 @@ class AnalysisDao : public DAO {
     enum AnalysisType {
         TYPE_UNKNOWN = 0,
         TYPE_WAVEFORM,
-        TYPE_WAVESUMMARY
+        TYPE_WAVESUMMARY,
+        // CUSTOM: musical structure sections from AnalyzerPhrase
+        // (RekordboxPi phrase bar). Generic type+blob storage, so no
+        // database schema migration is needed.
+        TYPE_PHRASE
     };
 
     struct AnalysisInfo {

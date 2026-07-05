@@ -60,6 +60,7 @@
 #include "widget/wnumberpos.h"
 #include "widget/wnumberrate.h"
 #include "widget/woverview.h"
+#include "widget/wphrasebar.h"
 #include "widget/wpixmapstore.h"
 #include "widget/wpushbutton.h"
 #include "widget/wraterange.h"
@@ -545,6 +546,8 @@ QList<QWidget*> LegacySkinParser::parseNode(const QDomElement& node) {
         result = wrapWidget(parseText(node));
     } else if (nodeName == "TrackProperty") {
         result = wrapWidget(parseTrackProperty(node));
+    } else if (nodeName == "PhraseBar") {
+        result = wrapWidget(parsePhraseBar(node));
     } else if (nodeName == "StarRating") {
         result = wrapWidget(parseStarRating(node));
     } else if (nodeName == "VuMeter") {
@@ -1149,6 +1152,41 @@ QWidget* LegacySkinParser::parseTrackProperty(const QDomElement& node) {
     }
 
     return pTrackProperty;
+}
+
+// CUSTOM: Rekordbox/XDJ-AZ phrase bar (RekordboxPi skin) - renders the
+// track's AnalyzerPhrase structure sections as colored blocks.
+QWidget* LegacySkinParser::parsePhraseBar(const QDomElement& node) {
+    QString group = lookupNodeGroup(node);
+    BaseTrackPlayer* pPlayer = m_pPlayerManager->getPlayer(group);
+    if (!pPlayer) {
+        SKIN_WARNING(node, *m_pContext, QStringLiteral("No player found for group: %1").arg(group));
+        return nullptr;
+    }
+
+    WPhraseBar* pPhraseBar = new WPhraseBar(m_pParent);
+    commonWidgetSetup(node, pPhraseBar);
+    pPhraseBar->setup(node, *m_pContext);
+    pPhraseBar->installEventFilter(m_pKeyboard);
+    pPhraseBar->installEventFilter(
+            m_pControllerManager->getControllerLearningEventFilter());
+    pPhraseBar->Init();
+
+    connect(pPlayer,
+            &BaseTrackPlayer::newTrackLoaded,
+            pPhraseBar,
+            &WPhraseBar::slotTrackLoaded);
+    connect(pPlayer,
+            &BaseTrackPlayer::loadingTrack,
+            pPhraseBar,
+            &WPhraseBar::slotLoadingTrack);
+
+    TrackPointer pTrack = pPlayer->getLoadedTrack();
+    if (pTrack) {
+        pPhraseBar->slotTrackLoaded(pTrack);
+    }
+
+    return pPhraseBar;
 }
 
 QWidget* LegacySkinParser::parseTrackWidgetGroup(const QDomElement& node) {
