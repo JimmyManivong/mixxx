@@ -3496,12 +3496,13 @@ WLibraryTextBrowser {
 #CdjPreviewStrip {
   padding: 0px 4px 8px 4px;
 }
-/* CUSTOM: reserved slot for a future phrase bar - subtle stripe so it reads
-   as "space held for something" rather than a stray gap or rendering bug. */
-#XdjPhraseBarPlaceholder {
-  background-color: #202329;
-  border-radius: 2px;
-}
+/* CUSTOM: decorative Rekordbox-style phrase bar segments, colour-sampled
+   from the XDJ-AZ reference photo (no label - just the colour blocks). */
+#XdjPhraseRed { background-color: #944e44; }
+#XdjPhrasePurple { background-color: #9364c6; }
+#XdjPhraseTan { background-color: #ae927c; }
+#XdjPhraseGreen { background-color: #92a374; }
+#XdjPhraseBlue { background-color: #9a99b0; }
 /* Same grey surface as the left column and Beat FX panel, framing each
    preview overview. The 4 preview cards merge into ONE continuous 2x2
    grid frame - only the outermost edges get the full white border,
