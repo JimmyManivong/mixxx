@@ -198,7 +198,12 @@
       <!-- Pixel-sampled from a real Rekordbox waveform capture (2026-06-30):
            low #1F4DD8, mid #F2A63B (bright amber), high #F2EAD7 (warm white). -->
       <SetVariable name="SignalHighColor">#F2EAD7</SetVariable><!-- warm white / highs -->
-      <SetVariable name="SignalMidColor">#F2A63B</SetVariable><!-- bright amber / mids (blends to brown over blue) -->
+      <!-- CUSTOM: deepened from the original pixel-sampled #F2A63B - that
+           amber shared the same red channel (242) as the warm-white high
+           color, so at typical waveform heights (thin bars, some blending
+           with the background) it read as pale and blurred into the white
+           caps instead of standing out as its own band. -->
+      <SetVariable name="SignalMidColor">#E8720B</SetVariable><!-- deep, saturated orange / mids -->
       <SetVariable name="SignalLowColor">#1F4DD8</SetVariable><!-- blue / bass -->
       <!-- Rekordbox "3Band" waveform colours — the EXACT literal fill colours,
            sampled from a 2880x1800 Rekordbox-software capture (mode of 30k-44k
@@ -213,7 +218,7 @@
            mid/orange (239,170,68), high/warm-white (250,237,224). Applied to both
            the scrolling waveform and the overview. -->
       <SetVariable name="SignalRGBLowColor">#2254D9</SetVariable>
-      <SetVariable name="SignalRGBMidColor">#EFAA44</SetVariable>
+      <SetVariable name="SignalRGBMidColor">#E8720B</SetVariable>
       <SetVariable name="SignalRGBHighColor">#FAEDE0</SetVariable>
 
       <SetVariable name="DimBrightThresholdOverview">127</SetVariable>
