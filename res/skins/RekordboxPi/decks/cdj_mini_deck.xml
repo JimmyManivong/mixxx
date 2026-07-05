@@ -1,8 +1,9 @@
 <Template>
   <!-- CUSTOM XDJ-AZ preview panel for one deck, modeled on the reference's
-       4-Deck View cards: row 1 = badge + title + stopgap Play/Cue + ON AIR
-       badge; row 2 = big REMAIN time | full-track overview | big framed BPM.
-       Small grey labels + big white values, exactly like the hardware.
+       4-Deck View cards: row 1 = badge + title + ON AIR badge; row 2 = big
+       REMAIN time | full-track overview | big framed BPM. No Play/Cue
+       buttons here - this is a preview/overview panel, transport is on the
+       hardware/deck strip, not duplicated here.
        Caller: Group, DeckNum, DeckBadgeObj, MiniDeckBoxObj. -->
   <WidgetGroup>
     <ObjectName><Variable name="MiniDeckBoxObj"/></ObjectName>
@@ -10,7 +11,7 @@
     <SizePolicy>me,me</SizePolicy>
     <Children>
 
-      <!-- Row: badge | title | Play | Cue | ON AIR -->
+      <!-- Row: badge | title | ON AIR -->
       <WidgetGroup>
         <Layout>horizontal</Layout>
         <SizePolicy>me,min</SizePolicy>
@@ -31,31 +32,6 @@
           </TrackProperty>
           <WidgetGroup><Size>6f,1min</Size></WidgetGroup>
 
-          <!-- Play (toggle) -->
-          <PushButton>
-            <ObjectName>CdjMiniPlay</ObjectName>
-            <Size>30f,16f</Size>
-            <NumberStates>2</NumberStates>
-            <State><Number>0</Number><Text>&#9654;</Text></State>
-            <State><Number>1</Number><Text>&#10073;&#10073;</Text></State>
-            <Connection>
-              <ConfigKey><Variable name="Group"/>,play</ConfigKey>
-              <ButtonState>LeftButton</ButtonState>
-            </Connection>
-          </PushButton>
-          <!-- Cue (momentary) -->
-          <PushButton>
-            <ObjectName>CdjMiniCue</ObjectName>
-            <Size>32f,16f</Size>
-            <NumberStates>1</NumberStates>
-            <State><Number>0</Number><Text>CUE</Text></State>
-            <Connection>
-              <ConfigKey><Variable name="Group"/>,cue_default</ConfigKey>
-              <ButtonState>LeftButton</ButtonState>
-            </Connection>
-          </PushButton>
-
-          <WidgetGroup><Size>6f,1min</Size></WidgetGroup>
           <!-- ON AIR badge, lit red while the deck plays (display-only:
                no ButtonState connection, so touching it does nothing). -->
           <PushButton>

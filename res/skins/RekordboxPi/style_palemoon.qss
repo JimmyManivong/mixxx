@@ -3617,32 +3617,6 @@ WLibraryTextBrowser {
   color: #ffffff;
 }
 
-/* Stopgap Play / Cue on each preview panel (control decks without hardware) */
-#CdjMiniPlay {
-  background-color: #2f333a;
-  color: #37c66b;
-  border: 1px solid #15161a;
-  border-radius: 3px;
-  font-size: 12px;
-  font-weight: bold;
-}
-#CdjMiniPlay[displayValue="1"] {
-  background-color: #1f8f47;
-  color: #ffffff;
-}
-#CdjMiniCue {
-  background-color: #2f333a;
-  color: #ff7a3d;
-  border: 1px solid #15161a;
-  border-radius: 3px;
-  font-size: 11px;
-  font-weight: bold;
-}
-#CdjMiniCue[displayValue="1"] {
-  background-color: #ff7a3d;
-  color: #ffffff;
-}
-
 /* ── Sidebar: deck color square + eject (reference header row) ── */
 #XdjDeckColor12 {
   background-color: #d9b28c;
