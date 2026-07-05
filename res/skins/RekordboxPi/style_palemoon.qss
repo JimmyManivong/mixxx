@@ -3693,76 +3693,39 @@ WLibraryTextBrowser {
   color: #ff7a5a;
 }
 
-/* ===== CDJ/XDJ-AZ right FX column (mirrors XdjSidebar) ===== */
+/* ===== CDJ/XDJ-AZ right FX column (mirrors XdjSidebar) =====
+   Visual language matches the XDJ-AZ reference screenshot: flat plain
+   text (no heavy button chrome) for the effect name and division row,
+   white-on-dark boxes for CH SELECT (not blue pills), a big BPM readout
+   up top, and small/subtle everything else - the hardware's Beat FX
+   panel is understated, not covered in buttons. */
 #XdjFxPanel {
   background-color: #26282d;
   border-left: 1px solid #15161a;
   margin: 0px;
   padding: 2px 10px 2px 8px;
 }
-#XdjFxOn {
-  background-color: #2f333a;
-  color: #8b9197;
-  border: 1px solid #15161a;
-  border-radius: 3px;
-  font-size: 11px;
-  font-weight: bold;
-}
-#XdjFxOn[displayValue="1"] {
-  background-color: #37c66b;
-  color: #ffffff;
-}
-/* Big effect-name display - still a real dropdown (tap it to pick any
-   effect directly), but sized/styled to read like the hardware's large
-   "DELAY"-style name label rather than a normal small combobox. */
-#XdjFxName {
-  background-color: #2a2e35;
-  color: #ffffff;
-  border: 1px solid #12141a;
-  border-radius: 3px;
-  font-size: 13px;
-  font-weight: bold;
-  padding: 0px 4px;
-}
-/* prev/next effect step buttons flanking the name, mirroring the small
-   "►" arrow next to KEY on the XDJ-AZ reference. */
-#XdjFxStepBtn {
-  background-color: #3f434a;
-  color: #d6dade;
-  border: 1px solid #15161a;
-  border-radius: 3px;
-  font-size: 12px;
-  font-weight: bold;
-}
-#XdjFxKnobLabel {
+#XdjFxSectionLabel {
   color: #8b9197;
   font-size: 10px;
   font-weight: bold;
+  letter-spacing: 1px;
 }
-/* Numeric readout of the effect's own first parameter - closest on-screen
-   analog to the hardware's big "1000ms" TIME display. */
-#XdjFxParamNumber {
+/* Big BPM readout, the visual anchor at the top of the panel like the
+   hardware's "120.0". */
+#XdjFxBpm {
   background-color: transparent;
   color: #ffffff;
   border: none;
-  font-size: 28px;
+  font-size: 22px;
   font-weight: bold;
 }
-#XdjFxAssign {
-  background-color: #2f333a;
-  color: #8b9197;
-  border: 1px solid #15161a;
-  border-radius: 3px;
-  font-size: 11px;
+#XdjFxAutoBadge {
+  color: #6a7078;
+  font-size: 7px;
   font-weight: bold;
 }
-#XdjFxAssign[displayValue="1"] {
-  background-color: #4da6ff;
-  color: #ffffff;
-}
-/* Beat division quick-select row - lit blue like CH SELECT when the
-   effect's beat-synced parameter matches that exact division. */
-#XdjFxDivision {
+#XdjFxOnSmall {
   background-color: #2f333a;
   color: #8b9197;
   border: 1px solid #15161a;
@@ -3770,9 +3733,81 @@ WLibraryTextBrowser {
   font-size: 9px;
   font-weight: bold;
 }
-#XdjFxDivision[displayValue="1"] {
-  background-color: #4da6ff;
+#XdjFxOnSmall[displayValue="1"] {
+  background-color: #37c66b;
   color: #ffffff;
+}
+/* Effect name: flat, no box/border at all - reads like the hardware's
+   plain bold "DELAY" label. It's still a real dropdown underneath (tap
+   it to pick any effect directly). */
+#XdjFxName {
+  background-color: transparent;
+  color: #ffffff;
+  border: none;
+  font-size: 15px;
+  font-weight: bold;
+  padding: 0px 2px;
+}
+/* prev/next effect step buttons flanking the name - transparent, only
+   the arrow glyph shows, so they read as a subtle affordance rather than
+   a button, mirroring the small "►" arrow next to KEY on the reference. */
+#XdjFxStepBtn {
+  background-color: transparent;
+  color: #6a7078;
+  border: none;
+  font-size: 11px;
+  font-weight: bold;
+}
+#XdjFxKnobLabel {
+  color: #8b9197;
+  font-size: 9px;
+  font-weight: bold;
+}
+/* TIME value + its unit label - explicit "beats" unit instead of a bare
+   number, and smaller than before since it's no longer the single
+   biggest element on the panel (the BPM readout up top is now). */
+#XdjFxParamNumber {
+  background-color: transparent;
+  color: #ffffff;
+  border: none;
+  font-size: 20px;
+  font-weight: bold;
+}
+#XdjFxUnitLabel {
+  color: #6a7078;
+  font-size: 9px;
+  font-weight: bold;
+  padding-left: 3px;
+}
+/* CH SELECT - flat white-on-dark boxes like the hardware (not blue
+   pills): unselected is a plain dark outline, selected fills solid
+   white with black text. */
+#XdjFxAssign {
+  background-color: transparent;
+  color: #8b9197;
+  border: 1px solid #3a3e45;
+  border-radius: 2px;
+  font-size: 11px;
+  font-weight: bold;
+}
+#XdjFxAssign[displayValue="1"] {
+  background-color: #e8e8e8;
+  color: #15161a;
+  border: 1px solid #e8e8e8;
+}
+/* Beat division quick-select row - flat plain text like the hardware,
+   no box/border; lit blue only while active. */
+#XdjFxDivision {
+  background-color: transparent;
+  color: #8b9197;
+  border: none;
+  font-size: 9px;
+  font-weight: bold;
+}
+#XdjFxDivision[displayValue="1"] {
+  background-color: transparent;
+  color: #4da6ff;
+  border-bottom: 2px solid #4da6ff;
 }
 
 /* ===== CUSTOM Rekordbox / XDJ-AZ global dark theme (M3) ===== */
