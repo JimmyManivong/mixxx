@@ -614,11 +614,18 @@
                             <BindProperty>visible</BindProperty>
                           </Connection>
                         </WidgetGroup>
-                        <!-- Fixed bottom margin so the preview cards don't run
-                             flush to the screen edge - shows CdjPreviewStrip's
-                             own dark grey background (#15161a in the QSS) as a
-                             real frame. -->
-                        <WidgetGroup><Size>1min,8f</Size></WidgetGroup>
+                        <!-- Expanding (not Fixed) bottom margin: CdjPreviewStrip
+                             itself can receive more height from CdjPerfPage's
+                             layout than its own children need (Minimum vertical
+                             policy still allows the parent to hand it slack) -
+                             a Fixed-size trailing spacer can't claim that slack,
+                             so it silently surfaces as unclaimed background
+                             ABOVE the bottom-decks row instead, breaking the
+                             merged-frame look with the perf stack above. Making
+                             this spacer Expanding lets it absorb any such slack
+                             at the bottom instead, keeping the preview cards
+                             pinned flush against the perf stack above. -->
+                        <WidgetGroup><Size>1min,8me</Size></WidgetGroup>
                       </Children>
                     </WidgetGroup>
 
