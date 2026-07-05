@@ -1,21 +1,25 @@
 <Template>
-  <!-- CUSTOM CDJ/XDJ-AZ left info column with two tabs.
-       Tab DECK: KEY / SYNC+Q controls (default). No loop controls - dropped
-       in favor of bigger KEY/SYNC+Q touch targets (loop wasn't used from the
-       touchscreen; the FLX6 hardware has loop controls for decks 1/2, and
-       decks 3/4 don't get on-screen loop controls either - keeping it simple
-       and consistent).
-       Tab GRID: beatgrid editing controls.
-       Caller SetVariable: Group, DeckNum. -->
+  <!-- CUSTOM CDJ/XDJ-AZ left info column, matching the XDJ-AZ reference
+       screenshot exactly: colored deck-indicator square + "DECK N" +
+       eject, then KEY (with keylock tucked where the reference has an
+       unlabeled arrow), BEAT JUMP size, and Q (quantize) as a numeric
+       readout - not a boolean toggle button. No SYNC in this column at
+       all (confirmed against the reference - the hardware doesn't show
+       it here either; sync stays reachable via the FLX6 hardware).
+       Tab GRID (beatgrid editing) is additional functionality beyond the
+       reference, kept because it's genuinely useful and doesn't cost the
+       reference any fidelity (it's a secondary page, not shown by default).
+       Caller SetVariable: Group, DeckNum, DeckColorObj (matches
+       SignalColor_12/34 per deck pair, set by cdj_perf_stack.xml). -->
   <WidgetGroup>
     <ObjectName>XdjSidebar</ObjectName>
     <Layout>vertical</Layout>
     <SizePolicy>max,me</SizePolicy>
-    <MinimumSize>140,88</MinimumSize>
+    <MinimumSize>140,96</MinimumSize>
     <MaximumSize>140,-1</MaximumSize>
     <Children>
 
-      <!-- ── Tab bar ── -->
+      <!-- ── Header: color square + DECK N (tab to toggle GRID) + eject ── -->
       <WidgetGroup>
         <ObjectName>XdjTabBar</ObjectName>
         <Layout>horizontal</Layout>
@@ -23,6 +27,12 @@
         <MinimumSize>0,16</MinimumSize>
         <MaximumSize>-1,16</MaximumSize>
         <Children>
+          <Label>
+            <ObjectName><Variable name="DeckColorObj"/></ObjectName>
+            <Text></Text>
+            <Size>10f,10f</Size>
+          </Label>
+          <WidgetGroup><Size>4f,1min</Size></WidgetGroup>
           <!-- Tab 1 DECK: displayValue=0 (active) when show_grid_edit_N=0 -->
           <PushButton>
             <ObjectName>XdjTabNormal</ObjectName>
@@ -55,6 +65,19 @@
             </Connection>
             <Connection>
               <ConfigKey persist="true">[Skin],show_grid_edit_<Variable name="DeckNum"/></ConfigKey>
+            </Connection>
+          </PushButton>
+          <WidgetGroup><Size>3f,1min</Size></WidgetGroup>
+          <!-- Eject - matches the small eject icon top-right of each deck
+               row on the reference. -->
+          <PushButton>
+            <ObjectName>XdjEject</ObjectName>
+            <Size>16f,16f</Size>
+            <NumberStates>1</NumberStates>
+            <State><Number>0</Number><Text>&#9167;</Text><Alignment>center</Alignment></State>
+            <Connection>
+              <ConfigKey><Variable name="Group"/>,eject</ConfigKey>
+              <ButtonState>LeftButton</ButtonState>
             </Connection>
           </PushButton>
         </Children>
@@ -123,41 +146,59 @@
             </Children>
           </WidgetGroup>
 
-          <WidgetGroup><Size>1min,3f</Size></WidgetGroup>
+          <WidgetGroup><Size>1min,2f</Size></WidgetGroup>
 
-          <!-- SYNC + Q row -->
+          <!-- BEAT JUMP - matches the reference's "BEAT JUMP  16" row. -->
           <WidgetGroup>
-            <ObjectName>XdjSyncBox</ObjectName>
+            <ObjectName>XdjInfoRow</ObjectName>
             <Layout>horizontal</Layout>
             <SizePolicy>me,f</SizePolicy>
-            <MinimumSize>0,36</MinimumSize>
-            <MaximumSize>-1,36</MaximumSize>
+            <MinimumSize>0,24</MinimumSize>
+            <MaximumSize>-1,24</MaximumSize>
             <Children>
-              <PushButton>
-                <ObjectName>XdjSync</ObjectName>
-                <SizePolicy>me,f</SizePolicy>
-                <MinimumSize>0,28</MinimumSize>
-                <MaximumSize>-1,28</MaximumSize>
-                <NumberStates>2</NumberStates>
-                <State><Number>0</Number><Text>SYNC</Text></State>
-                <State><Number>1</Number><Text>SYNC</Text></State>
-                <Connection>
-                  <ConfigKey><Variable name="Group"/>,sync_mode</ConfigKey>
-                  <ButtonState>LeftButton</ButtonState>
-                </Connection>
-                <Connection>
-                  <ConfigKey><Variable name="Group"/>,sync_enabled</ConfigKey>
-                </Connection>
-              </PushButton>
-              <WidgetGroup><Size>3f,1min</Size></WidgetGroup>
-              <PushButton>
-                <ObjectName>XdjQuant</ObjectName>
+              <Label>
+                <ObjectName>XdjBoxLabelStacked</ObjectName>
+                <Text>BEAT&#10;JUMP</Text>
                 <SizePolicy>max,f</SizePolicy>
-                <MinimumSize>36,28</MinimumSize>
-                <MaximumSize>36,28</MaximumSize>
+              </Label>
+              <WidgetGroup><Size>1me,1min</Size></WidgetGroup>
+              <BeatSpinBox>
+                <TooltipId>beatjump_size</TooltipId>
+                <ObjectName>XdjBeatJumpValue</ObjectName>
+                <SizePolicy>max,f</SizePolicy>
+                <MinimumSize>0,20</MinimumSize>
+                <MaximumSize>-1,20</MaximumSize>
+                <Alignment>right</Alignment>
+                <Value><Variable name="Group"/>,beatjump_size</Value>
+              </BeatSpinBox>
+            </Children>
+          </WidgetGroup>
+
+          <WidgetGroup><Size>1min,2f</Size></WidgetGroup>
+
+          <!-- Q (quantize) - a numeric readout on the reference (Q  1),
+               not a boolean toggle button; still tappable to flip it. -->
+          <WidgetGroup>
+            <ObjectName>XdjInfoRow</ObjectName>
+            <Layout>horizontal</Layout>
+            <SizePolicy>me,f</SizePolicy>
+            <MinimumSize>0,20</MinimumSize>
+            <MaximumSize>-1,20</MaximumSize>
+            <Children>
+              <Label>
+                <ObjectName>XdjQLabel</ObjectName>
+                <Text>Q</Text>
+                <SizePolicy>max,f</SizePolicy>
+              </Label>
+              <WidgetGroup><Size>1me,1min</Size></WidgetGroup>
+              <PushButton>
+                <ObjectName>XdjQValue</ObjectName>
+                <SizePolicy>max,f</SizePolicy>
+                <MinimumSize>20,20</MinimumSize>
+                <MaximumSize>20,20</MaximumSize>
                 <NumberStates>2</NumberStates>
-                <State><Number>0</Number><Text>Q</Text></State>
-                <State><Number>1</Number><Text>Q</Text></State>
+                <State><Number>0</Number><Text>0</Text><Alignment>right</Alignment></State>
+                <State><Number>1</Number><Text>1</Text><Alignment>right</Alignment></State>
                 <Connection>
                   <ConfigKey><Variable name="Group"/>,quantize</ConfigKey>
                   <ButtonState>LeftButton</ButtonState>

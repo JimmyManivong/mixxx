@@ -22,11 +22,12 @@
             <ObjectName>CdjDeckRow</ObjectName>
             <Layout>horizontal</Layout>
             <SizePolicy>me,me</SizePolicy>
-            <MinimumSize>0,88</MinimumSize>
+            <MinimumSize>0,96</MinimumSize>
             <Children>
               <Template src="skins:RekordboxPi/decks/cdj_deck_sidebar.xml">
                 <SetVariable name="Group">[Channel1]</SetVariable>
                 <SetVariable name="DeckNum">1</SetVariable>
+                <SetVariable name="DeckColorObj">XdjDeckColor12</SetVariable>
               </Template>
               <!-- CUSTOM: per-deck level meter (green->red), directly beside the
                    waveform like a CDJ - was missing entirely from this perf page. -->
@@ -65,11 +66,12 @@
             <ObjectName>CdjDeckRow</ObjectName>
             <Layout>horizontal</Layout>
             <SizePolicy>me,me</SizePolicy>
-            <MinimumSize>0,88</MinimumSize>
+            <MinimumSize>0,96</MinimumSize>
             <Children>
               <Template src="skins:RekordboxPi/decks/cdj_deck_sidebar.xml">
                 <SetVariable name="Group">[Channel2]</SetVariable>
                 <SetVariable name="DeckNum">2</SetVariable>
+                <SetVariable name="DeckColorObj">XdjDeckColor12</SetVariable>
               </Template>
               <WidgetGroup>
                 <ObjectName>CdjVuMeter</ObjectName>
@@ -114,11 +116,12 @@
             <ObjectName>CdjDeckRow</ObjectName>
             <Layout>horizontal</Layout>
             <SizePolicy>me,me</SizePolicy>
-            <MinimumSize>0,88</MinimumSize>
+            <MinimumSize>0,96</MinimumSize>
             <Children>
               <Template src="skins:RekordboxPi/decks/cdj_deck_sidebar.xml">
                 <SetVariable name="Group">[Channel3]</SetVariable>
                 <SetVariable name="DeckNum">3</SetVariable>
+                <SetVariable name="DeckColorObj">XdjDeckColor34</SetVariable>
               </Template>
               <WidgetGroup>
                 <ObjectName>CdjVuMeter</ObjectName>
@@ -167,11 +170,12 @@
             <ObjectName>CdjDeckRow</ObjectName>
             <Layout>horizontal</Layout>
             <SizePolicy>me,me</SizePolicy>
-            <MinimumSize>0,88</MinimumSize>
+            <MinimumSize>0,96</MinimumSize>
             <Children>
               <Template src="skins:RekordboxPi/decks/cdj_deck_sidebar.xml">
                 <SetVariable name="Group">[Channel4]</SetVariable>
                 <SetVariable name="DeckNum">4</SetVariable>
+                <SetVariable name="DeckColorObj">XdjDeckColor34</SetVariable>
               </Template>
               <WidgetGroup>
                 <ObjectName>CdjVuMeter</ObjectName>

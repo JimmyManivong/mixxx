@@ -3589,24 +3589,47 @@ WLibraryTextBrowser {
   color: #ffffff;
 }
 
-/* ── Sidebar: SYNC / Q ── */
-/* WPushButton exposes displayValue (int) as Q_PROPERTY with NOTIFY;
-   use [displayValue="1"] not :checked which never fires on these widgets. */
-#XdjSync, #XdjQuant {
-  background-color: #2f333a;
+/* ── Sidebar: deck color square + eject (reference header row) ── */
+#XdjDeckColor12 {
+  background-color: #d9b28c;
+  border-radius: 2px;
+}
+#XdjDeckColor34 {
+  background-color: #7bc6c3;
+  border-radius: 2px;
+}
+#XdjEject {
+  background-color: transparent;
+  color: #6a7078;
+  border: none;
+  font-size: 11px;
+}
+/* ── Sidebar: BEAT JUMP / Q info rows (plain readouts, matching the
+   reference's flat info-panel look - no boxed backgrounds). ── */
+#XdjBoxLabelStacked {
   color: #8b9197;
-  border: 1px solid #15161a;
-  border-radius: 3px;
-  font-size: 13px;
+  font-size: 8px;
+  font-weight: bold;
+  qproperty-alignment: 'AlignRight';
+}
+#XdjBeatJumpValue {
+  background-color: transparent;
+  color: #ffffff;
+  border: none;
+  font-size: 16px;
   font-weight: bold;
 }
-#XdjSync[displayValue="1"] {
-  background-color: #e07000;
-  color: #ffffff;
+#XdjQLabel {
+  color: #e8813f;
+  font-size: 11px;
+  font-weight: bold;
 }
-#XdjQuant[displayValue="1"] {
-  background-color: #c97800;
-  color: #ffffff;
+#XdjQValue {
+  background-color: transparent;
+  color: #e8813f;
+  border: none;
+  font-size: 15px;
+  font-weight: bold;
 }
 /* ── Sidebar tabs: DECK | GRID ── */
 #XdjTabBar {
