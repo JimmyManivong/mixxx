@@ -90,127 +90,135 @@
         <SizePolicy>me,me</SizePolicy>
         <Children>
 
-          <WidgetGroup><Size>1min,1me</Size></WidgetGroup>
+          <WidgetGroup><Size>1min,2f</Size></WidgetGroup>
 
-          <!-- KEY box -->
+          <!-- White-bordered box - same visual language as the Beat FX
+               panel (cdj_fx_column.xml XdjFxBorderedBox), for a
+               homogeneous look across both sides of the screen. -->
           <WidgetGroup>
-            <ObjectName>XdjKeyBox</ObjectName>
-            <Layout>horizontal</Layout>
-            <SizePolicy>me,f</SizePolicy>
-            <MinimumSize>0,32</MinimumSize>
-            <MaximumSize>-1,32</MaximumSize>
+            <ObjectName>XdjFxBorderedBox</ObjectName>
+            <Layout>vertical</Layout>
+            <SizePolicy>me,me</SizePolicy>
             <Children>
-              <Label>
-                <ObjectName>XdjBoxLabel</ObjectName>
-                <Text>KEY</Text>
-                <SizePolicy>max,f</SizePolicy>
-                <MinimumSize>0,14</MinimumSize>
-                <MaximumSize>-1,14</MaximumSize>
-              </Label>
-              <WidgetGroup><Size>1me,1min</Size></WidgetGroup>
-              <Key>
-                <ObjectName>XdjKey</ObjectName>
-                <Group><Variable name="Group"/></Group>
-                <SizePolicy>max,f</SizePolicy>
+
+              <WidgetGroup><Size>1min,2me</Size></WidgetGroup>
+
+              <!-- KEY -->
+              <WidgetGroup>
+                <Layout>horizontal</Layout>
+                <SizePolicy>me,f</SizePolicy>
                 <MinimumSize>0,22</MinimumSize>
                 <MaximumSize>-1,22</MaximumSize>
-                <Alignment>right</Alignment>
-                <Connection>
-                  <ConfigKey><Variable name="Group"/>,visual_key</ConfigKey>
-                </Connection>
-                <Connection>
-                  <ConfigKey><Variable name="Group"/>,key_compatible</ConfigKey>
-                  <BindProperty>highlight</BindProperty>
-                </Connection>
-              </Key>
-              <WidgetGroup><Size>4f,1min</Size></WidgetGroup>
-              <!-- CUSTOM: keylock toggle - was previously not shown anywhere
-                   in this skin, so its state (which affects whether pitch
-                   moves with tempo, e.g. on SYNC) was invisible/uncontrollable. -->
-              <PushButton>
-                <ObjectName>XdjKeyLock</ObjectName>
-                <SizePolicy>max,f</SizePolicy>
-                <MinimumSize>24,24</MinimumSize>
-                <MaximumSize>24,24</MaximumSize>
-                <NumberStates>2</NumberStates>
-                <State><Number>0</Number><Text>&#128275;</Text><Alignment>center</Alignment></State>
-                <State><Number>1</Number><Text>&#128274;</Text><Alignment>center</Alignment></State>
-                <Connection>
-                  <ConfigKey><Variable name="Group"/>,keylock</ConfigKey>
-                  <ButtonState>LeftButton</ButtonState>
-                </Connection>
-                <Connection>
-                  <ConfigKey><Variable name="Group"/>,keylock</ConfigKey>
-                </Connection>
-              </PushButton>
-            </Children>
-          </WidgetGroup>
+                <Children>
+                  <Label>
+                    <ObjectName>XdjFxTimeLabel</ObjectName>
+                    <Text>KEY</Text>
+                    <SizePolicy>max,f</SizePolicy>
+                  </Label>
+                  <WidgetGroup><Size>1me,1min</Size></WidgetGroup>
+                  <Key>
+                    <ObjectName>XdjKey</ObjectName>
+                    <Group><Variable name="Group"/></Group>
+                    <SizePolicy>max,f</SizePolicy>
+                    <Alignment>right</Alignment>
+                    <Connection>
+                      <ConfigKey><Variable name="Group"/>,visual_key</ConfigKey>
+                    </Connection>
+                    <Connection>
+                      <ConfigKey><Variable name="Group"/>,key_compatible</ConfigKey>
+                      <BindProperty>highlight</BindProperty>
+                    </Connection>
+                  </Key>
+                  <WidgetGroup><Size>4f,1min</Size></WidgetGroup>
+                  <!-- CUSTOM: keylock toggle - was previously not shown
+                       anywhere in this skin, so its state (which affects
+                       whether pitch moves with tempo) was
+                       invisible/uncontrollable. -->
+                  <PushButton>
+                    <ObjectName>XdjKeyLock</ObjectName>
+                    <SizePolicy>max,f</SizePolicy>
+                    <MinimumSize>20,20</MinimumSize>
+                    <MaximumSize>20,20</MaximumSize>
+                    <NumberStates>2</NumberStates>
+                    <State><Number>0</Number><Text>&#128275;</Text><Alignment>center</Alignment></State>
+                    <State><Number>1</Number><Text>&#128274;</Text><Alignment>center</Alignment></State>
+                    <Connection>
+                      <ConfigKey><Variable name="Group"/>,keylock</ConfigKey>
+                      <ButtonState>LeftButton</ButtonState>
+                    </Connection>
+                    <Connection>
+                      <ConfigKey><Variable name="Group"/>,keylock</ConfigKey>
+                    </Connection>
+                  </PushButton>
+                </Children>
+              </WidgetGroup>
 
-          <WidgetGroup><Size>1min,2f</Size></WidgetGroup>
+              <WidgetGroup><Size>1min,3me</Size></WidgetGroup>
 
-          <!-- BEAT JUMP - matches the reference's "BEAT JUMP  16" row. -->
-          <WidgetGroup>
-            <ObjectName>XdjInfoRow</ObjectName>
-            <Layout>horizontal</Layout>
-            <SizePolicy>me,f</SizePolicy>
-            <MinimumSize>0,24</MinimumSize>
-            <MaximumSize>-1,24</MaximumSize>
-            <Children>
-              <Label>
-                <ObjectName>XdjBoxLabelStacked</ObjectName>
-                <Text>BEAT&#10;JUMP</Text>
-                <SizePolicy>max,f</SizePolicy>
-              </Label>
-              <WidgetGroup><Size>1me,1min</Size></WidgetGroup>
-              <BeatSpinBox>
-                <TooltipId>beatjump_size</TooltipId>
-                <ObjectName>XdjBeatJumpValue</ObjectName>
-                <SizePolicy>max,f</SizePolicy>
+              <!-- BEAT JUMP -->
+              <WidgetGroup>
+                <Layout>horizontal</Layout>
+                <SizePolicy>me,f</SizePolicy>
+                <MinimumSize>0,22</MinimumSize>
+                <MaximumSize>-1,22</MaximumSize>
+                <Children>
+                  <Label>
+                    <ObjectName>XdjBoxLabelStacked</ObjectName>
+                    <Text>BEAT&#10;JUMP</Text>
+                    <SizePolicy>max,f</SizePolicy>
+                  </Label>
+                  <WidgetGroup><Size>1me,1min</Size></WidgetGroup>
+                  <BeatSpinBox>
+                    <TooltipId>beatjump_size</TooltipId>
+                    <ObjectName>XdjBeatJumpValue</ObjectName>
+                    <SizePolicy>max,f</SizePolicy>
+                    <MinimumSize>0,20</MinimumSize>
+                    <MaximumSize>-1,20</MaximumSize>
+                    <Alignment>right</Alignment>
+                    <Value><Variable name="Group"/>,beatjump_size</Value>
+                  </BeatSpinBox>
+                </Children>
+              </WidgetGroup>
+
+              <WidgetGroup><Size>1min,3me</Size></WidgetGroup>
+
+              <!-- Q (quantize) - a numeric readout on the reference (Q  1),
+                   not a boolean toggle button; still tappable to flip it. -->
+              <WidgetGroup>
+                <Layout>horizontal</Layout>
+                <SizePolicy>me,f</SizePolicy>
                 <MinimumSize>0,20</MinimumSize>
                 <MaximumSize>-1,20</MaximumSize>
-                <Alignment>right</Alignment>
-                <Value><Variable name="Group"/>,beatjump_size</Value>
-              </BeatSpinBox>
+                <Children>
+                  <Label>
+                    <ObjectName>XdjQLabel</ObjectName>
+                    <Text>Q</Text>
+                    <SizePolicy>max,f</SizePolicy>
+                  </Label>
+                  <WidgetGroup><Size>1me,1min</Size></WidgetGroup>
+                  <PushButton>
+                    <ObjectName>XdjQValue</ObjectName>
+                    <SizePolicy>max,f</SizePolicy>
+                    <MinimumSize>20,20</MinimumSize>
+                    <MaximumSize>20,20</MaximumSize>
+                    <NumberStates>2</NumberStates>
+                    <State><Number>0</Number><Text>0</Text><Alignment>right</Alignment></State>
+                    <State><Number>1</Number><Text>1</Text><Alignment>right</Alignment></State>
+                    <Connection>
+                      <ConfigKey><Variable name="Group"/>,quantize</ConfigKey>
+                      <ButtonState>LeftButton</ButtonState>
+                    </Connection>
+                    <Connection>
+                      <ConfigKey><Variable name="Group"/>,quantize</ConfigKey>
+                    </Connection>
+                  </PushButton>
+                </Children>
+              </WidgetGroup>
+
+              <WidgetGroup><Size>1min,2me</Size></WidgetGroup>
+
             </Children>
           </WidgetGroup>
-
-          <WidgetGroup><Size>1min,2f</Size></WidgetGroup>
-
-          <!-- Q (quantize) - a numeric readout on the reference (Q  1),
-               not a boolean toggle button; still tappable to flip it. -->
-          <WidgetGroup>
-            <ObjectName>XdjInfoRow</ObjectName>
-            <Layout>horizontal</Layout>
-            <SizePolicy>me,f</SizePolicy>
-            <MinimumSize>0,20</MinimumSize>
-            <MaximumSize>-1,20</MaximumSize>
-            <Children>
-              <Label>
-                <ObjectName>XdjQLabel</ObjectName>
-                <Text>Q</Text>
-                <SizePolicy>max,f</SizePolicy>
-              </Label>
-              <WidgetGroup><Size>1me,1min</Size></WidgetGroup>
-              <PushButton>
-                <ObjectName>XdjQValue</ObjectName>
-                <SizePolicy>max,f</SizePolicy>
-                <MinimumSize>20,20</MinimumSize>
-                <MaximumSize>20,20</MaximumSize>
-                <NumberStates>2</NumberStates>
-                <State><Number>0</Number><Text>0</Text><Alignment>right</Alignment></State>
-                <State><Number>1</Number><Text>1</Text><Alignment>right</Alignment></State>
-                <Connection>
-                  <ConfigKey><Variable name="Group"/>,quantize</ConfigKey>
-                  <ButtonState>LeftButton</ButtonState>
-                </Connection>
-                <Connection>
-                  <ConfigKey><Variable name="Group"/>,quantize</ConfigKey>
-                </Connection>
-              </PushButton>
-            </Children>
-          </WidgetGroup>
-
-          <WidgetGroup><Size>1min,1me</Size></WidgetGroup>
 
         </Children>
         <!-- Visible when show_grid_edit_N = 0 -->
