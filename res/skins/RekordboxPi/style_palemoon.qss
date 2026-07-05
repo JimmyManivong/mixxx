@@ -3459,6 +3459,40 @@ WLibraryTextBrowser {
   margin: 0px;
   padding: 2px 8px 2px 10px;
 }
+/* Deck boxes merged into ONE continuous frame across all 4 decks,
+   exactly like adjacent CH SELECT cells: only the outermost edges get
+   the full white border, internal boundaries between decks get a
+   dimmer 1px divider instead. Deck 2 additionally grows a full bottom
+   border + radius when it's the actual last visible deck (2-deck
+   mode) via the isLastVisible property. */
+#XdjFxBorderedBoxFirst, #XdjFxBorderedBoxSecond,
+#XdjFxBorderedBoxThird, #XdjFxBorderedBoxLast {
+  background-color: #16171b;
+  border-left: 1px solid #d8dade;
+  border-right: 1px solid #d8dade;
+  padding: 4px 6px;
+}
+#XdjFxBorderedBoxFirst {
+  border-top: 1px solid #d8dade;
+  border-bottom: 1px solid #4a4e55;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+}
+#XdjFxBorderedBoxSecond, #XdjFxBorderedBoxThird {
+  border-top: 1px solid #4a4e55;
+  border-bottom: 1px solid #4a4e55;
+}
+#XdjFxBorderedBoxSecond[isLastVisible="true"] {
+  border-bottom: 1px solid #d8dade;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+}
+#XdjFxBorderedBoxLast {
+  border-top: 1px solid #4a4e55;
+  border-bottom: 1px solid #d8dade;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+}
 /* DECK 1 / DECK 2 header */
 #XdjDeckHeader {
   color: #ffffff;
