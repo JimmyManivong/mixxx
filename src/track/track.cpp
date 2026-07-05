@@ -936,6 +936,19 @@ void Track::setWaveformSummary(ConstWaveformPointer pWaveform) {
     emit waveformSummaryUpdated();
 }
 
+mixxx::PhraseSegments Track::getPhraseSegments() const {
+    const auto locked = lockMutex(&m_qMutex);
+    return m_phraseSegments;
+}
+
+void Track::setPhraseSegments(const mixxx::PhraseSegments& segments) {
+    {
+        const auto locked = lockMutex(&m_qMutex);
+        m_phraseSegments = segments;
+    }
+    emit phraseSegmentsUpdated();
+}
+
 void Track::setMainCuePosition(mixxx::audio::FramePos position) {
     auto locked = lockMutex(&m_qMutex);
 

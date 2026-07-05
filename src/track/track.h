@@ -10,6 +10,7 @@
 #include "sources/metadatasource.h"
 #include "track/beats.h"
 #include "track/cue.h"
+#include "track/phrasesegments.h"
 #include "track/cueinfoimporter.h"
 #include "track/track_decl.h"
 #include "track/trackrecord.h"
@@ -286,6 +287,12 @@ class Track : public QObject {
     ConstWaveformPointer getWaveformSummary() const;
     void setWaveformSummary(ConstWaveformPointer pWaveform);
 
+    // CUSTOM: musical structure sections computed by AnalyzerPhrase
+    // (RekordboxPi phrase bar). Set from the analyzer thread, read by
+    // the UI via the phraseSegmentsUpdated() signal.
+    mixxx::PhraseSegments getPhraseSegments() const;
+    void setPhraseSegments(const mixxx::PhraseSegments& segments);
+
     /// Get the track's main cue point
     mixxx::audio::FramePos getMainCuePosition() const;
     // Set the track's main cue point
@@ -440,6 +447,7 @@ class Track : public QObject {
 
     void waveformUpdated();
     void waveformSummaryUpdated();
+    void phraseSegmentsUpdated();
     void coverArtUpdated();
     void beatsUpdated();
     void replayGainUpdated(mixxx::ReplayGain replayGain);
@@ -576,6 +584,7 @@ class Track : public QObject {
     // Visual waveform data
     ConstWaveformPointer m_waveform;
     ConstWaveformPointer m_waveformSummary;
+    mixxx::PhraseSegments m_phraseSegments;
 
     mixxx::BeatsImporterPointer m_pBeatsImporterPending;
     std::unique_ptr<mixxx::CueInfoImporter> m_pCueInfoImporterPending;

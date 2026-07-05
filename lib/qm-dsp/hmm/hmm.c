@@ -19,7 +19,57 @@
 #include <float.h>
 #include <time.h>               /* to seed random number generator */
 
+#ifdef QM_DSP_NOBLAS
+/* CUSTOM (Mixxx/RekordboxPi fork): self-contained replacements for the
+ * handful of LAPACK/BLAS routines this file uses, so the segmentation
+ * code can be built without an external LAPACK/BLAS dependency (the
+ * reason it was disabled in the Mixxx build in the first place). The
+ * matrices involved are tiny (ncomponents x ncomponents, typically
+ * 20x20), so naive implementations are more than fast enough for
+ * offline analysis.
+ * - invert() below gets a Gauss-Jordan implementation instead of
+ *   dgetrf_/dgetri_.
+ * - cblas_ddot / cblas_dgemm (only the ColMajor Trans x NoTrans case
+ *   this file calls) are provided as static functions. */
+enum CBLAS_ORDER { CblasRowMajor = 101, CblasColMajor = 102 };
+enum CBLAS_TRANSPOSE { CblasNoTrans = 111, CblasTrans = 112 };
+
+static double cblas_ddot(int n, const double* x, int incx,
+        const double* y, int incy) {
+    double sum = 0.0;
+    int i;
+    for (i = 0; i < n; i++) {
+        sum += x[i * incx] * y[i * incy];
+    }
+    return sum;
+}
+
+/* C(MxN) = alpha * op(A) * op(B) + beta * C, column-major. Only the
+ * combination used below (TransA=Trans, TransB=NoTrans) is supported. */
+static void cblas_dgemm(enum CBLAS_ORDER order,
+        enum CBLAS_TRANSPOSE transA, enum CBLAS_TRANSPOSE transB,
+        int m, int n, int k, double alpha, const double* a, int lda,
+        const double* b, int ldb, double beta, double* c, int ldc) {
+    int i, j, p;
+    if (order != CblasColMajor || transA != CblasTrans ||
+            transB != CblasNoTrans) {
+        fprintf(stderr, "hmm.c noblas dgemm: unsupported layout\n");
+        exit(-1);
+    }
+    for (j = 0; j < n; j++) {
+        for (i = 0; i < m; i++) {
+            double sum = 0.0;
+            /* op(A) = A^T: element (i,p) of A^T = A(p,i) = a[i*lda+p] */
+            for (p = 0; p < k; p++) {
+                sum += a[i * lda + p] * b[j * ldb + p];
+            }
+            c[j * ldc + i] = alpha * sum + beta * c[j * ldc + i];
+        }
+    }
+}
+#else
 #include <clapack.h>            /* LAPACK for matrix inversion */
+#endif
 
 #include "maths/nan-inf.h"
 
@@ -35,10 +85,12 @@
         clapack_dgetri(CblasColMajor, *n, a, *lda, ipiv)
 #endif
 
+#ifndef QM_DSP_NOBLAS
 #ifdef _MAC_OS_X
 #include <vecLib/cblas.h>
 #else
 #include <cblas.h>              /* BLAS for matrix multiplication */
+#endif
 #endif
 
 #include "hmm.h"
@@ -552,6 +604,78 @@ void viterbi_decode(double** x, int T, model_t* model, int* q)
     free(gauss_z);
 }
 
+#ifdef QM_DSP_NOBLAS
+/* CUSTOM: invert matrix and calculate determinant with plain
+ * Gauss-Jordan elimination with partial pivoting - LxL is tiny here
+ * (ncomponents, typically 20), so this is plenty fast and avoids the
+ * LAPACK dependency entirely. */
+void invert(double** cov, int L, double** icov, double* detcov)
+{
+    int i, j, p;
+    double det = 1.0;
+    /* augmented working copy: a = [cov | I], row-major */
+    double* a = (double*) malloc(L * 2 * L * sizeof(double));
+    for (i = 0; i < L; i++) {
+        for (j = 0; j < L; j++) {
+            a[i * 2 * L + j] = cov[i][j];
+            a[i * 2 * L + L + j] = (i == j) ? 1.0 : 0.0;
+        }
+    }
+    for (p = 0; p < L; p++) {
+        /* partial pivot */
+        int best = p;
+        double bestAbs = fabs(a[p * 2 * L + p]);
+        for (i = p + 1; i < L; i++) {
+            double v = fabs(a[i * 2 * L + p]);
+            if (v > bestAbs) {
+                bestAbs = v;
+                best = i;
+            }
+        }
+        if (bestAbs == 0.0) {
+            fprintf(stderr, "Covariance matrix was singular, couldn't invert\n");
+            exit(-1);
+        }
+        if (best != p) {
+            for (j = 0; j < 2 * L; j++) {
+                double tmp = a[p * 2 * L + j];
+                a[p * 2 * L + j] = a[best * 2 * L + j];
+                a[best * 2 * L + j] = tmp;
+            }
+            det = -det;
+        }
+        double pivot = a[p * 2 * L + p];
+        det *= pivot;
+        for (j = 0; j < 2 * L; j++) {
+            a[p * 2 * L + j] /= pivot;
+        }
+        for (i = 0; i < L; i++) {
+            if (i == p) {
+                continue;
+            }
+            double factor = a[i * 2 * L + p];
+            if (factor == 0.0) {
+                continue;
+            }
+            for (j = 0; j < 2 * L; j++) {
+                a[i * 2 * L + j] -= factor * a[p * 2 * L + j];
+            }
+        }
+    }
+    /* upstream code also forces a positive determinant (see original
+     * TODO below): a negative det means a bad covariance anyway */
+    if (det < 0) {
+        det = -det;
+    }
+    *detcov = det;
+    for (i = 0; i < L; i++) {
+        for (j = 0; j < L; j++) {
+            icov[i][j] = a[i * 2 * L + L + j];
+        }
+    }
+    free(a);
+}
+#else
 /* invert matrix and calculate determinant using LAPACK */
 void invert(double** cov, int L, double** icov, double* detcov)
 {
@@ -605,11 +729,12 @@ void invert(double** cov, int L, double** icov, double* detcov)
         }
     }
 	
-#ifndef HAVE_ATLAS	
+#ifndef HAVE_ATLAS
     free(work);
 #endif
-    free(a);	
+    free(a);
 }
+#endif /* QM_DSP_NOBLAS */
 
 /* probability of multivariate Gaussian given mean, inverse and determinant of covariance */
 double gauss(double* x, int L, double* mu, double** icov, double detcov, double* y, double* z)

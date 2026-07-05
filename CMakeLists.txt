@@ -695,6 +695,7 @@ add_library(mixxx-lib STATIC EXCLUDE_FROM_ALL
   src/analyzer/analyzerebur128.cpp
   src/analyzer/analyzergain.cpp
   src/analyzer/analyzerkey.cpp
+  src/analyzer/analyzerphrase.cpp
   src/analyzer/analyzerscheduledtrack.cpp
   src/analyzer/analyzersilence.cpp
   src/analyzer/analyzerthread.cpp
@@ -1126,6 +1127,7 @@ add_library(mixxx-lib STATIC EXCLUDE_FROM_ALL
   src/track/keyfactory.cpp
   src/track/keys.cpp
   src/track/keyutils.cpp
+  src/track/phrasesegments.cpp
   src/track/playcounter.cpp
   src/track/replaygain.cpp
   src/track/serato/beatgrid.cpp
@@ -1317,6 +1319,7 @@ add_library(mixxx-lib STATIC EXCLUDE_FROM_ALL
   src/widget/wspinny.cpp
   src/widget/wspinnybase.cpp
   src/widget/wsplitter.cpp
+  src/widget/wphrasebar.cpp
   src/widget/wstarrating.cpp
   src/widget/wstatuslight.cpp
   src/widget/wtime.cpp
@@ -3209,7 +3212,7 @@ add_library(QueenMaryDsp STATIC EXCLUDE_FROM_ALL
   lib/qm-dsp/dsp/chromagram/Chromagram.cpp
   lib/qm-dsp/dsp/chromagram/ConstantQ.cpp
   lib/qm-dsp/dsp/keydetection/GetKeyMode.cpp
-  # lib/qm-dsp/dsp/mfcc/MFCC.cpp
+  lib/qm-dsp/dsp/mfcc/MFCC.cpp
   lib/qm-dsp/dsp/onsets/DetectionFunction.cpp
   lib/qm-dsp/dsp/onsets/PeakPicking.cpp
   lib/qm-dsp/dsp/phasevocoder/PhaseVocoder.cpp
@@ -3217,10 +3220,10 @@ add_library(QueenMaryDsp STATIC EXCLUDE_FROM_ALL
   # lib/qm-dsp/dsp/rateconversion/DecimatorB.cpp
   # lib/qm-dsp/dsp/rateconversion/Resampler.cpp
   # lib/qm-dsp/dsp/rhythm/BeatSpectrum.cpp
-  # lib/qm-dsp/dsp/segmentation/ClusterMeltSegmenter.cpp
-  # lib/qm-dsp/dsp/segmentation/Segmenter.cpp
-  # lib/qm-dsp/dsp/segmentation/cluster_melt.c
-  # lib/qm-dsp/dsp/segmentation/cluster_segmenter.c
+  lib/qm-dsp/dsp/segmentation/ClusterMeltSegmenter.cpp
+  lib/qm-dsp/dsp/segmentation/Segmenter.cpp
+  lib/qm-dsp/dsp/segmentation/cluster_melt.c
+  lib/qm-dsp/dsp/segmentation/cluster_segmenter.c
   lib/qm-dsp/dsp/signalconditioning/DFProcess.cpp
   lib/qm-dsp/dsp/signalconditioning/FiltFilt.cpp
   lib/qm-dsp/dsp/signalconditioning/Filter.cpp
@@ -3235,15 +3238,19 @@ add_library(QueenMaryDsp STATIC EXCLUDE_FROM_ALL
   # lib/qm-dsp/dsp/wavelet/Wavelet.cpp
   lib/qm-dsp/ext/kissfft/kiss_fft.c
   lib/qm-dsp/ext/kissfft/tools/kiss_fftr.c
-  # lib/qm-dsp/hmm/hmm.c
+  lib/qm-dsp/hmm/hmm.c
   lib/qm-dsp/maths/Correlation.cpp
-  # lib/qm-dsp/maths/CosineDistance.cpp
+  lib/qm-dsp/maths/CosineDistance.cpp
   lib/qm-dsp/maths/KLDivergence.cpp lib/qm-dsp/maths/MathUtilities.cpp
-  # lib/qm-dsp/maths/pca/pca.c
+  lib/qm-dsp/maths/pca/pca.c
   # lib/qm-dsp/thread/Thread.cpp
 )
 
 target_compile_definitions(QueenMaryDsp PRIVATE kiss_fft_scalar=double)
+# CUSTOM: build hmm.c (needed by the ClusterMelt segmentation used by
+# AnalyzerPhrase) with local stand-ins for its few LAPACK/BLAS calls,
+# so no external LAPACK/BLAS dependency is required.
+target_compile_definitions(QueenMaryDsp PRIVATE QM_DSP_NOBLAS)
 if(UNIX)
   target_compile_definitions(QueenMaryDsp PRIVATE USE_PTHREADS)
 elseif(MSVC)

@@ -91,29 +91,20 @@
                 <SetVariable name="SignalColor"><Variable name="SignalColor_12"/></SetVariable>
                 <SetVariable name="OverviewFontSize">8</SetVariable>
               </Template>
-              <!-- CUSTOM: Rekordbox-style phrase bar below the preview
-                   overview - purely decorative colour blocks (no per-song
-                   structure data exists in Mixxx to drive this for real),
-                   matched to the colour rhythm/proportions pixel-sampled
-                   from the XDJ-AZ reference photo's 4-Deck View cards. -->
-              <WidgetGroup>
+              <!-- CUSTOM: REAL Rekordbox-style phrase bar - a custom C++
+                   widget (WPhraseBar) rendering this track's musical
+                   structure sections computed by AnalyzerPhrase (qm-dsp
+                   ClusterMeltSegmenter). Sections of the same similarity
+                   cluster share a color, like the XDJ-AZ minus the
+                   semantic labels. Replaces the earlier static decorative
+                   color blocks. -->
+              <PhraseBar>
                 <ObjectName>XdjPhraseBar</ObjectName>
-                <Layout>horizontal</Layout>
+                <Group><Variable name="Group"/></Group>
                 <SizePolicy>me,f</SizePolicy>
                 <MinimumSize>0,6</MinimumSize>
                 <MaximumSize>-1,6</MaximumSize>
-                <Children>
-                  <WidgetGroup><ObjectName>XdjPhraseRed</ObjectName><Size>16me,6f</Size></WidgetGroup>
-                  <WidgetGroup><ObjectName>XdjPhrasePurple</ObjectName><Size>9me,6f</Size></WidgetGroup>
-                  <WidgetGroup><ObjectName>XdjPhraseTan</ObjectName><Size>3me,6f</Size></WidgetGroup>
-                  <WidgetGroup><ObjectName>XdjPhraseGreen</ObjectName><Size>20me,6f</Size></WidgetGroup>
-                  <WidgetGroup><ObjectName>XdjPhrasePurple</ObjectName><Size>11me,6f</Size></WidgetGroup>
-                  <WidgetGroup><ObjectName>XdjPhraseGreen</ObjectName><Size>15me,6f</Size></WidgetGroup>
-                  <WidgetGroup><ObjectName>XdjPhrasePurple</ObjectName><Size>6me,6f</Size></WidgetGroup>
-                  <WidgetGroup><ObjectName>XdjPhraseTan</ObjectName><Size>3me,6f</Size></WidgetGroup>
-                  <WidgetGroup><ObjectName>XdjPhraseBlue</ObjectName><Size>11me,6f</Size></WidgetGroup>
-                </Children>
-              </WidgetGroup>
+              </PhraseBar>
             </Children>
           </WidgetGroup>
 
