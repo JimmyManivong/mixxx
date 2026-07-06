@@ -8,7 +8,7 @@
 
 namespace {
 
-const QString kAnalysisVersion = QStringLiteral("phrase-clustermelt-1.3");
+const QString kAnalysisVersion = QStringLiteral("phrase-clustermelt-1.4");
 
 // Semantic section roles, stored as PhraseSegment::type and mapped to the
 // Rekordbox color scheme by WPhraseBar (red/purple/green/olive/blue).
@@ -74,9 +74,15 @@ void snapToPhraseGrid(mixxx::PhraseSegments* pSegments,
 // INTRO/OUTRO, mirroring how Rekordbox always labels the track edges.
 // Same-role neighbors are intentionally NOT merged: Rekordbox draws
 // CHORUS|CHORUS as separate 8-bar blocks, and so do we (dark seams).
+// INTRO/OUTRO are capped at 16 bars (2 phrase-grid cells): Rekordbox never
+// paints a 32-bar intro, so a longer edge section is split on the grid and
+// its inner part keeps the energy-based role. edgeAnchor/phraseFrames come
+// from the beatgrid; phraseFrames <= 0 disables the capping (no beatgrid).
 void relabelSectionRoles(mixxx::PhraseSegments* pSegments,
         const std::vector<double>& hopEnergies,
-        double hopFrames) {
+        double hopFrames,
+        double edgeAnchor,
+        double phraseFrames) {
     mixxx::PhraseSegments& segments = *pSegments;
     if (segments.isEmpty() || hopEnergies.empty() || hopFrames <= 0) {
         return;
@@ -123,9 +129,41 @@ void relabelSectionRoles(mixxx::PhraseSegments* pSegments,
     for (int i = 0; i < segments.size(); ++i) {
         segments[i].type = role.value(segments[i].type, kRoleUp);
     }
-    segments.first().type = kRoleIntro;
+
+    const double edgeCap = phraseFrames * 2; // 16 bars
+    // INTRO: first 16 bars only; a longer first section is split on the
+    // grid line and its remainder keeps the energy-based role.
+    {
+        mixxx::PhraseSegment& first = segments.first();
+        if (edgeCap > 0 && first.endFrame - first.startFrame > edgeCap * 1.25) {
+            mixxx::PhraseSegment rest = first;
+            rest.startFrame = edgeAnchor + edgeCap;
+            first.endFrame = rest.startFrame;
+            first.type = kRoleIntro;
+            segments.insert(1, rest);
+        } else {
+            first.type = kRoleIntro;
+        }
+    }
+    // OUTRO: last 16 bars only, split point aligned on the phrase grid.
     if (segments.size() > 1) {
-        segments.last().type = kRoleOutro;
+        mixxx::PhraseSegment& last = segments.last();
+        if (edgeCap > 0 && last.endFrame - last.startFrame > edgeCap * 1.25) {
+            const double k = std::floor(
+                    (last.endFrame - edgeCap - edgeAnchor) / phraseFrames);
+            const double splitFrame = edgeAnchor + k * phraseFrames;
+            if (splitFrame > last.startFrame + 1.0) {
+                mixxx::PhraseSegment outro = last;
+                outro.startFrame = splitFrame;
+                outro.type = kRoleOutro;
+                last.endFrame = splitFrame;
+                segments.append(outro);
+            } else {
+                last.type = kRoleOutro;
+            }
+        } else {
+            last.type = kRoleOutro;
+        }
     }
 }
 
@@ -275,7 +313,8 @@ void AnalyzerPhrase::storeResults(TrackPointer tio) {
     // Quantize boundaries to the musical 8-bar grid when a beatgrid is
     // available (AnalyzerBeats runs before us, so fresh scans have one too).
     const mixxx::BeatsPointer pBeats = tio->getBeats();
-    bool snapped = false;
+    double gridAnchor = 0.0;
+    double phraseFrames = 0.0;
     if (pBeats) {
         const mixxx::audio::FramePos anchor = pBeats->firstBeat();
         const mixxx::Bpm bpm = pBeats->getBpmInRange(
@@ -283,13 +322,12 @@ void AnalyzerPhrase::storeResults(TrackPointer tio) {
                 mixxx::audio::FramePos(segments.last().endFrame));
         if (anchor.isValid() && bpm.isValid()) {
             const double framesPerBeat = m_sampleRate * 60.0 / bpm.value();
-            snapToPhraseGrid(&segments,
-                    anchor.value(),
-                    framesPerBeat * kPhraseGridBeats);
-            snapped = true;
+            gridAnchor = anchor.value();
+            phraseFrames = framesPerBeat * kPhraseGridBeats;
+            snapToPhraseGrid(&segments, gridAnchor, phraseFrames);
         }
     }
-    if (!snapped) {
+    if (phraseFrames <= 0) {
         // No beatgrid: fall back to duration-based noise removal. When
         // snapped, sliver sections already collapsed onto the grid and
         // same-role 8-bar blocks stay split on purpose (Rekordbox look).
@@ -297,7 +335,9 @@ void AnalyzerPhrase::storeResults(TrackPointer tio) {
     }
     relabelSectionRoles(&segments,
             m_hopEnergies,
-            static_cast<double>(m_hopSize));
+            static_cast<double>(m_hopSize),
+            gridAnchor,
+            phraseFrames);
 
     tio->setPhraseSegments(segments);
 
