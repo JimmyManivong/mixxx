@@ -1220,6 +1220,12 @@ void BpmControl::slotGridSetDownbeat(double v) {
             const auto translatedBeats = pBeats->tryTranslate(offset);
             if (translatedBeats) {
                 pTrack->trySetBeats(*translatedBeats);
+                // CUSTOM: GRID SET is a deliberate, one-off user action -
+                // losing it to a crash before the track is next unloaded
+                // would be surprising. Ask for a save now instead of
+                // waiting; see Track::requestSaveNow() for why this is
+                // safe to call from this (audio) thread.
+                pTrack->requestSaveNow();
             }
         }
     }
@@ -1293,11 +1299,16 @@ double BpmControl::updateBeatDistance() {
 
 double BpmControl::updateBeatDistance(mixxx::audio::FramePos playpos) {
     double beatDistance = getBeatDistance(playpos);
-    // CUSTOM: Invert beat_distance to count DOWN to next beat (Rekordbox style)
-    // Original: 0.0 = on beat, 1.0 = almost at next beat
-    // Inverted: 1.0 = just after beat, 0.0 = arriving at next beat
-    double invertedBeatDistance = 1.0 - beatDistance;
-    m_pThisBeatDistance.set(invertedBeatDistance);
+    // CUSTOM: this used to invert beat_distance here (1.0 - beatDistance) to
+    // get a "count down to next beat" feel for the Rekordbox-style bar
+    // spinner. That broke sync: this value isn't display-only, it's the same
+    // beat_distance the sync engine (EngineSync/Syncable) reads to compute
+    // phase alignment between decks, so feeding it an inverted number made
+    // sync "correct" a phase error that didn't exist, nudging the rate even
+    // with only one deck playing (see WBarSpinner::paintEvent, which already
+    // does its own local 1.0-value inversion for the countdown look - that's
+    // the right place for a display-only transform, not here).
+    m_pThisBeatDistance.set(beatDistance);
     if (!isSynchronized() && m_dUserOffset.getValue() != 0.0) {
         m_dUserOffset.setValue(0.0);
     }

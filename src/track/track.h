@@ -409,6 +409,21 @@ class Track : public QObject {
     // Mark the track clean if it isn't already.
     void markClean();
 
+    // CUSTOM: ask for an immediate save to the database, instead of
+    // waiting for the track to be unloaded from a deck (the usual save
+    // point). Safe to call from the audio engine thread: this only emits
+    // a signal, it never touches the database itself - TrackDAO connects
+    // to saveNowRequested() and performs the actual (blocking) SQL write
+    // later, on its own thread's event loop, keeping disk I/O off the
+    // real-time audio path. Used after explicit user actions where losing
+    // the change to a crash would be surprising, e.g. GRID SET.
+    void requestSaveNow() {
+        const TrackId trackId = getId();
+        if (trackId.isValid()) {
+            emit saveNowRequested(trackId);
+        }
+    }
+
     // Explicitly request to export the track's metadata. The actual
     // export is deferred to prevent race conditions when writing into
     // files that are still opened for reading.
@@ -463,6 +478,11 @@ class Track : public QObject {
     void changed(TrackId trackId);
     void dirty(TrackId trackId);
     void clean(TrackId trackId);
+    // CUSTOM: emitted to ask for an out-of-band immediate save, bypassing
+    // the usual "only save on unload" batching. Callers on the engine
+    // thread must use requestSaveNow() below, never emit this directly -
+    // see that method's comment for why.
+    void saveNowRequested(TrackId trackId);
 
   private slots:
     void slotCueUpdated();
