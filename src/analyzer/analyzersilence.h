@@ -33,6 +33,17 @@ class AnalyzerSilence : public Analyzer {
             UserSettings* pConfig);
     static void setupOutroCue(Track* pTrack, mixxx::audio::FramePos lastSoundPosition);
 
+    // CUSTOM: nudge the whole beatgrid so the nearest beat lands exactly on
+    // the track's first detected sound, instead of wherever the raw tempo
+    // detector's phase estimate happened to land (often a touch before or
+    // after the real onset, especially with a silent/near-silent lead-in).
+    // Runs once, only on a track's first-ever combined analysis (see
+    // storeResults()) - never re-applied afterwards, so it can't undo a
+    // beatgrid the user has since adjusted by hand (GRID SET, translate,
+    // etc.).
+    static void snapBeatgridToFirstSound(
+            Track* pTrack, mixxx::audio::FramePos firstSoundPosition);
+
     /// returns the index of the first sample in the buffer that is above -60 dB
     /// or samples.size() if no sample is found
     static SINT findFirstSoundInChunk(std::span<const CSAMPLE> samples);
