@@ -12,16 +12,17 @@ namespace {
 // decorative placeholder used, so the bar never reads as a rendering bug.
 const QColor kBackgroundColor(0x20, 0x23, 0x29);
 
-// Section palette, sampled from the XDJ-AZ reference photo's phrase bar
-// (red / purple / tan / green / blue-grey / sand). Types are cluster ids,
-// so consecutive different sections get visibly different colors.
+// Section palette: exact colors pixel-sampled from the Rekordbox desktop
+// phrase bar (screenshot 2026-07-06): INTRO red, UP purple, CHORUS green,
+// DOWN olive, UP2 blue-violet, OUTRO steel blue. Types are cluster ids, so
+// the mapping to labels is arbitrary but the palette matches 1:1.
 const QColor kSegmentPalette[] = {
-        QColor(0x94, 0x4e, 0x44), // red
-        QColor(0x93, 0x64, 0xc6), // purple
-        QColor(0x92, 0xa3, 0x74), // green
-        QColor(0xae, 0x92, 0x7c), // tan
-        QColor(0x9a, 0x99, 0xb0), // blue-grey
-        QColor(0xc6, 0xba, 0x64), // sand
+        QColor(0xb7, 0x26, 0x19), // Rekordbox INTRO red
+        QColor(0x81, 0x38, 0xf6), // Rekordbox UP purple
+        QColor(0x4e, 0xa7, 0x30), // Rekordbox CHORUS green
+        QColor(0x95, 0x75, 0x3a), // Rekordbox DOWN olive
+        QColor(0x62, 0x35, 0xf5), // Rekordbox UP2 blue-violet
+        QColor(0x5d, 0x86, 0xbe), // Rekordbox OUTRO steel blue
 };
 constexpr int kSegmentPaletteSize =
         sizeof(kSegmentPalette) / sizeof(kSegmentPalette[0]);
@@ -85,11 +86,18 @@ void WPhraseBar::paintEvent(QPaintEvent* pEvent) {
     }
     const int w = width();
     const int h = height();
+    bool isFirst = true;
     for (const mixxx::PhraseSegment& segment : m_segments) {
         const int x0 = static_cast<int>(segment.startFrame / totalFrames * w);
         const int x1 = static_cast<int>(segment.endFrame / totalFrames * w);
         const QColor& color =
                 kSegmentPalette[segment.type % kSegmentPaletteSize];
         painter.fillRect(x0, 0, qMax(1, x1 - x0), h, color);
+        // Dark seam between sections so equal-luminance neighbors still
+        // read as separate phrases.
+        if (!isFirst) {
+            painter.fillRect(x0, 0, 1, h, kBackgroundColor);
+        }
+        isFirst = false;
     }
 }

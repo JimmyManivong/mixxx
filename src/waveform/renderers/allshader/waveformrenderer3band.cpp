@@ -19,9 +19,10 @@ constexpr int kHighIdx = 2;
 constexpr float kLowGain = 1.0f;
 constexpr float kMidGain = 1.0f;
 constexpr float kHighGain = 0.6f;
-// Alpha of the amber mid band: <1 makes it blend with the blue low underneath
-// to a brown intermediate tone. Lower = more blue/brown, higher = purer amber.
-constexpr float kMidBlendAlpha = 0.78f;
+// Alpha of the amber mid band: <1 blends it with the blue low underneath into
+// a brown intermediate tone, which read as "pale/marron" on the Pi panel.
+// Rekordbox draws its amber fully opaque over the blue body, so 1.0 here.
+constexpr float kMidBlendAlpha = 1.0f;
 // Body = blend of the per-pixel window AVERAGE and its MAX peak, for low/mid.
 // At close zoom a pixel covers ~1 frame so avg == max (no effect, punch kept).
 // Zoomed out a pixel covers many frames; pure MAX would fill every pixel to a
@@ -77,16 +78,13 @@ void WaveformRendererThreeBand::paintGL() {
     const double visualIncrementPerPixel =
             (lastVisualFrame - firstVisualFrame) / static_cast<double>(length);
 
-    // applyCompensation=false: skip the historical x2 gain. We now read "pregain"
-    // (default 1.0) instead of "total_gain" (which was typically ~0.5 after
-    // ReplayGain), so the x2 would double the scale and clip the body. Without it
-    // the effective scale stays ~1.0 and the bands no longer overflow the height.
-    // CUSTOM (Rekordbox-style FROZEN waveform): pass nullptr for the per-band
-    // gains so the EQ knobs (low/mid/high kill) do NOT shrink the coloured bands.
-    // The waveform always shows the track's real content regardless of EQ, like
-    // Rekordbox — only the static band gains below apply.
-    float allGain(1.0);
-    getGains(&allGain, false, nullptr, nullptr, nullptr);
+    // CUSTOM (Rekordbox-style FROZEN waveform): don't call getGains() for the
+    // overall gain either - it pulls in the trim/pregain knob (see
+    // waveformwidgetrenderer.cpp), which made turning the channel trim shrink
+    // or grow the waveform's height. Like the EQ kills below, the waveform
+    // always shows the track's real content regardless of any live mixer
+    // control, so allGain is a fixed 1.0.
+    constexpr float allGain(1.0);
 
     float gains[3];
     gains[kLowIdx] = kLowGain;

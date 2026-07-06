@@ -39,4 +39,5 @@ class AnalyzerPhrase : public Analyzer {
     std::vector<double> m_monoBuffer;
     size_t m_windowSize;
     size_t m_hopSize;
+    mixxx::audio::SampleRate m_sampleRate;
 };

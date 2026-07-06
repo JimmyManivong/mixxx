@@ -103,10 +103,6 @@ void AnalyzerThread::doRun() {
         }
         QSqlDatabase dbConnection = mixxx::DbConnectionPooled(m_dbConnectionPool);
         m_analyzers.push_back(AnalyzerWithState(std::make_unique<AnalyzerWaveform>(m_pConfig, dbConnection)));
-        // CUSTOM: musical structure analysis for the RekordboxPi phrase
-        // bar. Lives in the WithWaveform block because it shares the same
-        // pooled database connection for caching its results.
-        m_analyzers.push_back(AnalyzerWithState(std::make_unique<AnalyzerPhrase>(m_pConfig, dbConnection)));
     }
     if (AnalyzerGain::isEnabled(ReplayGainSettings(m_pConfig))) {
         m_analyzers.push_back(AnalyzerWithState(std::make_unique<AnalyzerGain>(m_pConfig)));
@@ -120,6 +116,15 @@ void AnalyzerThread::doRun() {
     m_analyzers.push_back(AnalyzerWithState(std::make_unique<AnalyzerBeats>(m_pConfig, enforceBpmDetection)));
     m_analyzers.push_back(AnalyzerWithState(std::make_unique<AnalyzerKey>(m_pConfig)));
     m_analyzers.push_back(AnalyzerWithState(std::make_unique<AnalyzerSilence>(m_pConfig)));
+    // CUSTOM: musical structure analysis for the RekordboxPi phrase bar.
+    // Registered AFTER AnalyzerBeats: storeResults() runs in registration
+    // order, so the freshly detected beatgrid is already on the track when
+    // the phrase boundaries get snapped to the 8-bar grid. Needs the pooled
+    // database connection (WithWaveform block) for caching its results.
+    if (m_modeFlags & AnalyzerModeFlags::WithWaveform) {
+        m_analyzers.push_back(AnalyzerWithState(std::make_unique<AnalyzerPhrase>(
+                m_pConfig, mixxx::DbConnectionPooled(m_dbConnectionPool))));
+    }
     DEBUG_ASSERT(!m_analyzers.empty());
     kLogger.debug() << "Activated" << m_analyzers.size() << "analyzers";
 

@@ -8,7 +8,7 @@
 
 namespace {
 
-const QString kAnalysisVersion = QStringLiteral("phrase-clustermelt-1.0");
+const QString kAnalysisVersion = QStringLiteral("phrase-clustermelt-1.2");
 const QString kAnalysisDescription = QStringLiteral(
         "Musical structure segmentation (qm-dsp ClusterMeltSegmenter)");
 
@@ -21,6 +21,74 @@ constexpr int kNumSegmentTypes = 6;
 // roughly a 4-bar phrase at 120-150 BPM. The qm default (20 hops = 4s)
 // produces choppier sections than the Rekordbox look wants.
 constexpr int kNeighbourhoodLimit = 40;
+
+// Sections shorter than this are segmentation noise, not musical phrases
+// (~4 bars at 140 BPM); they get absorbed into the preceding section.
+constexpr double kMinSectionSeconds = 7.0;
+
+// Phrase grid resolution: 8 bars in 4/4 = 32 beats. Electronic tracks are
+// built on 8-bar phrases, so section changes land on this grid; the raw
+// segmenter (0.2s hops, tempo-blind) misses it by a bar or two.
+constexpr double kPhraseGridBeats = 32.0;
+
+// Snap every internal section boundary to the nearest 8-bar grid line,
+// anchored on the first beat. Boundaries that collapse into the same grid
+// cell leave zero-length sections, removed here; equal-type neighbors that
+// appear as a result are re-merged by cleanupSections() afterwards.
+void snapToPhraseGrid(mixxx::PhraseSegments* pSegments,
+        double anchorFrame,
+        double phraseFrames) {
+    mixxx::PhraseSegments& segments = *pSegments;
+    if (segments.size() < 2 || phraseFrames <= 0) {
+        return;
+    }
+    const double totalFrames = segments.last().endFrame;
+    for (int i = 1; i < segments.size(); ++i) {
+        const double k = std::round(
+                (segments[i].startFrame - anchorFrame) / phraseFrames);
+        const double snapped = qBound(
+                0.0, anchorFrame + k * phraseFrames, totalFrames);
+        segments[i - 1].endFrame = snapped;
+        segments[i].startFrame = snapped;
+    }
+    for (int i = segments.size() - 1; i >= 0; --i) {
+        if (segments[i].endFrame - segments[i].startFrame < 1.0) {
+            segments.removeAt(i);
+        }
+    }
+}
+
+// Drop sliver sections and re-join equal-type neighbors so the phrase bar
+// shows musically plausible blocks instead of 1-2px noise slices.
+void cleanupSections(mixxx::PhraseSegments* pSegments, double minFrames) {
+    mixxx::PhraseSegments& segments = *pSegments;
+    bool changed = true;
+    while (changed && segments.size() > 1) {
+        changed = false;
+        // Merge adjacent sections of the same type.
+        for (int i = segments.size() - 1; i > 0; --i) {
+            if (segments[i].type == segments[i - 1].type) {
+                segments[i - 1].endFrame = segments[i].endFrame;
+                segments.removeAt(i);
+                changed = true;
+            }
+        }
+        // Absorb the first too-short section found, then re-loop, since
+        // absorbing can create new same-type adjacencies.
+        for (int i = 0; i < segments.size() && segments.size() > 1; ++i) {
+            if (segments[i].endFrame - segments[i].startFrame < minFrames) {
+                if (i > 0) {
+                    segments[i - 1].endFrame = segments[i].endFrame;
+                } else {
+                    segments[1].startFrame = segments[0].startFrame;
+                }
+                segments.removeAt(i);
+                changed = true;
+                break;
+            }
+        }
+    }
+}
 
 } // namespace
 
@@ -69,6 +137,7 @@ bool AnalyzerPhrase::initialize(const AnalyzerTrack& track,
     params.neighbourhoodLimit = kNeighbourhoodLimit;
     m_pSegmenter = std::make_unique<ClusterMeltSegmenter>(params);
     m_pSegmenter->initialise(sampleRate);
+    m_sampleRate = sampleRate;
     m_windowSize = static_cast<size_t>(m_pSegmenter->getWindowsize());
     m_hopSize = static_cast<size_t>(m_pSegmenter->getHopsize());
     if (m_windowSize == 0 || m_hopSize == 0) {
@@ -124,6 +193,22 @@ void AnalyzerPhrase::storeResults(TrackPointer tio) {
         qWarning() << "AnalyzerPhrase: segmentation produced no segments";
         return;
     }
+    // Quantize boundaries to the musical 8-bar grid when a beatgrid is
+    // available (AnalyzerBeats runs before us, so fresh scans have one too).
+    const mixxx::BeatsPointer pBeats = tio->getBeats();
+    if (pBeats) {
+        const mixxx::audio::FramePos anchor = pBeats->firstBeat();
+        const mixxx::Bpm bpm = pBeats->getBpmInRange(
+                mixxx::audio::kStartFramePos,
+                mixxx::audio::FramePos(segments.last().endFrame));
+        if (anchor.isValid() && bpm.isValid()) {
+            const double framesPerBeat = m_sampleRate * 60.0 / bpm.value();
+            snapToPhraseGrid(&segments,
+                    anchor.value(),
+                    framesPerBeat * kPhraseGridBeats);
+        }
+    }
+    cleanupSections(&segments, kMinSectionSeconds * m_sampleRate);
 
     tio->setPhraseSegments(segments);
 
