@@ -8,7 +8,7 @@
 
 namespace {
 
-const QString kAnalysisVersion = QStringLiteral("phrase-clustermelt-1.4");
+const QString kAnalysisVersion = QStringLiteral("phrase-clustermelt-1.6");
 
 // Semantic section roles, stored as PhraseSegment::type and mapped to the
 // Rekordbox color scheme by WPhraseBar (red/purple/green/olive/blue).
@@ -68,10 +68,20 @@ void snapToPhraseGrid(mixxx::PhraseSegments* pSegments,
     }
 }
 
-// Relabel arbitrary cluster ids as Rekordbox-style roles using loudness:
-// the loudest clusters are choruses, the quietest are breakdowns (DOWN),
-// the rest are build-ups (UP). First and last sections are forced to
-// INTRO/OUTRO, mirroring how Rekordbox always labels the track edges.
+// CHORUS threshold, normalized between the quietest and loudest section
+// of the track (0 = quietest, 1 = loudest). Normalizing instead of using
+// an absolute ratio keeps the distinction meaningful on loudness-war
+// electro where every full section sits within ~90% of the peak RMS.
+constexpr double kChorusRmsPos = 0.62;
+
+// Relabel sections as Rekordbox-style roles from per-section loudness
+// plus a sequence grammar (each section judged individually - the earlier
+// per-cluster labelling let one noisy cluster paint quiet sections green):
+//   - RMS >= kChorusRmsRatio * track max  -> CHORUS
+//   - otherwise, next section is a CHORUS -> UP   (build into the drop)
+//   - otherwise                           -> DOWN (cool-off)
+// which yields the musically logical INTRO UP CHORUS DOWN UP CHORUS ...
+// OUTRO flow. First and last sections are forced to INTRO/OUTRO.
 // Same-role neighbors are intentionally NOT merged: Rekordbox draws
 // CHORUS|CHORUS as separate 8-bar blocks, and so do we (dark seams).
 // INTRO/OUTRO are capped at 16 bars (2 phrase-grid cells): Rekordbox never
@@ -88,9 +98,8 @@ void relabelSectionRoles(mixxx::PhraseSegments* pSegments,
         return;
     }
     const int numHops = static_cast<int>(hopEnergies.size());
-    QMap<int, double> clusterEnergySum;
-    QMap<int, int> clusterSections;
-    QVector<double> sectionEnergy(segments.size(), 0.0);
+    QVector<double> sectionRms(segments.size(), 0.0);
+    double maxRms = 0.0;
     for (int i = 0; i < segments.size(); ++i) {
         const int h0 = qBound(0,
                 static_cast<int>(segments[i].startFrame / hopFrames),
@@ -102,32 +111,56 @@ void relabelSectionRoles(mixxx::PhraseSegments* pSegments,
         for (int h = h0; h < h1; ++h) {
             sum += hopEnergies[h];
         }
-        sectionEnergy[i] = sum / (h1 - h0);
-        clusterEnergySum[segments[i].type] += sectionEnergy[i];
-        clusterSections[segments[i].type] += 1;
+        sectionRms[i] = std::sqrt(sum / (h1 - h0));
+        maxRms = qMax(maxRms, sectionRms[i]);
     }
-    // Rank the clusters actually present by their mean section energy.
-    QVector<QPair<double, int>> ranked;
-    for (auto it = clusterEnergySum.constBegin();
-            it != clusterEnergySum.constEnd();
-            ++it) {
-        ranked.append({it.value() / clusterSections[it.key()], it.key()});
+    if (maxRms <= 0.0) {
+        return;
     }
-    std::sort(ranked.begin(), ranked.end());
-    QMap<int, int> role;
-    const int n = ranked.size();
-    for (int r = 0; r < n; ++r) {
-        const int cluster = ranked[r].second;
-        if (r < n / 3) {
-            role[cluster] = kRoleDown;
-        } else if (r >= n - (n + 2) / 3) {
-            role[cluster] = kRoleChorus;
-        } else {
-            role[cluster] = kRoleUp;
+    double minRms = maxRms;
+    for (int i = 0; i < segments.size(); ++i) {
+        minRms = qMin(minRms, sectionRms[i]);
+    }
+    const double rmsSpan = maxRms - minRms;
+    // Pass 1: loudness picks the choruses (threshold normalized within
+    // this track's quiet-to-loud span).
+    const double chorusThreshold = minRms + kChorusRmsPos * rmsSpan;
+    for (int i = 0; i < segments.size(); ++i) {
+        segments[i].type = (rmsSpan > 0.0 && sectionRms[i] >= chorusThreshold)
+                ? kRoleChorus
+                : kRoleDown;
+    }
+    // Pass 2 (right to left): a non-chorus directly before a chorus is the
+    // build-up. A two-block gap between choruses becomes DOWN then UP.
+    for (int i = segments.size() - 2; i >= 0; --i) {
+        if (segments[i].type != kRoleChorus &&
+                segments[i + 1].type == kRoleChorus) {
+            segments[i].type = kRoleUp;
         }
     }
-    for (int i = 0; i < segments.size(); ++i) {
-        segments[i].type = role.value(segments[i].type, kRoleUp);
+    // Pass 3: a long single build-up (a whole breakdown absorbed into one
+    // section) reads wrong as all-purple. Longer than 16 bars, split it on
+    // the grid: energy falls first (DOWN), then builds into the drop (UP).
+    if (phraseFrames > 0) {
+        for (int i = segments.size() - 1; i >= 0; --i) {
+            if (segments[i].type != kRoleUp ||
+                    segments[i].endFrame - segments[i].startFrame <=
+                            2 * phraseFrames) {
+                continue;
+            }
+            const double mid =
+                    (segments[i].startFrame + segments[i].endFrame) / 2;
+            const double k = std::round((mid - edgeAnchor) / phraseFrames);
+            const double splitFrame = edgeAnchor + k * phraseFrames;
+            if (splitFrame > segments[i].startFrame + 1.0 &&
+                    splitFrame < segments[i].endFrame - 1.0) {
+                mixxx::PhraseSegment up = segments[i];
+                up.startFrame = splitFrame;
+                segments[i].endFrame = splitFrame;
+                segments[i].type = kRoleDown;
+                segments.insert(i + 1, up);
+            }
+        }
     }
 
     const double edgeCap = phraseFrames * 2; // 16 bars
