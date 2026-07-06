@@ -132,7 +132,12 @@
                     <NumberStates>1</NumberStates>
                     <State><Number>0</Number><Text>&#8722;</Text></State>
                     <Connection>
-                      <ConfigKey><Variable name="Group"/>,beats_adjust_slower</ConfigKey>
+                      <!-- CUSTOM: was beats_adjust_slower, which only nudges
+                           the stored beatgrid BPM by 0.01 (a track-analysis
+                           correction) - imperceptible and NOT a speed change.
+                           rate_perm_down is the real CDJ-style TEMPO- nudge:
+                           it moves the actual playback rate slider. -->
+                      <ConfigKey><Variable name="Group"/>,rate_perm_down</ConfigKey>
                       <ButtonState>LeftButton</ButtonState>
                     </Connection>
                   </PushButton>
@@ -151,7 +156,10 @@
                     <NumberStates>1</NumberStates>
                     <State><Number>0</Number><Text>+</Text></State>
                     <Connection>
-                      <ConfigKey><Variable name="Group"/>,beats_adjust_faster</ConfigKey>
+                      <!-- CUSTOM: was beats_adjust_faster - see CdjMiniBpmDown
+                           comment above. rate_perm_up is the real TEMPO+
+                           nudge. -->
+                      <ConfigKey><Variable name="Group"/>,rate_perm_up</ConfigKey>
                       <ButtonState>LeftButton</ButtonState>
                     </Connection>
                   </PushButton>
