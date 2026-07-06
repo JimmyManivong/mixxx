@@ -12,17 +12,19 @@ namespace {
 // decorative placeholder used, so the bar never reads as a rendering bug.
 const QColor kBackgroundColor(0x20, 0x23, 0x29);
 
-// Section palette: exact colors pixel-sampled from the Rekordbox desktop
-// phrase bar (screenshot 2026-07-06): INTRO red, UP purple, CHORUS green,
-// DOWN olive, UP2 blue-violet, OUTRO steel blue. Types are cluster ids, so
-// the mapping to labels is arbitrary but the palette matches 1:1.
+// Semantic palette indexed by AnalyzerPhrase's SectionRole (0=INTRO,
+// 1=UP, 2=CHORUS, 3=DOWN, 4=OUTRO), matching the Rekordbox scheme. Hues
+// follow the Rekordbox desktop bar but pushed brighter/more saturated:
+// the exact sampled values read washed-out ("bordeaux", "vert malade")
+// on the Pi's low-gamut 1024x600 panel, and the purple needs a magenta
+// lean to not blend with the royal-blue waveform lows (#1f4dd8).
 const QColor kSegmentPalette[] = {
-        QColor(0xb7, 0x26, 0x19), // Rekordbox INTRO red
-        QColor(0x81, 0x38, 0xf6), // Rekordbox UP purple
-        QColor(0x4e, 0xa7, 0x30), // Rekordbox CHORUS green
-        QColor(0x95, 0x75, 0x3a), // Rekordbox DOWN olive
-        QColor(0x62, 0x35, 0xf5), // Rekordbox UP2 blue-violet
-        QColor(0x5d, 0x86, 0xbe), // Rekordbox OUTRO steel blue
+        QColor(0xe8, 0x35, 0x28), // 0 INTRO - vivid red
+        QColor(0xb0, 0x4c, 0xf2), // 1 UP - magenta-leaning purple
+        QColor(0x37, 0xd0, 0x43), // 2 CHORUS - vivid green
+        QColor(0xb0, 0x7d, 0x2e), // 3 DOWN - warm brown
+        QColor(0x66, 0xa8, 0xe8), // 4 OUTRO - sky blue
+        QColor(0xe3, 0xc9, 0x3c), // 5 fallback - yellow (unused normally)
 };
 constexpr int kSegmentPaletteSize =
         sizeof(kSegmentPalette) / sizeof(kSegmentPalette[0]);

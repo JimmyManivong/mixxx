@@ -8,7 +8,17 @@
 
 namespace {
 
-const QString kAnalysisVersion = QStringLiteral("phrase-clustermelt-1.2");
+const QString kAnalysisVersion = QStringLiteral("phrase-clustermelt-1.3");
+
+// Semantic section roles, stored as PhraseSegment::type and mapped to the
+// Rekordbox color scheme by WPhraseBar (red/purple/green/olive/blue).
+enum SectionRole {
+    kRoleIntro = 0,
+    kRoleUp = 1,
+    kRoleChorus = 2,
+    kRoleDown = 3,
+    kRoleOutro = 4,
+};
 const QString kAnalysisDescription = QStringLiteral(
         "Musical structure segmentation (qm-dsp ClusterMeltSegmenter)");
 
@@ -55,6 +65,67 @@ void snapToPhraseGrid(mixxx::PhraseSegments* pSegments,
         if (segments[i].endFrame - segments[i].startFrame < 1.0) {
             segments.removeAt(i);
         }
+    }
+}
+
+// Relabel arbitrary cluster ids as Rekordbox-style roles using loudness:
+// the loudest clusters are choruses, the quietest are breakdowns (DOWN),
+// the rest are build-ups (UP). First and last sections are forced to
+// INTRO/OUTRO, mirroring how Rekordbox always labels the track edges.
+// Same-role neighbors are intentionally NOT merged: Rekordbox draws
+// CHORUS|CHORUS as separate 8-bar blocks, and so do we (dark seams).
+void relabelSectionRoles(mixxx::PhraseSegments* pSegments,
+        const std::vector<double>& hopEnergies,
+        double hopFrames) {
+    mixxx::PhraseSegments& segments = *pSegments;
+    if (segments.isEmpty() || hopEnergies.empty() || hopFrames <= 0) {
+        return;
+    }
+    const int numHops = static_cast<int>(hopEnergies.size());
+    QMap<int, double> clusterEnergySum;
+    QMap<int, int> clusterSections;
+    QVector<double> sectionEnergy(segments.size(), 0.0);
+    for (int i = 0; i < segments.size(); ++i) {
+        const int h0 = qBound(0,
+                static_cast<int>(segments[i].startFrame / hopFrames),
+                numHops - 1);
+        const int h1 = qBound(h0 + 1,
+                static_cast<int>(segments[i].endFrame / hopFrames),
+                numHops);
+        double sum = 0.0;
+        for (int h = h0; h < h1; ++h) {
+            sum += hopEnergies[h];
+        }
+        sectionEnergy[i] = sum / (h1 - h0);
+        clusterEnergySum[segments[i].type] += sectionEnergy[i];
+        clusterSections[segments[i].type] += 1;
+    }
+    // Rank the clusters actually present by their mean section energy.
+    QVector<QPair<double, int>> ranked;
+    for (auto it = clusterEnergySum.constBegin();
+            it != clusterEnergySum.constEnd();
+            ++it) {
+        ranked.append({it.value() / clusterSections[it.key()], it.key()});
+    }
+    std::sort(ranked.begin(), ranked.end());
+    QMap<int, int> role;
+    const int n = ranked.size();
+    for (int r = 0; r < n; ++r) {
+        const int cluster = ranked[r].second;
+        if (r < n / 3) {
+            role[cluster] = kRoleDown;
+        } else if (r >= n - (n + 2) / 3) {
+            role[cluster] = kRoleChorus;
+        } else {
+            role[cluster] = kRoleUp;
+        }
+    }
+    for (int i = 0; i < segments.size(); ++i) {
+        segments[i].type = role.value(segments[i].type, kRoleUp);
+    }
+    segments.first().type = kRoleIntro;
+    if (segments.size() > 1) {
+        segments.last().type = kRoleOutro;
     }
 }
 
@@ -146,6 +217,7 @@ bool AnalyzerPhrase::initialize(const AnalyzerTrack& track,
     }
     m_monoBuffer.clear();
     m_monoBuffer.reserve(m_windowSize + m_hopSize);
+    m_hopEnergies.clear();
     return true;
 }
 
@@ -164,6 +236,13 @@ bool AnalyzerPhrase::processSamples(const CSAMPLE* pIn, SINT count) {
     while (m_monoBuffer.size() >= m_windowSize) {
         m_pSegmenter->extractFeatures(
                 m_monoBuffer.data(), static_cast<int>(m_windowSize));
+        // Mean-square loudness of the consumed hop, for section role
+        // ranking (chorus = loud, breakdown = quiet) in storeResults().
+        double energy = 0.0;
+        for (size_t j = 0; j < m_hopSize; ++j) {
+            energy += m_monoBuffer[j] * m_monoBuffer[j];
+        }
+        m_hopEnergies.push_back(energy / static_cast<double>(m_hopSize));
         m_monoBuffer.erase(
                 m_monoBuffer.begin(),
                 m_monoBuffer.begin() + static_cast<long>(m_hopSize));
@@ -196,6 +275,7 @@ void AnalyzerPhrase::storeResults(TrackPointer tio) {
     // Quantize boundaries to the musical 8-bar grid when a beatgrid is
     // available (AnalyzerBeats runs before us, so fresh scans have one too).
     const mixxx::BeatsPointer pBeats = tio->getBeats();
+    bool snapped = false;
     if (pBeats) {
         const mixxx::audio::FramePos anchor = pBeats->firstBeat();
         const mixxx::Bpm bpm = pBeats->getBpmInRange(
@@ -206,9 +286,18 @@ void AnalyzerPhrase::storeResults(TrackPointer tio) {
             snapToPhraseGrid(&segments,
                     anchor.value(),
                     framesPerBeat * kPhraseGridBeats);
+            snapped = true;
         }
     }
-    cleanupSections(&segments, kMinSectionSeconds * m_sampleRate);
+    if (!snapped) {
+        // No beatgrid: fall back to duration-based noise removal. When
+        // snapped, sliver sections already collapsed onto the grid and
+        // same-role 8-bar blocks stay split on purpose (Rekordbox look).
+        cleanupSections(&segments, kMinSectionSeconds * m_sampleRate);
+    }
+    relabelSectionRoles(&segments,
+            m_hopEnergies,
+            static_cast<double>(m_hopSize));
 
     tio->setPhraseSegments(segments);
 
@@ -230,4 +319,6 @@ void AnalyzerPhrase::cleanup() {
     m_pSegmenter.reset();
     m_monoBuffer.clear();
     m_monoBuffer.shrink_to_fit();
+    m_hopEnergies.clear();
+    m_hopEnergies.shrink_to_fit();
 }
