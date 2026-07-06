@@ -155,7 +155,13 @@ void WaveformRendererThreeBand::paintGL() {
     // Spatial (fixed, NOT temporal) moving average -> rounded envelope like
     // Rekordbox. Applied to low/mid only; high (white tips) stays sharp so
     // transients keep their crispness. Radius 0 disables the rounding.
-    constexpr int kSmoothRadius = 2;
+    // CUSTOM (2026-07-07): was 2 - too small to round off the jagged,
+    // spiky look at close zoom (a beat spans dozens of pixels there, and
+    // radius 2 only softens a handful of them). Rekordbox's reference
+    // capture shows smooth rounded "blob" contours even fairly zoomed in,
+    // so this needs to be much wider to actually read as an envelope
+    // instead of a blurred zigzag.
+    constexpr int kSmoothRadius = 10;
     auto smoothAt = [length](const std::vector<float>& src, int pos) -> float {
         float sum = 0.f;
         int n = 0;
