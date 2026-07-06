@@ -8,7 +8,10 @@
 
 namespace {
 
-const QString kAnalysisVersion = QStringLiteral("phrase-clustermelt-1.8");
+const QString kAnalysisVersion = QStringLiteral("phrase-clustermelt-1.9");
+
+// Low-pass cutoff isolating the kick/bass band for role classification.
+constexpr double kBassCutoffHz = 130.0;
 
 // Semantic section roles, stored as PhraseSegment::type and mapped to the
 // Rekordbox color scheme by WPhraseBar (red/purple/green/olive/blue).
@@ -196,6 +199,25 @@ void relabelSectionRoles(mixxx::PhraseSegments* pSegments,
                 chorus.startFrame = cellEnd;
             }
         }
+        // Symmetric trim: the green must stop on the last kick. If the
+        // final 8-bar cell of a chorus has clearly less bass than the rest
+        // of it, split that cell off as the start of the cool-off (DOWN).
+        for (int i = segments.size() - 1; i >= 0; --i) {
+            mixxx::PhraseSegment& chorus = segments[i];
+            if (chorus.type != kRoleChorus ||
+                    chorus.endFrame - chorus.startFrame < 2 * phraseFrames) {
+                continue;
+            }
+            const double cellStart = chorus.endFrame - phraseFrames;
+            if (rmsOver(cellStart, chorus.endFrame) <
+                    0.9 * rmsOver(chorus.startFrame, cellStart)) {
+                mixxx::PhraseSegment down = chorus;
+                down.startFrame = cellStart;
+                down.type = kRoleDown;
+                chorus.endFrame = cellStart;
+                segments.insert(i + 1, down);
+            }
+        }
     }
 
     const double edgeCap = phraseFrames * 2; // 16 bars
@@ -324,6 +346,9 @@ bool AnalyzerPhrase::initialize(const AnalyzerTrack& track,
     m_monoBuffer.clear();
     m_monoBuffer.reserve(m_windowSize + m_hopSize);
     m_hopEnergies.clear();
+    m_lpState = 0.0;
+    m_lpAlpha = 1.0 -
+            std::exp(-2.0 * M_PI * kBassCutoffHz / static_cast<double>(sampleRate));
     return true;
 }
 
@@ -342,11 +367,13 @@ bool AnalyzerPhrase::processSamples(const CSAMPLE* pIn, SINT count) {
     while (m_monoBuffer.size() >= m_windowSize) {
         m_pSegmenter->extractFeatures(
                 m_monoBuffer.data(), static_cast<int>(m_windowSize));
-        // Mean-square loudness of the consumed hop, for section role
-        // ranking (chorus = loud, breakdown = quiet) in storeResults().
+        // Mean-square BASS loudness of the consumed hop (one-pole low-pass
+        // keeps the kick band), for section roles in storeResults():
+        // chorus = kick present, breakdown/build = kick absent.
         double energy = 0.0;
         for (size_t j = 0; j < m_hopSize; ++j) {
-            energy += m_monoBuffer[j] * m_monoBuffer[j];
+            m_lpState += m_lpAlpha * (m_monoBuffer[j] - m_lpState);
+            energy += m_lpState * m_lpState;
         }
         m_hopEnergies.push_back(energy / static_cast<double>(m_hopSize));
         m_monoBuffer.erase(
