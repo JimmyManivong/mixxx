@@ -8,7 +8,7 @@
 
 namespace {
 
-const QString kAnalysisVersion = QStringLiteral("phrase-clustermelt-1.7");
+const QString kAnalysisVersion = QStringLiteral("phrase-clustermelt-1.8");
 
 // Semantic section roles, stored as PhraseSegment::type and mapped to the
 // Rekordbox color scheme by WPhraseBar (red/purple/green/olive/blue).
@@ -161,6 +161,39 @@ void relabelSectionRoles(mixxx::PhraseSegments* pSegments,
                 segments[i].endFrame = splitFrame;
                 segments[i].type = kRoleDown;
                 segments.insert(i + 1, up);
+            }
+        }
+    }
+    // Pass 4: a build often crosses the chorus threshold one cell before
+    // the actual drop (rising vocals/synths). If the first 8-bar cell of a
+    // chorus is clearly quieter than the rest of that chorus, it is still
+    // part of the build: extend the preceding UP over it.
+    if (phraseFrames > 0) {
+        const auto rmsOver = [&](double f0, double f1) {
+            const int h0 = qBound(0,
+                    static_cast<int>(f0 / hopFrames),
+                    numHops - 1);
+            const int h1 = qBound(h0 + 1,
+                    static_cast<int>(f1 / hopFrames),
+                    numHops);
+            double sum = 0.0;
+            for (int h = h0; h < h1; ++h) {
+                sum += hopEnergies[h];
+            }
+            return std::sqrt(sum / (h1 - h0));
+        };
+        for (int i = 0; i + 1 < segments.size(); ++i) {
+            mixxx::PhraseSegment& chorus = segments[i + 1];
+            if (segments[i].type != kRoleUp ||
+                    chorus.type != kRoleChorus ||
+                    chorus.endFrame - chorus.startFrame < 2 * phraseFrames) {
+                continue;
+            }
+            const double cellEnd = chorus.startFrame + phraseFrames;
+            if (rmsOver(chorus.startFrame, cellEnd) <
+                    0.9 * rmsOver(cellEnd, chorus.endFrame)) {
+                segments[i].endFrame = cellEnd;
+                chorus.startFrame = cellEnd;
             }
         }
     }
