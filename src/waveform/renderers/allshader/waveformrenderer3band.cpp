@@ -13,16 +13,23 @@ constexpr int kLowIdx = 0;
 constexpr int kMidIdx = 1;
 constexpr int kHighIdx = 2;
 // Gains balance the 3 overlapping bands (MAX data). At each pixel the band with
-// the largest gained height is the visible outer colour. Low/Mid kept near parity
-// so the body reads blue on bass and orange on mid-heavy spots (like Rekordbox),
-// and kHighGain is a touch above stock (0.4) for slightly brighter white tips.
-constexpr float kLowGain = 1.0f;
+// the largest gained height is the visible outer colour.
+// CUSTOM (2026-07-07, iteration 1): a fresh Rekordbox reference capture of
+// this exact track (Viento) shows the tan/orange mid body as the dominant
+// outer envelope, with blue only poking out as pointed accents above/below
+// at concentrated bass peaks - not a solid blue envelope with a thin orange
+// sliver, which is what parity (1.0/1.0) was producing. Lowering kLowGain
+// relative to kMidGain lets mid win the "tallest band" pixels more often.
+constexpr float kLowGain = 0.25f;
 constexpr float kMidGain = 1.0f;
 constexpr float kHighGain = 0.6f;
-// Alpha of the amber mid band: <1 blends it with the blue low underneath into
-// a brown intermediate tone, which read as "pale/marron" on the Pi panel.
-// Rekordbox draws its amber fully opaque over the blue body, so 1.0 here.
-constexpr float kMidBlendAlpha = 1.0f;
+// Alpha of the amber mid band. The same reference capture's mid color
+// sampled as #A66622 - a blended brown, not the pure #F2A63B opaque amber
+// an earlier fix (this session) assumed was always correct. 1.0 read as
+// oversaturated giant blue lobes with a thin orange center once kLowGain
+// dropped below parity, so partial blend is back - between the very first
+// default (0.78) and full opacity.
+constexpr float kMidBlendAlpha = 0.85f;
 // Body = blend of the per-pixel window AVERAGE and its MAX peak, for low/mid.
 // At close zoom a pixel covers ~1 frame so avg == max (no effect, punch kept).
 // Zoomed out a pixel covers many frames; pure MAX would fill every pixel to a
@@ -161,11 +168,17 @@ void WaveformRendererThreeBand::paintGL() {
     // capture shows smooth rounded "blob" contours even fairly zoomed in,
     // so this needs to be much wider to actually read as an envelope
     // instead of a blurred zigzag.
-    constexpr int kSmoothRadius = 10;
-    auto smoothAt = [length](const std::vector<float>& src, int pos) -> float {
+    constexpr int kSmoothRadiusMid = 10;
+    // CUSTOM (2026-07-07, iteration 3): the reference capture's blue bass
+    // accents are pointed "wings" poking out above/below the rounded tan
+    // body, not smooth blobs themselves - low needs much less smoothing
+    // than mid so it stays sharp/spiky as an accent instead of rounding
+    // into the same shape as the body it's supposed to contrast with.
+    constexpr int kSmoothRadiusLow = 3;
+    auto smoothAtRadius = [length](const std::vector<float>& src, int pos, int radius) -> float {
         float sum = 0.f;
         int n = 0;
-        for (int k = -kSmoothRadius; k <= kSmoothRadius; ++k) {
+        for (int k = -radius; k <= radius; ++k) {
             const int p = pos + k;
             if (p < 0 || p >= length) {
                 continue;
@@ -182,7 +195,9 @@ void WaveformRendererThreeBand::paintGL() {
         for (int eq = kLowIdx; eq < kHighIdx + 1; eq++) {
             const float h = (eq == kHighIdx)
                     ? m_bandHeight[eq][pos]
-                    : smoothAt(m_bandHeight[eq], pos);
+                    : smoothAtRadius(m_bandHeight[eq],
+                              pos,
+                              eq == kLowIdx ? kSmoothRadiusLow : kSmoothRadiusMid);
             m_vertices.addRectangle(fpos - 0.5f,
                     halfBreadth - heightFactor * h,
                     fpos + 0.5f,
