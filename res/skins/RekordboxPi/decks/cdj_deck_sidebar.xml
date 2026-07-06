@@ -32,86 +32,93 @@
     <MaximumSize>140,-1</MaximumSize>
     <Children>
 
-      <!-- ══════ TAB 1: DECK controls ══════ -->
+      <!-- White-bordered box - same visual language as the Beat FX
+           panel (cdj_fx_column.xml XdjFxBorderedBox), merged across
+           all 4 decks into one continuous frame (see ObjectName).
+           CUSTOM: the tab bar (header) is a direct, ALWAYS-VISIBLE child
+           here - it used to live inside the DECK-only content pane below,
+           which meant switching to GRID hid the tab bar along with the
+           rest of the DECK content, leaving no way back to DECK (reported
+           bug: "je peux plus revenir sur la page principale"). The two
+           panes below it toggle visibility independently so the tab bar
+           persists across both. -->
       <WidgetGroup>
-        <ObjectName>XdjTabDeckContent</ObjectName>
+        <ObjectName><Variable name="DeckBoxObj"/></ObjectName>
         <Layout>vertical</Layout>
         <SizePolicy>me,me</SizePolicy>
         <Children>
 
-          <!-- White-bordered box - same visual language as the Beat FX
-               panel (cdj_fx_column.xml XdjFxBorderedBox), merged across
-               all 4 decks into one continuous frame (see ObjectName). -->
+          <!-- ── Header: color square + DECK N (tab to toggle GRID)
+               + eject - now inside the merged frame ── -->
           <WidgetGroup>
-            <ObjectName><Variable name="DeckBoxObj"/></ObjectName>
-            <Layout>vertical</Layout>
-            <SizePolicy>me,me</SizePolicy>
+            <ObjectName>XdjTabBar</ObjectName>
+            <Layout>horizontal</Layout>
+            <SizePolicy>me,f</SizePolicy>
+            <MinimumSize>0,16</MinimumSize>
+            <MaximumSize>-1,16</MaximumSize>
             <Children>
-
-              <!-- ── Header: color square + DECK N (tab to toggle GRID)
-                   + eject - now inside the merged frame ── -->
-              <WidgetGroup>
-                <ObjectName>XdjTabBar</ObjectName>
-                <Layout>horizontal</Layout>
+              <Label>
+                <ObjectName><Variable name="DeckColorObj"/></ObjectName>
+                <Text></Text>
+                <Size>10f,10f</Size>
+              </Label>
+              <WidgetGroup><Size>4f,1min</Size></WidgetGroup>
+              <!-- Tab 1 DECK: displayValue=0 (active) when show_grid_edit_N=0 -->
+              <PushButton>
+                <ObjectName>XdjTabNormal</ObjectName>
                 <SizePolicy>me,f</SizePolicy>
                 <MinimumSize>0,16</MinimumSize>
                 <MaximumSize>-1,16</MaximumSize>
-                <Children>
-                  <Label>
-                    <ObjectName><Variable name="DeckColorObj"/></ObjectName>
-                    <Text></Text>
-                    <Size>10f,10f</Size>
-                  </Label>
-                  <WidgetGroup><Size>4f,1min</Size></WidgetGroup>
-                  <!-- Tab 1 DECK: displayValue=0 (active) when show_grid_edit_N=0 -->
-                  <PushButton>
-                    <ObjectName>XdjTabNormal</ObjectName>
-                    <SizePolicy>me,f</SizePolicy>
-                    <MinimumSize>0,16</MinimumSize>
-                    <MaximumSize>-1,16</MaximumSize>
-                    <NumberStates>2</NumberStates>
-                    <State><Number>0</Number><Text>DECK <Variable name="DeckNum"/></Text></State>
-                    <State><Number>1</Number><Text>DECK <Variable name="DeckNum"/></Text></State>
-                    <Connection>
-                      <ConfigKey persist="true">[Skin],show_grid_edit_<Variable name="DeckNum"/></ConfigKey>
-                      <ButtonState>LeftButton</ButtonState>
-                    </Connection>
-                    <Connection>
-                      <ConfigKey persist="true">[Skin],show_grid_edit_<Variable name="DeckNum"/></ConfigKey>
-                    </Connection>
-                  </PushButton>
-                  <!-- Tab 2 GRID: displayValue=1 (active) when show_grid_edit_N=1 -->
-                  <PushButton>
-                    <ObjectName>XdjTabGrid</ObjectName>
-                    <SizePolicy>me,f</SizePolicy>
-                    <MinimumSize>0,16</MinimumSize>
-                    <MaximumSize>-1,16</MaximumSize>
-                    <NumberStates>2</NumberStates>
-                    <State><Number>0</Number><Text>GRID</Text></State>
-                    <State><Number>1</Number><Text>GRID</Text></State>
-                    <Connection>
-                      <ConfigKey persist="true">[Skin],show_grid_edit_<Variable name="DeckNum"/></ConfigKey>
-                      <ButtonState>LeftButton</ButtonState>
-                    </Connection>
-                    <Connection>
-                      <ConfigKey persist="true">[Skin],show_grid_edit_<Variable name="DeckNum"/></ConfigKey>
-                    </Connection>
-                  </PushButton>
-                  <WidgetGroup><Size>3f,1min</Size></WidgetGroup>
-                  <!-- Eject - matches the small eject icon top-right of each deck
-                       row on the reference. -->
-                  <PushButton>
-                    <ObjectName>XdjEject</ObjectName>
-                    <Size>16f,16f</Size>
-                    <NumberStates>1</NumberStates>
-                    <State><Number>0</Number><Text>&#9167;</Text><Alignment>center</Alignment></State>
-                    <Connection>
-                      <ConfigKey><Variable name="Group"/>,eject</ConfigKey>
-                      <ButtonState>LeftButton</ButtonState>
-                    </Connection>
-                  </PushButton>
-                </Children>
-              </WidgetGroup>
+                <NumberStates>2</NumberStates>
+                <State><Number>0</Number><Text>DECK <Variable name="DeckNum"/></Text></State>
+                <State><Number>1</Number><Text>DECK <Variable name="DeckNum"/></Text></State>
+                <Connection>
+                  <ConfigKey persist="true">[Skin],show_grid_edit_<Variable name="DeckNum"/></ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                </Connection>
+                <Connection>
+                  <ConfigKey persist="true">[Skin],show_grid_edit_<Variable name="DeckNum"/></ConfigKey>
+                </Connection>
+              </PushButton>
+              <!-- Tab 2 GRID: displayValue=1 (active) when show_grid_edit_N=1 -->
+              <PushButton>
+                <ObjectName>XdjTabGrid</ObjectName>
+                <SizePolicy>me,f</SizePolicy>
+                <MinimumSize>0,16</MinimumSize>
+                <MaximumSize>-1,16</MaximumSize>
+                <NumberStates>2</NumberStates>
+                <State><Number>0</Number><Text>GRID</Text></State>
+                <State><Number>1</Number><Text>GRID</Text></State>
+                <Connection>
+                  <ConfigKey persist="true">[Skin],show_grid_edit_<Variable name="DeckNum"/></ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                </Connection>
+                <Connection>
+                  <ConfigKey persist="true">[Skin],show_grid_edit_<Variable name="DeckNum"/></ConfigKey>
+                </Connection>
+              </PushButton>
+              <WidgetGroup><Size>3f,1min</Size></WidgetGroup>
+              <!-- Eject - matches the small eject icon top-right of each deck
+                   row on the reference. -->
+              <PushButton>
+                <ObjectName>XdjEject</ObjectName>
+                <Size>16f,16f</Size>
+                <NumberStates>1</NumberStates>
+                <State><Number>0</Number><Text>&#9167;</Text><Alignment>center</Alignment></State>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,eject</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                </Connection>
+              </PushButton>
+            </Children>
+          </WidgetGroup>
+
+          <!-- ══════ TAB 1 PANE: DECK controls ══════ -->
+          <WidgetGroup>
+            <ObjectName>XdjTabDeckContent</ObjectName>
+            <Layout>vertical</Layout>
+            <SizePolicy>me,me</SizePolicy>
+            <Children>
 
               <WidgetGroup><Size>1min,2me</Size></WidgetGroup>
 
@@ -230,37 +237,24 @@
               <WidgetGroup><Size>1min,2me</Size></WidgetGroup>
 
             </Children>
-            <!-- Only meaningful on deck 2's box (DeckBoxObj=
-                 XdjFxBorderedBoxSecond): true when in 2-deck mode, i.e.
-                 deck 2 is actually the last visible deck and needs the
-                 closing bottom border/radius. Harmless no-op property
-                 on the other 3 decks' boxes. -->
+            <!-- Visible when show_grid_edit_N = 0 -->
             <Connection>
-              <ConfigKey persist="true">[Skin],show_4decks</ConfigKey>
+              <ConfigKey persist="true">[Skin],show_grid_edit_<Variable name="DeckNum"/></ConfigKey>
               <Transform><Not/></Transform>
-              <BindProperty>isLastVisible</BindProperty>
+              <BindProperty>visible</BindProperty>
             </Connection>
           </WidgetGroup>
 
-        </Children>
-        <!-- Visible when show_grid_edit_N = 0 -->
-        <Connection>
-          <ConfigKey persist="true">[Skin],show_grid_edit_<Variable name="DeckNum"/></ConfigKey>
-          <Transform><Not/></Transform>
-          <BindProperty>visible</BindProperty>
-        </Connection>
-      </WidgetGroup>
+          <!-- ══════ TAB 2 PANE: GRID EDIT controls ══════ -->
+          <WidgetGroup>
+            <ObjectName>XdjTabGridContent</ObjectName>
+            <Layout>vertical</Layout>
+            <SizePolicy>me,me</SizePolicy>
+            <Children>
 
-      <!-- ══════ TAB 2: GRID EDIT controls ══════ -->
-      <WidgetGroup>
-        <ObjectName>XdjTabGridContent</ObjectName>
-        <Layout>vertical</Layout>
-        <SizePolicy>me,me</SizePolicy>
-        <Children>
+              <WidgetGroup><Size>1min,1me</Size></WidgetGroup>
 
-          <WidgetGroup><Size>1min,1me</Size></WidgetGroup>
-
-          <!-- Row 1: PLAY · TAP -->
+              <!-- Row 1: PLAY · TAP -->
           <WidgetGroup>
             <Layout>horizontal</Layout>
             <SizePolicy>me,f</SizePolicy>
@@ -464,11 +458,24 @@
 
           <WidgetGroup><Size>1min,1me</Size></WidgetGroup>
 
+            </Children>
+            <!-- Visible when show_grid_edit_N = 1 -->
+            <Connection>
+              <ConfigKey persist="true">[Skin],show_grid_edit_<Variable name="DeckNum"/></ConfigKey>
+              <BindProperty>visible</BindProperty>
+            </Connection>
+          </WidgetGroup>
+
         </Children>
-        <!-- Visible when show_grid_edit_N = 1 -->
+        <!-- Only meaningful on deck 2's box (DeckBoxObj=
+             XdjFxBorderedBoxSecond): true when in 2-deck mode, i.e.
+             deck 2 is actually the last visible deck and needs the
+             closing bottom border/radius. Harmless no-op property
+             on the other 3 decks' boxes. -->
         <Connection>
-          <ConfigKey persist="true">[Skin],show_grid_edit_<Variable name="DeckNum"/></ConfigKey>
-          <BindProperty>visible</BindProperty>
+          <ConfigKey persist="true">[Skin],show_4decks</ConfigKey>
+          <Transform><Not/></Transform>
+          <BindProperty>isLastVisible</BindProperty>
         </Connection>
       </WidgetGroup>
 
