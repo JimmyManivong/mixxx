@@ -102,8 +102,8 @@
                 <ObjectName>XdjPhraseBar</ObjectName>
                 <Group><Variable name="Group"/></Group>
                 <SizePolicy>me,f</SizePolicy>
-                <MinimumSize>0,6</MinimumSize>
-                <MaximumSize>-1,6</MaximumSize>
+                <MinimumSize>0,10</MinimumSize>
+                <MaximumSize>-1,10</MaximumSize>
               </PhraseBar>
             </Children>
           </WidgetGroup>
