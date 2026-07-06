@@ -37,6 +37,9 @@ class AnalyzerPhrase : public Analyzer {
 
     std::unique_ptr<ClusterMeltSegmenter> m_pSegmenter;
     std::vector<double> m_monoBuffer;
+    // Mean-square loudness of each consumed feature hop, used to rank
+    // sections by energy for Rekordbox-style role labelling.
+    std::vector<double> m_hopEnergies;
     size_t m_windowSize;
     size_t m_hopSize;
     mixxx::audio::SampleRate m_sampleRate;
