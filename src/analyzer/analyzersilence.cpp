@@ -2,6 +2,7 @@
 
 #include "analyzer/analyzertrack.h"
 #include "analyzer/constants.h"
+#include "track/beats.h"
 #include "track/track.h"
 
 namespace {
@@ -114,6 +115,7 @@ void AnalyzerSilence::storeResults(TrackPointer pTrack) {
     const auto lastSoundPosition = mixxx::audio::FramePos(m_signalEnd);
 
     CuePointer pN60dBSound = pTrack->findCueByType(mixxx::CueType::N60dBSound);
+    const bool isFirstAnalysis = (pN60dBSound == nullptr);
     if (pN60dBSound == nullptr) {
         pN60dBSound = pTrack->createAndAddCue(
                 mixxx::CueType::N60dBSound,
@@ -131,6 +133,28 @@ void AnalyzerSilence::storeResults(TrackPointer pTrack) {
 
     setupMainAndIntroCue(pTrack.get(), firstSoundPosition, m_pConfig.data());
     setupOutroCue(pTrack.get(), lastSoundPosition);
+
+    if (isFirstAnalysis) {
+        snapBeatgridToFirstSound(pTrack.get(), firstSoundPosition);
+    }
+}
+
+// static
+void AnalyzerSilence::snapBeatgridToFirstSound(
+        Track* pTrack, mixxx::audio::FramePos firstSoundPosition) {
+    const mixxx::BeatsPointer pBeats = pTrack->getBeats();
+    if (!pBeats || !firstSoundPosition.isValid()) {
+        return;
+    }
+    const mixxx::audio::FramePos closestBeat = pBeats->findClosestBeat(firstSoundPosition);
+    if (!closestBeat.isValid()) {
+        return;
+    }
+    const mixxx::audio::FrameDiff_t offset = firstSoundPosition - closestBeat;
+    const auto translatedBeats = pBeats->tryTranslate(offset);
+    if (translatedBeats) {
+        pTrack->trySetBeats(*translatedBeats);
+    }
 }
 
 // static
