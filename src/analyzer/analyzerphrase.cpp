@@ -8,7 +8,7 @@
 
 namespace {
 
-const QString kAnalysisVersion = QStringLiteral("phrase-clustermelt-1.6");
+const QString kAnalysisVersion = QStringLiteral("phrase-clustermelt-1.7");
 
 // Semantic section roles, stored as PhraseSegment::type and mapped to the
 // Rekordbox color scheme by WPhraseBar (red/purple/green/olive/blue).
@@ -27,10 +27,12 @@ const QString kAnalysisDescription = QStringLiteral(
 // 6 clusters gives a similar visual rhythm on the phrase bar.
 constexpr int kNumSegmentTypes = 6;
 
-// Minimum section length, in feature hops (hop = 0.2s): 40 hops = 8s,
-// roughly a 4-bar phrase at 120-150 BPM. The qm default (20 hops = 4s)
-// produces choppier sections than the Rekordbox look wants.
-constexpr int kNeighbourhoodLimit = 40;
+// Minimum section length, in feature hops (hop = 0.2s): 30 hops = 6s,
+// under two 8-bar phrases at 130+ BPM. 40 (8s) missed real 8-16 bar
+// changes (a bassless melodic dip stayed glued inside a chorus block);
+// the extra noise a finer limit lets through is collapsed onto the 8-bar
+// grid by snapToPhraseGrid anyway. The qm default is 20 (4s).
+constexpr int kNeighbourhoodLimit = 30;
 
 // Sections shorter than this are segmentation noise, not musical phrases
 // (~4 bars at 140 BPM); they get absorbed into the preceding section.
