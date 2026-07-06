@@ -1561,6 +1561,28 @@ TrackPointer TrackDAO::getTrackById(TrackId trackId) const {
             this,
             &TrackDAO::trackDirty,
             /*signal-to-signal*/ Qt::DirectConnection);
+    // CUSTOM: opt-in immediate save, requested by explicit user actions
+    // (see Track::requestSaveNow()) instead of waiting for track unload.
+    // Explicit QueuedConnection: Track's signal may be emitted from the
+    // audio engine thread (e.g. a MIDI-mapped control), and Qt's
+    // AutoConnection only queues based on QObject::thread() affinity, not
+    // the thread actually calling emit() - relying on it here would risk
+    // a synchronous (blocking) SQL write on the real-time audio path.
+    // QueuedConnection unconditionally defers to this TrackDAO's own
+    // thread event loop instead.
+    connect(pTrack.get(),
+            &Track::saveNowRequested,
+            this,
+            [this](TrackId trackId) {
+                qDebug() << "TrackDAO: saveNowRequested received for"
+                         << trackId;
+                const TrackPointer pTrack =
+                        GlobalTrackCacheLocker().lookupTrackById(trackId);
+                if (pTrack && pTrack->isDirty()) {
+                    saveTrack(pTrack.get());
+                }
+            },
+            Qt::QueuedConnection);
     connect(pTrack.get(),
             &Track::clean,
             this,
