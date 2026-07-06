@@ -37,9 +37,14 @@ class AnalyzerPhrase : public Analyzer {
 
     std::unique_ptr<ClusterMeltSegmenter> m_pSegmenter;
     std::vector<double> m_monoBuffer;
-    // Mean-square loudness of each consumed feature hop, used to rank
-    // sections by energy for Rekordbox-style role labelling.
+    // Mean-square BASS loudness (low-passed mono) of each consumed feature
+    // hop. Roles follow the kick: like Rekordbox, a chorus starts on a big
+    // kick and ends on the last one, i.e. green sections hug the solid
+    // blue low-frequency rectangles of the overview waveform.
     std::vector<double> m_hopEnergies;
+    // One-pole low-pass state/coefficient isolating the kick band.
+    double m_lpState;
+    double m_lpAlpha;
     size_t m_windowSize;
     size_t m_hopSize;
     mixxx::audio::SampleRate m_sampleRate;
