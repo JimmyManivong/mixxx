@@ -8,7 +8,7 @@
 
 namespace {
 
-const QString kAnalysisVersion = QStringLiteral("phrase-clustermelt-1.9");
+const QString kAnalysisVersion = QStringLiteral("phrase-clustermelt-1.11");
 
 // Low-pass cutoff isolating the kick/bass band for role classification.
 constexpr double kBassCutoffHz = 130.0;
@@ -45,6 +45,53 @@ constexpr double kMinSectionSeconds = 7.0;
 // built on 8-bar phrases, so section changes land on this grid; the raw
 // segmenter (0.2s hops, tempo-blind) misses it by a bar or two.
 constexpr double kPhraseGridBeats = 32.0;
+
+// Bass RMS over an audio frame range, from the per-hop mean-square table.
+double rmsOverRange(const std::vector<double>& hopEnergies,
+        double hopFrames,
+        double f0,
+        double f1) {
+    const int numHops = static_cast<int>(hopEnergies.size());
+    const int h0 = qBound(0, static_cast<int>(f0 / hopFrames), numHops - 1);
+    const int h1 = qBound(h0 + 1, static_cast<int>(f1 / hopFrames), numHops);
+    double sum = 0.0;
+    for (int h = h0; h < h1; ++h) {
+        sum += hopEnergies[h];
+    }
+    return std::sqrt(sum / (h1 - h0));
+}
+
+// The musical 8-bar phrase grid rarely starts on the first beat: intros
+// are often 4/12/20 bars, which offsets every drop by half a grid cell
+// (measured on Viento: drops on bar 84, grid lines on 80/88). Try all 8
+// one-bar offsets and keep the one whose grid lines land on the biggest
+// bass discontinuities - i.e. on the actual drops.
+double bestPhraseGridAnchor(double firstBeatFrame,
+        double barFrames,
+        double totalFrames,
+        const std::vector<double>& hopEnergies,
+        double hopFrames) {
+    double bestScore = -1.0;
+    double bestAnchor = firstBeatFrame;
+    for (int offsetBars = 0; offsetBars < 8; ++offsetBars) {
+        const double anchor = firstBeatFrame + offsetBars * barFrames;
+        double score = 0.0;
+        for (double p = anchor; p + barFrames < totalFrames;
+                p += 8 * barFrames) {
+            if (p - barFrames < 0) {
+                continue;
+            }
+            score += std::fabs(
+                    rmsOverRange(hopEnergies, hopFrames, p, p + barFrames) -
+                    rmsOverRange(hopEnergies, hopFrames, p - barFrames, p));
+        }
+        if (score > bestScore) {
+            bestScore = score;
+            bestAnchor = anchor;
+        }
+    }
+    return bestAnchor;
+}
 
 // Snap every internal section boundary to the nearest 8-bar grid line,
 // anchored on the first beat. Boundaries that collapse into the same grid
@@ -173,17 +220,7 @@ void relabelSectionRoles(mixxx::PhraseSegments* pSegments,
     // part of the build: extend the preceding UP over it.
     if (phraseFrames > 0) {
         const auto rmsOver = [&](double f0, double f1) {
-            const int h0 = qBound(0,
-                    static_cast<int>(f0 / hopFrames),
-                    numHops - 1);
-            const int h1 = qBound(h0 + 1,
-                    static_cast<int>(f1 / hopFrames),
-                    numHops);
-            double sum = 0.0;
-            for (int h = h0; h < h1; ++h) {
-                sum += hopEnergies[h];
-            }
-            return std::sqrt(sum / (h1 - h0));
+            return rmsOverRange(hopEnergies, hopFrames, f0, f1);
         };
         for (int i = 0; i + 1 < segments.size(); ++i) {
             mixxx::PhraseSegment& chorus = segments[i + 1];
@@ -197,6 +234,53 @@ void relabelSectionRoles(mixxx::PhraseSegments* pSegments,
                     0.9 * rmsOver(cellEnd, chorus.endFrame)) {
                 segments[i].endFrame = cellEnd;
                 chorus.startFrame = cellEnd;
+            }
+        }
+        // Grow choruses over kicked neighbor cells: the segmenter boundary
+        // can land one cell off, leaving a build (UP/DOWN) whose edge cell
+        // already has the full kick. The chorus absorbs neighbor cells,
+        // one 8-bar cell at a time, while their bass matches its own, so
+        // green starts exactly on the first kick and ends on the last.
+        for (int i = 0; i < segments.size(); ++i) {
+            if (segments[i].type != kRoleChorus) {
+                continue;
+            }
+            const double chorusRms =
+                    rmsOver(segments[i].startFrame, segments[i].endFrame);
+            // Absorb from the previous section (grow left).
+            while (i > 0 &&
+                    (segments[i - 1].type == kRoleUp ||
+                            segments[i - 1].type == kRoleDown)) {
+                mixxx::PhraseSegment& prev = segments[i - 1];
+                const double cellStart = segments[i].startFrame - phraseFrames;
+                if (cellStart < prev.startFrame - 1.0 ||
+                        rmsOver(cellStart, segments[i].startFrame) <
+                                0.9 * chorusRms) {
+                    break;
+                }
+                prev.endFrame = cellStart;
+                segments[i].startFrame = cellStart;
+                if (prev.endFrame - prev.startFrame < 1.0) {
+                    segments.removeAt(i - 1);
+                    --i;
+                }
+            }
+            // Absorb from the next section (grow right).
+            while (i + 1 < segments.size() &&
+                    (segments[i + 1].type == kRoleUp ||
+                            segments[i + 1].type == kRoleDown)) {
+                mixxx::PhraseSegment& next = segments[i + 1];
+                const double cellEnd = segments[i].endFrame + phraseFrames;
+                if (cellEnd > next.endFrame + 1.0 ||
+                        rmsOver(segments[i].endFrame, cellEnd) <
+                                0.9 * chorusRms) {
+                    break;
+                }
+                next.startFrame = cellEnd;
+                segments[i].endFrame = cellEnd;
+                if (next.endFrame - next.startFrame < 1.0) {
+                    segments.removeAt(i + 1);
+                }
             }
         }
         // Symmetric trim: the green must stop on the last kick. If the
@@ -417,8 +501,14 @@ void AnalyzerPhrase::storeResults(TrackPointer tio) {
                 mixxx::audio::FramePos(segments.last().endFrame));
         if (anchor.isValid() && bpm.isValid()) {
             const double framesPerBeat = m_sampleRate * 60.0 / bpm.value();
-            gridAnchor = anchor.value();
             phraseFrames = framesPerBeat * kPhraseGridBeats;
+            // Align the grid on the track's real phrase offset (drops),
+            // not blindly on the first beat.
+            gridAnchor = bestPhraseGridAnchor(anchor.value(),
+                    framesPerBeat * 4,
+                    segments.last().endFrame,
+                    m_hopEnergies,
+                    static_cast<double>(m_hopSize));
             snapToPhraseGrid(&segments, gridAnchor, phraseFrames);
         }
     }
