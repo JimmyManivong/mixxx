@@ -3571,7 +3571,7 @@ WLibraryTextBrowser {
 }
 #CdjMiniTitle {
   color: #ffffff;
-  font-size: 12px;
+  font-size: 9px;
   font-weight: bold;
 }
 /* Big REMAIN readout, like the reference's huge per-deck remaining time.
@@ -3606,37 +3606,37 @@ WLibraryTextBrowser {
   background-color: transparent;
   border: 1px solid #8a8f98;
   border-radius: 2px;
-  padding: 1px 3px;
+  padding: 1px 6px;
 }
 #CdjMiniBpmLabel {
   color: #7c828a;
-  font-size: 8px;
+  font-size: 9px;
   font-weight: bold;
 }
 #CdjMiniBpm {
   color: #ffffff;
-  font-size: 20px;
+  font-size: 23px;
   font-weight: bold;
   padding: 0px 2px;
 }
 #CdjMiniRateRangeQ, #CdjMiniRateRangePm, #CdjMiniRateRange {
   color: #e8823c;
-  font-size: 9px;
+  font-size: 7px;
   font-weight: bold;
-  padding: 0px 1px;
+  padding: 0px;
 }
 #CdjMiniBpmRate, #CdjMiniBpmRatePercentSign {
   color: #f2b8b8;
-  font-size: 10px;
+  font-size: 8px;
   font-weight: bold;
-  padding: 0px 1px;
+  padding: 0px;
 }
 #CdjMiniBpmDown, #CdjMiniBpmUp {
   background-color: transparent;
   color: #6a7078;
   border: none;
   border-radius: 3px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: bold;
 }
 #CdjMiniBpmDown:pressed, #CdjMiniBpmUp:pressed {

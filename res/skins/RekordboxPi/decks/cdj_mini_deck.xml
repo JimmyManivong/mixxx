@@ -22,13 +22,17 @@
             <Size>18f,16f</Size>
           </Label>
           <WidgetGroup><Size>5f,1min</Size></WidgetGroup>
+          <!-- CUSTOM: capped (not expanding) so ON AIR sits right after the
+               title instead of being pushed to the far edge of the row. -->
           <TrackProperty>
             <ObjectName>CdjMiniTitle</ObjectName>
             <Group><Variable name="Group"/></Group>
             <Property>title</Property>
             <ReadOnly>true</ReadOnly>
             <Elide>right</Elide>
-            <SizePolicy>me,f</SizePolicy>
+            <SizePolicy>min,f</SizePolicy>
+            <MinimumSize>90,-1</MinimumSize>
+            <MaximumSize>110,-1</MaximumSize>
           </TrackProperty>
           <WidgetGroup><Size>6f,1min</Size></WidgetGroup>
 
@@ -44,6 +48,9 @@
               <ConfigKey><Variable name="Group"/>,play</ConfigKey>
             </Connection>
           </PushButton>
+          <!-- CUSTOM: this trailing spacer (not the title) now absorbs the
+               row's leftover width, so ON AIR stays right after the title. -->
+          <WidgetGroup><SizePolicy>me,min</SizePolicy></WidgetGroup>
         </Children>
       </WidgetGroup>
 
@@ -128,7 +135,7 @@
                 <Children>
                   <PushButton>
                     <ObjectName>CdjMiniBpmDown</ObjectName>
-                    <Size>14f,14f</Size>
+                    <Size>18f,18f</Size>
                     <NumberStates>1</NumberStates>
                     <State><Number>0</Number><Text>&#8722;</Text></State>
                     <Connection>
@@ -152,7 +159,7 @@
                   </Number>
                   <PushButton>
                     <ObjectName>CdjMiniBpmUp</ObjectName>
-                    <Size>14f,14f</Size>
+                    <Size>18f,18f</Size>
                     <NumberStates>1</NumberStates>
                     <State><Number>0</Number><Text>+</Text></State>
                     <Connection>
