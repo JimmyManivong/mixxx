@@ -3619,11 +3619,17 @@ WLibraryTextBrowser {
   font-weight: bold;
   padding: 0px 2px;
 }
-#CdjMiniBpmRate {
-  color: #7c828a;
+#CdjMiniRateRangeQ, #CdjMiniRateRangePm, #CdjMiniRateRange {
+  color: #e8823c;
   font-size: 9px;
   font-weight: bold;
-  padding: 0px 2px;
+  padding: 0px 1px;
+}
+#CdjMiniBpmRate, #CdjMiniBpmRatePercentSign {
+  color: #f2b8b8;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 0px 1px;
 }
 #CdjMiniBpmDown, #CdjMiniBpmUp {
   background-color: transparent;

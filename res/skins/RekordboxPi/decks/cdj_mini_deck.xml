@@ -165,17 +165,55 @@
                   </PushButton>
                 </Children>
               </WidgetGroup>
-              <!-- CUSTOM: CDJ/XDJ-style tempo % readout (like the +6/10/16/WIDE
-                   pitch fader range display) - shows how far the current
-                   playback rate is nudged from the track's stored BPM. -->
-              <NumberRate>
-                <ObjectName>CdjMiniBpmRate</ObjectName>
-                <TooltipId>rate_display</TooltipId>
+              <!-- CUSTOM: CDJ/XDJ-style tempo range + % readout, like the
+                   real hardware's "Q ±10" (pitch fader range) / "+2.40%"
+                   (current pitch offset) stacked under the BPM box. -->
+              <WidgetGroup>
+                <ObjectName>CdjMiniRateRangeRow</ObjectName>
+                <Layout>horizontal</Layout>
                 <SizePolicy>min,f</SizePolicy>
-                <Alignment>right</Alignment>
-                <Group><Variable name="Group"/></Group>
-                <NumberOfDigits>1</NumberOfDigits>
-              </NumberRate>
+                <Children>
+                  <Label>
+                    <ObjectName>CdjMiniRateRangeQ</ObjectName>
+                    <Text>Q</Text>
+                    <SizePolicy>min,f</SizePolicy>
+                  </Label>
+                  <Label>
+                    <ObjectName>CdjMiniRateRangePm</ObjectName>
+                    <Text>&#177;</Text>
+                    <SizePolicy>min,f</SizePolicy>
+                  </Label>
+                  <RateRange>
+                    <ObjectName>CdjMiniRateRange</ObjectName>
+                    <TooltipId>rate_range_display</TooltipId>
+                    <SizePolicy>min,f</SizePolicy>
+                    <Alignment>right</Alignment>
+                    <Group><Variable name="Group"/></Group>
+                    <Display>range</Display>
+                    <NumberOfDigits>0</NumberOfDigits>
+                  </RateRange>
+                </Children>
+              </WidgetGroup>
+              <WidgetGroup>
+                <ObjectName>CdjMiniRatePercentRow</ObjectName>
+                <Layout>horizontal</Layout>
+                <SizePolicy>min,f</SizePolicy>
+                <Children>
+                  <NumberRate>
+                    <ObjectName>CdjMiniBpmRate</ObjectName>
+                    <TooltipId>rate_display</TooltipId>
+                    <SizePolicy>min,f</SizePolicy>
+                    <Alignment>right</Alignment>
+                    <Group><Variable name="Group"/></Group>
+                    <NumberOfDigits>2</NumberOfDigits>
+                  </NumberRate>
+                  <Label>
+                    <ObjectName>CdjMiniBpmRatePercentSign</ObjectName>
+                    <Text>%</Text>
+                    <SizePolicy>min,f</SizePolicy>
+                  </Label>
+                </Children>
+              </WidgetGroup>
               <WidgetGroup><SizePolicy>min,me</SizePolicy></WidgetGroup>
             </Children>
           </WidgetGroup>
