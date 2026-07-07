@@ -3571,7 +3571,7 @@ WLibraryTextBrowser {
 }
 #CdjMiniTitle {
   color: #ffffff;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: bold;
 }
 /* Big REMAIN readout, like the reference's huge per-deck remaining time.
