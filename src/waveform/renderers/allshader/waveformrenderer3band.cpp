@@ -20,15 +20,7 @@ constexpr int kHighIdx = 2;
 // at concentrated bass peaks - not a solid blue envelope with a thin orange
 // sliver, which is what parity (1.0/1.0) was producing. Lowering kLowGain
 // relative to kMidGain lets mid win the "tallest band" pixels more often.
-// CUSTOM (2026-07-07): 0.25 fixed the color balance (orange dominant at
-// rest) but went far enough that low's rectangle almost never grows
-// taller than mid's even on genuine kicks - the overall envelope height
-// (whichever band's rectangle is tallest) ended up following mid's
-// comparatively steady level and stopped visibly responding to bass
-// power at all. Raised so real bass peaks still win height (and poke
-// blue out) at the moments they should, while staying under mid's gain
-// so the resting/average look stays orange-dominant.
-constexpr float kLowGain = 0.55f;
+constexpr float kLowGain = 0.25f;
 constexpr float kMidGain = 1.0f;
 constexpr float kHighGain = 0.6f;
 // Alpha of the amber mid band. The same reference capture's mid color
@@ -45,11 +37,6 @@ constexpr float kMidBlendAlpha = 0.85f;
 // (loud=tall, quiet=short) like Rekordbox. 1.0 = old pure-peak look, 0.0 = pure
 // average. High band stays pure MAX so transient ticks keep their crispness.
 constexpr float kBodyPeakMix = 0.35f;
-// CUSTOM: low gets its own, higher peak/average mix than mid - it needs to
-// react sharply to an actual kick (mostly peak, little averaging-out) so
-// the envelope's height genuinely reflects bass power moment to moment,
-// instead of reading as a near-constant level like mid's steadier body.
-constexpr float kBodyPeakMixLow = 0.7f;
 } // namespace
 
 WaveformRendererThreeBand::WaveformRendererThreeBand(
@@ -164,7 +151,7 @@ void WaveformRendererThreeBand::paintGL() {
         // energy envelope instead of a solid max block (see kBodyPeakMix above).
         const float avgLow = cnt ? static_cast<float>(sumLow) / cnt : 0.f;
         const float avgMid = cnt ? static_cast<float>(sumMid) / cnt : 0.f;
-        const float bodyLow = avgLow + (static_cast<float>(u8low) - avgLow) * kBodyPeakMixLow;
+        const float bodyLow = avgLow + (static_cast<float>(u8low) - avgLow) * kBodyPeakMix;
         const float bodyMid = avgMid + (static_cast<float>(u8mid) - avgMid) * kBodyPeakMix;
         m_bandHeight[kLowIdx][pos] = bodyLow * gains[kLowIdx];
         m_bandHeight[kMidIdx][pos] = bodyMid * gains[kMidIdx];
