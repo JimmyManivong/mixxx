@@ -2,7 +2,6 @@
 
 #include "track/track.h"
 #include "util/colorcomponents.h"
-#include "util/math.h"
 #include "waveform/renderers/allshader/matrixforwidgetgeometry.h"
 #include "waveform/renderers/waveformwidgetrenderer.h"
 #include "waveform/waveform.h"
@@ -10,30 +9,33 @@
 namespace allshader {
 
 namespace {
-// CUSTOM (2026-07-07): this renderer used to draw low/mid/high as 3
-// independently-scaled, overlapping colored bars (tallest band visible,
-// alpha-blended where they overlap). Comparing pixel-for-pixel against
-// real Rekordbox captures of the same track showed that isn't how a
-// Rekordbox/Serato-style waveform actually works: there is exactly ONE
-// envelope shape (height = overall/broadband amplitude, the "all" analysis
-// channel - see WaveformData in waveform.h), and its FILL COLOR is a
-// per-pixel weighted mix of the low/mid/high reference colors, weighted by
-// each band's relative energy at that point - not 3 separate stacked
-// shapes. Mixxx already ships exactly this algorithm as the stock
-// "AllShaderRGBWaveform" renderer (src/waveform/renderers/allshader/
-// waveformrendererrgb.cpp, not compiled into this fork - see
-// preferences/upgrade.cpp's comment on why only ThreeBand is built). This
-// is that algorithm, ported in as this renderer's actual body, keeping our
-// customizations: skin-driven colors, the "frozen" ignore-EQ/trim
-// behavior, and the extra spatial smoothing for the rounded per-beat
-// "blob" look Rekordbox shows instead of a jagged peak-by-peak outline.
-constexpr int kSmoothRadius = 10;
-// Body = blend of the per-pixel window AVERAGE and its MAX peak. At close
-// zoom a pixel covers ~1 frame so avg == max (no effect, punch kept).
-// Zoomed out a pixel covers many frames; pure MAX would fill every pixel
-// to a solid block, so leaning on the average restores a readable energy
-// envelope (loud=tall, quiet=short) like Rekordbox. 1.0 = pure peak, 0.0 =
-// pure average.
+constexpr int kLowIdx = 0;
+constexpr int kMidIdx = 1;
+constexpr int kHighIdx = 2;
+// Gains balance the 3 overlapping bands (MAX data). At each pixel the band with
+// the largest gained height is the visible outer colour.
+// CUSTOM (2026-07-07, iteration 1): a fresh Rekordbox reference capture of
+// this exact track (Viento) shows the tan/orange mid body as the dominant
+// outer envelope, with blue only poking out as pointed accents above/below
+// at concentrated bass peaks - not a solid blue envelope with a thin orange
+// sliver, which is what parity (1.0/1.0) was producing. Lowering kLowGain
+// relative to kMidGain lets mid win the "tallest band" pixels more often.
+constexpr float kLowGain = 0.25f;
+constexpr float kMidGain = 1.0f;
+constexpr float kHighGain = 0.6f;
+// Alpha of the amber mid band. The same reference capture's mid color
+// sampled as #A66622 - a blended brown, not the pure #F2A63B opaque amber
+// an earlier fix (this session) assumed was always correct. 1.0 read as
+// oversaturated giant blue lobes with a thin orange center once kLowGain
+// dropped below parity, so partial blend is back - between the very first
+// default (0.78) and full opacity.
+constexpr float kMidBlendAlpha = 0.85f;
+// Body = blend of the per-pixel window AVERAGE and its MAX peak, for low/mid.
+// At close zoom a pixel covers ~1 frame so avg == max (no effect, punch kept).
+// Zoomed out a pixel covers many frames; pure MAX would fill every pixel to a
+// solid block, so leaning on the average restores a readable energy envelope
+// (loud=tall, quiet=short) like Rekordbox. 1.0 = old pure-peak look, 0.0 = pure
+// average. High band stays pure MAX so transient ticks keep their crispness.
 constexpr float kBodyPeakMix = 0.35f;
 } // namespace
 
@@ -83,48 +85,28 @@ void WaveformRendererThreeBand::paintGL() {
     const double visualIncrementPerPixel =
             (lastVisualFrame - firstVisualFrame) / static_cast<double>(length);
 
-    // CUSTOM (Rekordbox-style FROZEN waveform): don't call getGains() - it
-    // pulls in the trim/pregain and EQ knobs (see waveformwidgetrenderer.cpp),
-    // which would make turning those knobs shrink/grow or recolor the
-    // waveform. The waveform always shows the track's real content
-    // regardless of any live mixer control, so all gains are fixed at 1.0.
-    constexpr float allGain = 1.0f;
-    // CUSTOM: the color-mix math above is exactly the stock RGB algorithm,
-    // but applied to it un-touched (1.0/1.0/1.0) the mix reads almost
-    // solid blue with no orange/white ever showing - Mixxx's own analysis
-    // filters (analyzerwaveform.h) give bass far more relative energy than
-    // Rekordbox's own filters apparently do for the same audio, so without
-    // compensation low wins the normalization almost everywhere. These
-    // gains only rebalance the COLOR MIX weighting, not the envelope
-    // height (which stays driven by the "all" channel, untouched).
-    constexpr float lowGain = 0.1f;
-    constexpr float midGain = 4.0f;
-    // CUSTOM: the reference (near-white) high color contributes strongly to
-    // all 3 RGB channels at once, so a high highGain washes every pixel
-    // toward pale/desaturated regardless of low/mid balance. Reduced so
-    // blue/orange read as bolder, more saturated hues like the reference,
-    // with white only breaking through at genuinely dominant transients.
-    constexpr float highGain = 0.5f;
+    // CUSTOM (Rekordbox-style FROZEN waveform): don't call getGains() for the
+    // overall gain either - it pulls in the trim/pregain knob (see
+    // waveformwidgetrenderer.cpp), which made turning the channel trim shrink
+    // or grow the waveform's height. Like the EQ kills below, the waveform
+    // always shows the track's real content regardless of any live mixer
+    // control, so allGain is a fixed 1.0.
+    constexpr float allGain(1.0);
+
+    float gains[3];
+    gains[kLowIdx] = kLowGain;
+    gains[kMidIdx] = kMidGain;
+    gains[kHighIdx] = kHighGain;
 
     const float breadth = static_cast<float>(m_waveformRenderer->getBreadth()) * devicePixelRatio;
     const float halfBreadth = breadth / 2.0f;
     const float heightFactor = allGain * halfBreadth / m_maxValue;
 
-    const float low_r = m_rgbLowColor_r;
-    const float mid_r = m_rgbMidColor_r;
-    const float high_r = m_rgbHighColor_r;
-    const float low_g = m_rgbLowColor_g;
-    const float mid_g = m_rgbMidColor_g;
-    const float high_g = m_rgbHighColor_g;
-    const float low_b = m_rgbLowColor_b;
-    const float mid_b = m_rgbMidColor_b;
-    const float high_b = m_rgbHighColor_b;
-
     double xVisualFrame = qRound(firstVisualFrame / visualIncrementPerPixel) *
             visualIncrementPerPixel;
 
     const int numVerticesPerLine = 6;
-    const int reserved = numVerticesPerLine * (length + 1);
+    const int reserved = numVerticesPerLine * (3 * length + 1);
 
     m_vertices.clear();
     m_vertices.reserve(reserved);
@@ -140,10 +122,10 @@ void WaveformRendererThreeBand::paintGL() {
 
     const double maxSamplingRange = visualIncrementPerPixel / 2.0;
 
-    // Pass 1: gather each pixel's envelope height (from the "all" channel,
-    // peak/average blended) and its mix color (from low/mid/high peaks).
-    m_envelopeHeight.assign(length, 0.f);
-    m_mixColor.assign(static_cast<size_t>(length) * 3, 0.f);
+    // Pass 1: gather the gained per-pixel height of each band.
+    m_bandHeight[kLowIdx].assign(length, 0.f);
+    m_bandHeight[kMidIdx].assign(length, 0.f);
+    m_bandHeight[kHighIdx].assign(length, 0.f);
     double xvf = xVisualFrame;
     for (int pos = 0; pos < length; ++pos) {
         const int visualFrameStart = std::lround(xvf - maxSamplingRange);
@@ -153,67 +135,50 @@ void WaveformRendererThreeBand::paintGL() {
                 std::min(std::max(visualFrameStop, visualFrameStart + 1) * 2, dataSize - 1);
 
         uchar u8low{}, u8mid{}, u8high{};
-        int sumAll = 0, cnt = 0;
-        uchar u8maxAllChn[2]{};
+        int sumLow = 0, sumMid = 0, cnt = 0;
         for (int chn = 0; chn < 2; chn++) {
             for (int i = visualIndexStart + chn; i < visualIndexStop + chn; i += 2) {
                 const WaveformData& wd = data[i];
                 u8low = math_max(u8low, wd.filtered.low);
                 u8mid = math_max(u8mid, wd.filtered.mid);
                 u8high = math_max(u8high, wd.filtered.high);
-                u8maxAllChn[chn] = math_max(u8maxAllChn[chn], wd.filtered.all);
-                sumAll += wd.filtered.all;
+                sumLow += wd.filtered.low;
+                sumMid += wd.filtered.mid;
                 ++cnt;
             }
         }
-
-        float maxLow = static_cast<float>(u8low) * lowGain;
-        float maxMid = static_cast<float>(u8mid) * midGain;
-        float maxHigh = static_cast<float>(u8high) * highGain;
-
-        // CUSTOM (2026-07-07, iteration 4): a continuous weighted blend of
-        // the 3 reference colors (the stock RGB renderer's approach)
-        // produced a washed-out pale gradient - every pixel is some blend
-        // of all 3 colors, never a bold pure hue. The reference capture
-        // shows sharp-edged solid-colored regions instead (a clearly blue
-        // patch, then a clearly tan patch, not a smooth gradient between
-        // them), suggesting a hard "loudest band wins its pure color"
-        // choice per pixel rather than a continuous mix.
-        float red, green, blue;
-        if (maxLow >= maxMid && maxLow >= maxHigh) {
-            red = low_r;
-            green = low_g;
-            blue = low_b;
-        } else if (maxMid >= maxHigh) {
-            red = mid_r;
-            green = mid_g;
-            blue = mid_b;
-        } else {
-            red = high_r;
-            green = high_g;
-            blue = high_b;
-        }
-        m_mixColor[static_cast<size_t>(pos) * 3 + 0] = red;
-        m_mixColor[static_cast<size_t>(pos) * 3 + 1] = green;
-        m_mixColor[static_cast<size_t>(pos) * 3 + 2] = blue;
-
-        // Envelope height: blend the window's average "all" value with its
-        // peak per-channel max, so a zoomed-out view reads as an energy
-        // envelope instead of a solid block (see kBodyPeakMix above).
-        const float avgAll = cnt ? static_cast<float>(sumAll) / cnt : 0.f;
-        const float maxAll = static_cast<float>(math_max(u8maxAllChn[0], u8maxAllChn[1]));
-        m_envelopeHeight[pos] = avgAll + (maxAll - avgAll) * kBodyPeakMix;
-
+        // Blend window average with the peak so zoomed-out waveforms read as an
+        // energy envelope instead of a solid max block (see kBodyPeakMix above).
+        const float avgLow = cnt ? static_cast<float>(sumLow) / cnt : 0.f;
+        const float avgMid = cnt ? static_cast<float>(sumMid) / cnt : 0.f;
+        const float bodyLow = avgLow + (static_cast<float>(u8low) - avgLow) * kBodyPeakMix;
+        const float bodyMid = avgMid + (static_cast<float>(u8mid) - avgMid) * kBodyPeakMix;
+        m_bandHeight[kLowIdx][pos] = bodyLow * gains[kLowIdx];
+        m_bandHeight[kMidIdx][pos] = bodyMid * gains[kMidIdx];
+        m_bandHeight[kHighIdx][pos] = static_cast<float>(u8high) * gains[kHighIdx];
         xvf += visualIncrementPerPixel;
     }
 
-    // Spatial (fixed, NOT temporal) moving average on the envelope height
-    // -> rounded per-beat "blob" contour like Rekordbox, instead of a
-    // jagged peak-by-peak outline. Radius 0 disables the rounding.
-    auto smoothAt = [length](const std::vector<float>& src, int pos) -> float {
+    // Spatial (fixed, NOT temporal) moving average -> rounded envelope like
+    // Rekordbox. Applied to low/mid only; high (white tips) stays sharp so
+    // transients keep their crispness. Radius 0 disables the rounding.
+    // CUSTOM (2026-07-07): was 2 - too small to round off the jagged,
+    // spiky look at close zoom (a beat spans dozens of pixels there, and
+    // radius 2 only softens a handful of them). Rekordbox's reference
+    // capture shows smooth rounded "blob" contours even fairly zoomed in,
+    // so this needs to be much wider to actually read as an envelope
+    // instead of a blurred zigzag.
+    constexpr int kSmoothRadiusMid = 10;
+    // CUSTOM (2026-07-07, iteration 3): the reference capture's blue bass
+    // accents are pointed "wings" poking out above/below the rounded tan
+    // body, not smooth blobs themselves - low needs much less smoothing
+    // than mid so it stays sharp/spiky as an accent instead of rounding
+    // into the same shape as the body it's supposed to contrast with.
+    constexpr int kSmoothRadiusLow = 3;
+    auto smoothAtRadius = [length](const std::vector<float>& src, int pos, int radius) -> float {
         float sum = 0.f;
         int n = 0;
-        for (int k = -kSmoothRadius; k <= kSmoothRadius; ++k) {
+        for (int k = -radius; k <= radius; ++k) {
             const int p = pos + k;
             if (p < 0 || p >= length) {
                 continue;
@@ -224,19 +189,38 @@ void WaveformRendererThreeBand::paintGL() {
         return n ? sum / static_cast<float>(n) : src[pos];
     };
 
-    // Pass 2: build one rectangle per pixel from the (smoothed) envelope
-    // height, filled with its mixed color.
+    // Pass 2: build the rectangles from the (smoothed) heights.
     for (int pos = 0; pos < length; ++pos) {
         const float fpos = static_cast<float>(pos);
-        const float h = smoothAt(m_envelopeHeight, pos);
-        m_vertices.addRectangle(fpos - 0.5f,
-                halfBreadth - heightFactor * h,
-                fpos + 0.5f,
-                halfBreadth + heightFactor * h);
-        m_colors.addForRectangle(m_mixColor[static_cast<size_t>(pos) * 3 + 0],
-                m_mixColor[static_cast<size_t>(pos) * 3 + 1],
-                m_mixColor[static_cast<size_t>(pos) * 3 + 2],
-                1.0f);
+        for (int eq = kLowIdx; eq < kHighIdx + 1; eq++) {
+            const float h = (eq == kHighIdx)
+                    ? m_bandHeight[eq][pos]
+                    : smoothAtRadius(m_bandHeight[eq],
+                              pos,
+                              eq == kLowIdx ? kSmoothRadiusLow : kSmoothRadiusMid);
+            m_vertices.addRectangle(fpos - 0.5f,
+                    halfBreadth - heightFactor * h,
+                    fpos + 0.5f,
+                    halfBreadth + heightFactor * h);
+            switch (eq) {
+            default:
+                DEBUG_ASSERT(!"Invalid EQ index");
+            case kLowIdx:
+                m_colors.addForRectangle(m_lowColor_r, m_lowColor_g, m_lowColor_b, m_lowColor_a);
+                break;
+            case kMidIdx:
+                // Semi-transparent so the amber mid blends with the blue low it
+                // overlaps -> a brown intermediate tone (Rekordbox-like), while
+                // pure mid stays amber. Needs GL_BLEND (enabled before draw).
+                m_colors.addForRectangle(
+                        m_midColor_r, m_midColor_g, m_midColor_b, kMidBlendAlpha);
+                break;
+            case kHighIdx:
+                m_colors.addForRectangle(
+                        m_highColor_r, m_highColor_g, m_highColor_b, m_highColor_a);
+                break;
+            }
+        }
     }
 
     DEBUG_ASSERT(reserved == m_vertices.size());
@@ -258,6 +242,12 @@ void WaveformRendererThreeBand::paintGL() {
             positionLocation, GL_FLOAT, m_vertices.constData(), 2);
     m_shader.setAttributeArray(
             colorLocation, GL_FLOAT, m_colors.constData(), 4);
+
+    // Standard alpha blending so the semi-transparent mid band mixes with the
+    // blue low beneath it (amber over blue -> brown), giving Rekordbox-like tonal
+    // gradation instead of 3 flat opaque colours.
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glDrawArrays(GL_TRIANGLES, 0, m_vertices.size());
 
