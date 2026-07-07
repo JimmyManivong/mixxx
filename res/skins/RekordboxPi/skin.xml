@@ -203,10 +203,20 @@
            high confidence) - #F2A63B is the exact pixel-perfect Rekordbox
            mid/amber. An earlier attempt to "deepen" this to #E8720B to fix
            a perceived paleness actually made it read as muddy brown,
-           reverted; a real legibility fix should target rendering (blend
-           alpha/smoothing), not the base color, if still needed. -->
-      <SetVariable name="SignalMidColor">#F2A63B</SetVariable><!-- exact Rekordbox amber / mids -->
-      <SetVariable name="SignalLowColor">#1F4DD8</SetVariable><!-- blue / bass -->
+           reverted - that attempt LOWERED value/brightness while shifting
+           hue toward red, which is the wrong direction on a washed-out
+           panel. CUSTOM (2026-07-06): screenshots proved the rendered
+           pixels already match Rekordbox exactly (#F2A63B/#1F4DD8/#F2EAD7,
+           sampled bit-for-bit identical) - the paleness is the Pi panel's
+           own gamut/backlight, invisible to a screenshot. This second
+           attempt pushes the OPPOSITE way from the reverted one: same hue,
+           but +saturation AND +brightness (F2A63B -> FEA221, S 0.76->0.87,
+           V 0.95->1.00; 1F4DD8 -> 043EEE, S 0.86->0.98, V 0.85->0.93) to
+           compensate for a panel that desaturates and dims, not one that
+           needs a different hue. Needs live confirmation on the real
+           screen, a screenshot can't show whether this actually helps. -->
+      <SetVariable name="SignalMidColor">#FEA221</SetVariable><!-- boosted amber / mids, was #F2A63B -->
+      <SetVariable name="SignalLowColor">#043EEE</SetVariable><!-- boosted blue / bass, was #1F4DD8 -->
       <!-- Rekordbox "3Band" waveform colours — the EXACT literal fill colours,
            sampled from a 2880x1800 Rekordbox-software capture (mode of 30k-44k
            pixels per band; Rekordbox fills each band with one solid colour):
