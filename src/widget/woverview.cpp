@@ -1558,15 +1558,6 @@ void WOverview::drawNextPixmapPartRGB(QPainter* pPainter,
             orangeH *= k;
             whiteH *= k;
         }
-        // Overall amplitude scale for the whole stacked column, applied AFTER
-        // the 255px clamp above so it actually shrinks loud/clipped columns
-        // too - applying it before the clamp did nothing for any column whose
-        // pre-scale total already exceeded 255/kOverallAmplitudeScale, since
-        // the clamp just renormalized those straight back up to 255.
-        constexpr float kOverallAmplitudeScale = 0.5f;
-        blueH *= kOverallAmplitudeScale;
-        orangeH *= kOverallAmplitudeScale;
-        whiteH *= kOverallAmplitudeScale;
 
         // y goes up (negative) from the baseline; stack blue -> orange -> white.
         const float x = currentCompletion / 2;

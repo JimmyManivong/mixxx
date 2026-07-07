@@ -99,8 +99,11 @@ void WaveformRendererThreeBand::paintGL() {
     // waveformwidgetrenderer.cpp), which made turning the channel trim shrink
     // or grow the waveform's height. Like the EQ kills below, the waveform
     // always shows the track's real content regardless of any live mixer
-    // control, so allGain is a fixed 1.0.
-    constexpr float allGain(1.0);
+    // control, so allGain is a fixed constant instead.
+    // CUSTOM (2026-07-07): lowered from 1.0 to shrink the scrolling waveform's
+    // overall height (all 3 bands scale together, so the low/mid/high ratio
+    // to each other - and the colour balance tuned above - stays identical).
+    constexpr float allGain(0.75);
 
     float gains[3];
     gains[kLowIdx] = kLowGain;
