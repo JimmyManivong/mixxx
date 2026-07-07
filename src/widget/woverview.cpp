@@ -1542,13 +1542,9 @@ void WOverview::drawNextPixmapPartRGB(QPainter* pPainter,
         constexpr float kLowGain  = 0.90f;
         constexpr float kMidGain  = 0.38f;
         constexpr float kHighGain = 0.45f;
-        // Overall amplitude scale for the whole stacked column (applied after
-        // the per-band gains above, so the blue/orange/white ratio to each
-        // other is unchanged - only the total height shrinks).
-        constexpr float kOverallAmplitudeScale = 0.7f;
-        float blueH   = lowF  * kLowGain * kOverallAmplitudeScale;
-        float orangeH = midF  * kMidGain * kOverallAmplitudeScale;
-        float whiteH  = highF * kHighGain * kOverallAmplitudeScale;
+        float blueH   = lowF  * kLowGain;
+        float orangeH = midF  * kMidGain;
+        float whiteH  = highF * kHighGain;
 
         float total = blueH + orangeH + whiteH;
         if (total <= 0.f) {
@@ -1562,6 +1558,15 @@ void WOverview::drawNextPixmapPartRGB(QPainter* pPainter,
             orangeH *= k;
             whiteH *= k;
         }
+        // Overall amplitude scale for the whole stacked column, applied AFTER
+        // the 255px clamp above so it actually shrinks loud/clipped columns
+        // too - applying it before the clamp did nothing for any column whose
+        // pre-scale total already exceeded 255/kOverallAmplitudeScale, since
+        // the clamp just renormalized those straight back up to 255.
+        constexpr float kOverallAmplitudeScale = 0.5f;
+        blueH *= kOverallAmplitudeScale;
+        orangeH *= kOverallAmplitudeScale;
+        whiteH *= kOverallAmplitudeScale;
 
         // y goes up (negative) from the baseline; stack blue -> orange -> white.
         const float x = currentCompletion / 2;
