@@ -14,13 +14,16 @@ constexpr int kMidIdx = 1;
 constexpr int kHighIdx = 2;
 // Gains balance the 3 overlapping bands (MAX data). At each pixel the band with
 // the largest gained height is the visible outer colour.
-// CUSTOM (2026-07-07, iteration 1): a fresh Rekordbox reference capture of
-// this exact track (Viento) shows the tan/orange mid body as the dominant
-// outer envelope, with blue only poking out as pointed accents above/below
-// at concentrated bass peaks - not a solid blue envelope with a thin orange
-// sliver, which is what parity (1.0/1.0) was producing. Lowering kLowGain
-// relative to kMidGain lets mid win the "tallest band" pixels more often.
-constexpr float kLowGain = 0.25f;
+// CUSTOM (2026-07-07, iteration 4): re-checked against the same Rekordbox
+// reference capture (Viento) zoomed on individual beats - blue is actually a
+// tall, near-full-height lobe on the attack of each beat, with orange trailing
+// behind at reduced height as the sustain decays. The iteration-1 reading
+// (mid dominant, blue as thin accents) was wrong; iteration-1's kLowGain=0.25
+// made blue nearly invisible even on a full-bass chorus. kLowGain is back
+// near parity with kMidGain so a real bass hit can reach full height; the
+// "accent, not solid block" look now comes from kBodyPeakMixLow below
+// (peakier -> sharp spike that decays fast) instead of from gain suppression.
+constexpr float kLowGain = 0.9f;
 constexpr float kMidGain = 1.0f;
 constexpr float kHighGain = 0.6f;
 // Alpha of the amber mid band. The same reference capture's mid color
@@ -37,6 +40,12 @@ constexpr float kMidBlendAlpha = 0.85f;
 // (loud=tall, quiet=short) like Rekordbox. 1.0 = old pure-peak look, 0.0 = pure
 // average. High band stays pure MAX so transient ticks keep their crispness.
 constexpr float kBodyPeakMix = 0.35f;
+// Low leans much closer to pure peak than mid: the reference capture's blue
+// is a sharp lobe that spikes on the beat attack and falls away fast, while
+// orange fills in the decaying sustain behind it. A low avg-heavy blend (like
+// mid's) would flatten that spike into the same rounded shape as the body
+// it's supposed to contrast with.
+constexpr float kBodyPeakMixLow = 0.85f;
 } // namespace
 
 WaveformRendererThreeBand::WaveformRendererThreeBand(
@@ -151,7 +160,7 @@ void WaveformRendererThreeBand::paintGL() {
         // energy envelope instead of a solid max block (see kBodyPeakMix above).
         const float avgLow = cnt ? static_cast<float>(sumLow) / cnt : 0.f;
         const float avgMid = cnt ? static_cast<float>(sumMid) / cnt : 0.f;
-        const float bodyLow = avgLow + (static_cast<float>(u8low) - avgLow) * kBodyPeakMix;
+        const float bodyLow = avgLow + (static_cast<float>(u8low) - avgLow) * kBodyPeakMixLow;
         const float bodyMid = avgMid + (static_cast<float>(u8mid) - avgMid) * kBodyPeakMix;
         m_bandHeight[kLowIdx][pos] = bodyLow * gains[kLowIdx];
         m_bandHeight[kMidIdx][pos] = bodyMid * gains[kMidIdx];
