@@ -147,10 +147,14 @@
             <Layout>vertical</Layout>
             <SizePolicy>me,min</SizePolicy>
             <Children>
+              <!-- Explicit heights everywhere in this column: the card is
+                   63px tall and Qt silently squeezes whichever child has no
+                   hard height when the sum overflows - which crushed the
+                   digits against the frame's bottom edge. -->
               <Label>
                 <ObjectName>CdjMiniBpmLabel</ObjectName>
                 <Text>BPM</Text>
-                <SizePolicy>me,f</SizePolicy>
+                <Size>0me,9f</Size>
                 <!-- Orange while this deck is the sync MASTER. Bound on
                      each child too (not just the box): a parent property
                      change doesn't re-polish children, so a descendant
@@ -162,7 +166,7 @@
               </Label>
               <Number>
                 <ObjectName>CdjMiniBpm</ObjectName>
-                <SizePolicy>me,f</SizePolicy>
+                <Size>0me,26f</Size>
                 <Alignment>right</Alignment>
                 <NumberOfDigits>1</NumberOfDigits>
                 <!-- CDJ look: "150" big, ".0" smaller (see wnumber.cpp) -->
@@ -175,6 +179,8 @@
                   <BindProperty>highlight</BindProperty>
                 </Connection>
               </Number>
+              <!-- CUSTOM: lifts the digits off the frame's bottom edge. -->
+              <WidgetGroup><Size>1min,2f</Size></WidgetGroup>
             </Children>
             <!-- Orange frame + digits while this deck is the sync MASTER -->
             <Connection>
@@ -182,8 +188,6 @@
               <BindProperty>highlight</BindProperty>
             </Connection>
           </WidgetGroup>
-
-          <WidgetGroup><Size>1min,2f</Size></WidgetGroup>
 
           <!-- Q (quantize toggle) | TEMPO RANGE (click cycles the range) -->
           <WidgetGroup>
@@ -193,7 +197,7 @@
               <PushButton>
                 <ObjectName>CdjMiniQuantize</ObjectName>
                 <TooltipId>quantize</TooltipId>
-                <Size>14f,12f</Size>
+                <Size>14f,11f</Size>
                 <NumberStates>2</NumberStates>
                 <State><Number>0</Number><Text>Q</Text></State>
                 <State><Number>1</Number><Text>Q</Text></State>
@@ -215,7 +219,7 @@
                        RANGE button (rate_range_cycle, ratecontrol.cpp) -->
                   <PushButton>
                     <ObjectName>CdjMiniRateRangeTap</ObjectName>
-                    <Size>36f,12f</Size>
+                    <Size>36f,11f</Size>
                     <NumberStates>1</NumberStates>
                     <Connection>
                       <ConfigKey><Variable name="Group"/>,rate_range_cycle</ConfigKey>
@@ -225,7 +229,7 @@
                   <RateRange>
                     <ObjectName>CdjMiniRateRange</ObjectName>
                     <TooltipId>rate_range_display</TooltipId>
-                    <Size>36f,12f</Size>
+                    <Size>36f,11f</Size>
                     <Alignment>right</Alignment>
                     <Group><Variable name="Group"/></Group>
                     <Display>cdj</Display>
@@ -246,7 +250,7 @@
               <NumberRate>
                 <ObjectName>CdjMiniBpmRate</ObjectName>
                 <TooltipId>rate_display</TooltipId>
-                <SizePolicy>min,f</SizePolicy>
+                <Size>46f,11f</Size>
                 <Alignment>right</Alignment>
                 <Group><Variable name="Group"/></Group>
                 <NumberOfDigits>2</NumberOfDigits>
@@ -254,7 +258,7 @@
               <Label>
                 <ObjectName>CdjMiniBpmRatePercentSign</ObjectName>
                 <Text>%</Text>
-                <SizePolicy>min,f</SizePolicy>
+                <Size>8f,11f</Size>
               </Label>
             </Children>
           </WidgetGroup>
