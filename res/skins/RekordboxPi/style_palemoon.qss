@@ -3462,20 +3462,39 @@ WLibraryTextBrowser {
   margin: 0px;
   padding: 2px 6px 2px 8px;
 }
-/* Per-deck blocks: flat, borderless, hairline divider between decks.
-   Deck 2 drops its divider when it's the last visible deck (2-deck mode)
-   via the isLastVisible property. */
+/* CUSTOM: per-deck blocks, merged into ONE continuous white-bordered
+   frame around the whole left column - same visual language as the Beat
+   FX column's #XdjFxBorderedBox on the right (was borderless here, which
+   read as a gap/missing frame compared to the rest of the interface).
+   Left/right sides are always "outer" edges since the 4 boxes stack
+   vertically; top/bottom outer edges + corner radius only apply to
+   whichever box is visually first/last (Deck 2 becomes the last box in
+   2-deck mode via isLastVisible, same pattern as the divider below). */
 #XdjFxBorderedBoxFirst, #XdjFxBorderedBoxSecond,
 #XdjFxBorderedBoxThird, #XdjFxBorderedBoxLast {
-  background-color: transparent;
-  border: none;
+  background-color: #16171b;
+  border-left: 1px solid #d8dade;
+  border-right: 1px solid #d8dade;
+  border-top: none;
   padding: 3px 2px;
 }
 #XdjFxBorderedBoxFirst, #XdjFxBorderedBoxSecond, #XdjFxBorderedBoxThird {
   border-bottom: 1px solid #26282d;
 }
 #XdjFxBorderedBoxSecond[isLastVisible="true"] {
-  border-bottom: none;
+  border-bottom: 1px solid #d8dade;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+}
+#XdjFxBorderedBoxFirst {
+  border-top: 1px solid #d8dade;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+}
+#XdjFxBorderedBoxLast {
+  border-bottom: 1px solid #d8dade;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
 }
 /* DECK 1 / DECK 2 header */
 #XdjDeckHeader {
