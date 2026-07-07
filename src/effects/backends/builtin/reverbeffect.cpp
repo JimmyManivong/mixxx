@@ -66,6 +66,19 @@ EffectManifestPointer ReverbEffect::getManifest() {
     send->setDefaultLinkInversion(EffectManifestParameter::LinkInversion::NotInverted);
     send->setRange(0, 0, 1);
 
+    // CUSTOM: the effect unit's meta-knob (which drives this Linked "send"
+    // parameter) defaults to 0.0 unless a manifest overrides it - see
+    // EffectManifest's constructor and EffectSlot::loadEffect(). Our skin
+    // has no LEVEL/MIX knob for this FX unit (matches the XDJ-AZ reference,
+    // which doesn't show one on this screen either), so nothing in the UI
+    // can ever move that knob away from 0 - meaning almost no signal ever
+    // reached the reverb tank, making it sound near-silent regardless of
+    // decay/bandwidth/damping. Default the meta-knob to full send instead,
+    // so loading/enabling Reverb is immediately, clearly audible like on
+    // real hardware where turning an effect "on" doesn't require first
+    // finding a separate level knob.
+    pManifest->setMetaknobDefault(1.0);
+
     return pManifest;
 }
 
