@@ -31,22 +31,23 @@
                 <Size>18f,16f</Size>
               </Label>
               <WidgetGroup><Size>5f,1min</Size></WidgetGroup>
-              <!-- CUSTOM: capped (not expanding) so ON AIR sits right after
-                   the title instead of being pushed to the far edge. -->
+              <!-- CUSTOM: expanding title (full remaining width, elided) -
+                   ON AIR is pushed against the row's right end, i.e. right
+                   next to the BPM frame, like the reference photo. -->
               <TrackProperty>
                 <ObjectName>CdjMiniTitle</ObjectName>
                 <Group><Variable name="Group"/></Group>
                 <Property>title</Property>
                 <ReadOnly>true</ReadOnly>
                 <Elide>right</Elide>
-                <SizePolicy>min,f</SizePolicy>
-                <MinimumSize>90,-1</MinimumSize>
-                <MaximumSize>110,-1</MaximumSize>
+                <SizePolicy>me,f</SizePolicy>
               </TrackProperty>
               <WidgetGroup><Size>6f,1min</Size></WidgetGroup>
 
               <!-- ON AIR badge, lit red while the deck plays (display-only:
-                   no ButtonState connection, so touching it does nothing). -->
+                   no ButtonState connection, so touching it does nothing).
+                   Sits at the row's right end, margin to the BPM frame is
+                   the left column's trailing 6f spacer. -->
               <PushButton>
                 <ObjectName>CdjMiniOnAir</ObjectName>
                 <Size>44f,16f</Size>
@@ -57,9 +58,6 @@
                   <ConfigKey><Variable name="Group"/>,play</ConfigKey>
                 </Connection>
               </PushButton>
-              <!-- CUSTOM: this trailing spacer (not the title) absorbs the
-                   row's leftover width, so ON AIR stays next to the title. -->
-              <WidgetGroup><SizePolicy>me,min</SizePolicy></WidgetGroup>
             </Children>
           </WidgetGroup>
 
