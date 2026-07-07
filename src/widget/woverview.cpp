@@ -1542,9 +1542,13 @@ void WOverview::drawNextPixmapPartRGB(QPainter* pPainter,
         constexpr float kLowGain  = 0.90f;
         constexpr float kMidGain  = 0.38f;
         constexpr float kHighGain = 0.45f;
-        float blueH   = lowF  * kLowGain;
-        float orangeH = midF  * kMidGain;
-        float whiteH  = highF * kHighGain;
+        // Overall amplitude scale for the whole stacked column (applied after
+        // the per-band gains above, so the blue/orange/white ratio to each
+        // other is unchanged - only the total height shrinks).
+        constexpr float kOverallAmplitudeScale = 0.7f;
+        float blueH   = lowF  * kLowGain * kOverallAmplitudeScale;
+        float orangeH = midF  * kMidGain * kOverallAmplitudeScale;
+        float whiteH  = highF * kHighGain * kOverallAmplitudeScale;
 
         float total = blueH + orangeH + whiteH;
         if (total <= 0.f) {
