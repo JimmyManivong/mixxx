@@ -14,6 +14,7 @@
 #include <QWidget>
 #include <QWindow>
 
+#include "control/controlobject.h"
 #include "moc_waveformwidgetfactory.cpp"
 #include "util/cmdlineargs.h"
 #include "util/math.h"
@@ -352,12 +353,35 @@ WaveformWidgetFactory::WaveformWidgetFactory()
 #endif
     evaluateWidgets();
     m_time.start();
+
+    // CUSTOM (CDJ-style browse knob): a relative-adjust control so a
+    // controller's browse encoder can zoom the waveform in/out when the
+    // library isn't focused (the existing zoom is otherwise only reachable
+    // via mouse wheel on WWaveformViewer, which nothing MIDI-side can reach).
+    // connectValueChangeRequest intercepts each incoming tick as a delta
+    // instead of it being stored as the control's persistent value.
+    m_pZoomAdjustControl = new ControlObject(ConfigKey("[Waveform]", "zoom_adjust"));
+    m_pZoomAdjustControl->connectValueChangeRequest(
+            this,
+            &WaveformWidgetFactory::slotZoomAdjustValueChangeRequest,
+            Qt::DirectConnection);
 }
 
 WaveformWidgetFactory::~WaveformWidgetFactory() {
     if (m_vsyncThread) {
         delete m_vsyncThread;
     }
+    delete m_pZoomAdjustControl;
+}
+
+void WaveformWidgetFactory::slotZoomAdjustValueChangeRequest(double value) {
+    // `value` is expected to already be a small signed per-tick delta (e.g.
+    // a controller script decoding a relative encoder the same way the
+    // <selectknob/> MIDI option does for [Library],MoveVertical), not a raw
+    // 0-127 MIDI value. Scaled down since the zoom range (1-40) is much
+    // narrower than a full knob sweep needs to feel controllable.
+    constexpr double kZoomStepPerTick = 0.5;
+    setDefaultZoom(m_defaultZoom + value * kZoomStepPerTick);
 }
 
 bool WaveformWidgetFactory::setConfig(UserSettingsPointer config) {

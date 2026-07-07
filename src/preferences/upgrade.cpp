@@ -41,6 +41,14 @@ WaveformWidgetType::Type upgradeToAllShaders(WaveformWidgetType::Type waveformTy
     case WWT::SoftwareWaveform:
     case WWT::GLVSyncTest:
     case WWT::QtVSyncTest:
+    case WWT::AllShaderThreeBandWaveform:
+    case WWT::Count_WaveformwidgetType:
+        return waveformType;
+    // CUSTOM: this fork only builds the AllShaderThreeBandWaveform widget
+    // (see waveformwidgetfactory.cpp); a saved preference pointing at any of
+    // these now-unbuilt types has no registered handle to fall back on and
+    // would otherwise silently degrade to EmptyWaveform (no visible
+    // waveform) rather than erroring, which is confusing to debug.
     case WWT::AllShaderRGBWaveform:
     case WWT::AllShaderLRRGBWaveform:
     case WWT::AllShaderFilteredWaveform:
@@ -50,9 +58,7 @@ WaveformWidgetType::Type upgradeToAllShaders(WaveformWidgetType::Type waveformTy
     case WWT::AllShaderTexturedFiltered:
     case WWT::AllShaderTexturedRGB:
     case WWT::AllShaderTexturedStacked:
-    case WWT::AllShaderThreeBandWaveform:
-    case WWT::Count_WaveformwidgetType:
-        return waveformType;
+        return WWT::AllShaderThreeBandWaveform;
     case WWT::QtSimpleWaveform:
     case WWT::GLSimpleWaveform:
         return WaveformWidgetType::AllShaderSimpleWaveform;

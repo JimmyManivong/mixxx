@@ -18,6 +18,7 @@ class WaveformWidgetAbstract;
 class VSyncThread;
 class GuiTick;
 class VisualsManager;
+class ControlObject;
 
 class WaveformWidgetAbstractHandle {
   public:
@@ -191,6 +192,10 @@ class WaveformWidgetFactory : public QObject, public Singleton<WaveformWidgetFac
     void swap();
     void swapAndRender();
     void slotFrameSwapped();
+    // CUSTOM (CDJ-style browse knob): relative zoom adjust, MIDI-mappable
+    // unlike the mouse-wheel-only zoom on WWaveformViewer. See
+    // m_pZoomAdjustControl below.
+    void slotZoomAdjustValueChangeRequest(double value);
 
   private:
     void renderSelf();
@@ -222,6 +227,8 @@ class WaveformWidgetFactory : public QObject, public Singleton<WaveformWidgetFac
     int m_endOfTrackWarningTime;
     double m_defaultZoom;
     bool m_zoomSync;
+    // CUSTOM (CDJ-style browse knob): see slotZoomAdjustValueChangeRequest.
+    ControlObject* m_pZoomAdjustControl;
     double m_visualGain[FilterCount];
     bool m_overviewNormalized;
 

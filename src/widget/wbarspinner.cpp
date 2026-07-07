@@ -47,9 +47,13 @@ void WBarSpinner::slotValueChanged(double v) {
 }
 
 void WBarSpinner::paintEvent(QPaintEvent* /*e*/) {
-    // beat_distance is inverted in this build (1.0 just after the beat, 0.0
-    // arriving at the next), so the forward progress within a beat is 1-value.
-    const double fraction = 1.0 - m_beatDistance.get();
+    // beat_distance is the engine's normal convention here (0.0 = on beat,
+    // 1.0 = almost at the next beat), i.e. already the forward progress
+    // within a beat - no inversion needed. (It used to be inverted upstream
+    // in BpmControl for this widget's benefit, but that corrupted the value
+    // the sync engine relies on; see the CUSTOM comment in
+    // BpmControl::updateBeatDistance.)
+    const double fraction = m_beatDistance.get();
     const int beatNumber = static_cast<int>(m_beatNumber.get());
     const int beatInBar = beatNumber > 0 ? (beatNumber - 1) % kBeatsPerBar : 0;
 
