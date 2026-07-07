@@ -3619,6 +3619,12 @@ WLibraryTextBrowser {
   font-weight: bold;
   padding: 0px 2px;
 }
+#CdjMiniBpmRate {
+  color: #7c828a;
+  font-size: 9px;
+  font-weight: bold;
+  padding: 0px 2px;
+}
 #CdjMiniBpmDown, #CdjMiniBpmUp {
   background-color: transparent;
   color: #6a7078;

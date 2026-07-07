@@ -165,6 +165,17 @@
                   </PushButton>
                 </Children>
               </WidgetGroup>
+              <!-- CUSTOM: CDJ/XDJ-style tempo % readout (like the +6/10/16/WIDE
+                   pitch fader range display) - shows how far the current
+                   playback rate is nudged from the track's stored BPM. -->
+              <NumberRate>
+                <ObjectName>CdjMiniBpmRate</ObjectName>
+                <TooltipId>rate_display</TooltipId>
+                <SizePolicy>min,f</SizePolicy>
+                <Alignment>right</Alignment>
+                <Group><Variable name="Group"/></Group>
+                <NumberOfDigits>1</NumberOfDigits>
+              </NumberRate>
               <WidgetGroup><SizePolicy>min,me</SizePolicy></WidgetGroup>
             </Children>
           </WidgetGroup>
