@@ -1,232 +1,269 @@
 <Template>
   <!-- CUSTOM XDJ-AZ preview panel for one deck, modeled on the reference's
-       4-Deck View cards: row 1 = badge + title + ON AIR badge; row 2 = big
-       REMAIN time | full-track overview | big framed BPM. No Play/Cue
-       buttons here - this is a preview/overview panel, transport is on the
-       hardware/deck strip, not duplicated here.
+       4-Deck View cards: left column = (badge + title + ON AIR) over
+       (big REMAIN time | full-track overview); right column = full-height
+       white-framed BPM box with Q/TEMPO-RANGE/pitch-% readouts under it.
+       No Play/Cue buttons here - this is a preview/overview panel,
+       transport is on the hardware/deck strip, not duplicated here.
        Caller: Group, DeckNum, DeckBadgeObj, MiniDeckBoxObj. -->
   <WidgetGroup>
     <ObjectName><Variable name="MiniDeckBoxObj"/></ObjectName>
-    <Layout>vertical</Layout>
+    <Layout>horizontal</Layout>
     <SizePolicy>me,me</SizePolicy>
     <Children>
 
-      <!-- Row: badge | title | ON AIR -->
+      <!-- CUSTOM: left column (title row + remain/overview row). The BPM
+           column sits beside it and spans the full card height, so its
+           digits aren't squashed into the overview row anymore. -->
       <WidgetGroup>
-        <Layout>horizontal</Layout>
-        <SizePolicy>me,min</SizePolicy>
-        <Children>
-          <Label>
-            <ObjectName><Variable name="DeckBadgeObj"/></ObjectName>
-            <Text><Variable name="DeckNum"/></Text>
-            <Size>18f,16f</Size>
-          </Label>
-          <WidgetGroup><Size>5f,1min</Size></WidgetGroup>
-          <!-- CUSTOM: capped (not expanding) so ON AIR sits right after the
-               title instead of being pushed to the far edge of the row. -->
-          <TrackProperty>
-            <ObjectName>CdjMiniTitle</ObjectName>
-            <Group><Variable name="Group"/></Group>
-            <Property>title</Property>
-            <ReadOnly>true</ReadOnly>
-            <Elide>right</Elide>
-            <SizePolicy>min,f</SizePolicy>
-            <MinimumSize>90,-1</MinimumSize>
-            <MaximumSize>110,-1</MaximumSize>
-          </TrackProperty>
-          <WidgetGroup><Size>6f,1min</Size></WidgetGroup>
-
-          <!-- ON AIR badge, lit red while the deck plays (display-only:
-               no ButtonState connection, so touching it does nothing). -->
-          <PushButton>
-            <ObjectName>CdjMiniOnAir</ObjectName>
-            <Size>44f,16f</Size>
-            <NumberStates>2</NumberStates>
-            <State><Number>0</Number><Text>ON AIR</Text></State>
-            <State><Number>1</Number><Text>ON AIR</Text></State>
-            <Connection>
-              <ConfigKey><Variable name="Group"/>,play</ConfigKey>
-            </Connection>
-          </PushButton>
-          <!-- CUSTOM: this trailing spacer (not the title) now absorbs the
-               row's leftover width, so ON AIR stays right after the title. -->
-          <WidgetGroup><SizePolicy>me,min</SizePolicy></WidgetGroup>
-        </Children>
-      </WidgetGroup>
-
-      <WidgetGroup><Size>1min,2f</Size></WidgetGroup>
-
-      <!-- Row: REMAIN time (big) | overview + phrase bar | BPM (big, framed) -->
-      <WidgetGroup>
-        <Layout>horizontal</Layout>
+        <Layout>vertical</Layout>
         <SizePolicy>me,me</SizePolicy>
         <Children>
 
-          <!-- REMAIN block -->
+          <!-- Row: badge | title | ON AIR -->
           <WidgetGroup>
-            <ObjectName>CdjMiniTimeBox</ObjectName>
-            <Layout>vertical</Layout>
-            <SizePolicy>min,me</SizePolicy>
+            <Layout>horizontal</Layout>
+            <SizePolicy>me,min</SizePolicy>
             <Children>
               <Label>
-                <ObjectName>CdjMiniTimeLabel</ObjectName>
-                <Text>REMAIN / TIME</Text>
-                <SizePolicy>min,f</SizePolicy>
+                <ObjectName><Variable name="DeckBadgeObj"/></ObjectName>
+                <Text><Variable name="DeckNum"/></Text>
+                <Size>18f,16f</Size>
               </Label>
-              <NumberPos>
-                <ObjectName>CdjMiniTime</ObjectName>
+              <WidgetGroup><Size>5f,1min</Size></WidgetGroup>
+              <!-- CUSTOM: capped (not expanding) so ON AIR sits right after
+                   the title instead of being pushed to the far edge. -->
+              <TrackProperty>
+                <ObjectName>CdjMiniTitle</ObjectName>
                 <Group><Variable name="Group"/></Group>
+                <Property>title</Property>
+                <ReadOnly>true</ReadOnly>
+                <Elide>right</Elide>
                 <SizePolicy>min,f</SizePolicy>
-                <Alignment>left</Alignment>
+                <MinimumSize>90,-1</MinimumSize>
+                <MaximumSize>110,-1</MaximumSize>
+              </TrackProperty>
+              <WidgetGroup><Size>6f,1min</Size></WidgetGroup>
+
+              <!-- ON AIR badge, lit red while the deck plays (display-only:
+                   no ButtonState connection, so touching it does nothing). -->
+              <PushButton>
+                <ObjectName>CdjMiniOnAir</ObjectName>
+                <Size>44f,16f</Size>
+                <NumberStates>2</NumberStates>
+                <State><Number>0</Number><Text>ON AIR</Text></State>
+                <State><Number>1</Number><Text>ON AIR</Text></State>
                 <Connection>
-                  <ConfigKey><Variable name="Group"/>,playposition</ConfigKey>
+                  <ConfigKey><Variable name="Group"/>,play</ConfigKey>
                 </Connection>
-              </NumberPos>
-              <WidgetGroup><SizePolicy>min,me</SizePolicy></WidgetGroup>
+              </PushButton>
+              <!-- CUSTOM: this trailing spacer (not the title) absorbs the
+                   row's leftover width, so ON AIR stays next to the title. -->
+              <WidgetGroup><SizePolicy>me,min</SizePolicy></WidgetGroup>
             </Children>
           </WidgetGroup>
 
-          <WidgetGroup><Size>6f,1min</Size></WidgetGroup>
+          <WidgetGroup><Size>1min,2f</Size></WidgetGroup>
 
-          <!-- Full-track overview (preview) + phrase-bar placeholder -->
+          <!-- Row: REMAIN time (big) | overview + phrase bar -->
           <WidgetGroup>
-            <Layout>vertical</Layout>
+            <Layout>horizontal</Layout>
             <SizePolicy>me,me</SizePolicy>
             <Children>
-              <Template src="skins:RekordboxPi/decks/overview.xml">
-                <SetVariable name="Group"><Variable name="Group"/></SetVariable>
-                <SetVariable name="SignalColor"><Variable name="SignalColor_12"/></SetVariable>
-                <SetVariable name="OverviewFontSize">8</SetVariable>
-              </Template>
-              <!-- CUSTOM: REAL Rekordbox-style phrase bar - a custom C++
-                   widget (WPhraseBar) rendering this track's musical
-                   structure sections computed by AnalyzerPhrase (qm-dsp
-                   ClusterMeltSegmenter). Sections of the same similarity
-                   cluster share a color, like the XDJ-AZ minus the
-                   semantic labels. Replaces the earlier static decorative
-                   color blocks. -->
-              <PhraseBar>
-                <ObjectName>XdjPhraseBar</ObjectName>
-                <Group><Variable name="Group"/></Group>
-                <SizePolicy>me,f</SizePolicy>
-                <MinimumSize>0,10</MinimumSize>
-                <MaximumSize>-1,10</MaximumSize>
-              </PhraseBar>
+
+              <!-- REMAIN block -->
+              <WidgetGroup>
+                <ObjectName>CdjMiniTimeBox</ObjectName>
+                <Layout>vertical</Layout>
+                <SizePolicy>min,me</SizePolicy>
+                <Children>
+                  <Label>
+                    <ObjectName>CdjMiniTimeLabel</ObjectName>
+                    <Text>REMAIN / TIME</Text>
+                    <SizePolicy>min,f</SizePolicy>
+                  </Label>
+                  <NumberPos>
+                    <ObjectName>CdjMiniTime</ObjectName>
+                    <Group><Variable name="Group"/></Group>
+                    <SizePolicy>min,f</SizePolicy>
+                    <Alignment>left</Alignment>
+                    <Connection>
+                      <ConfigKey><Variable name="Group"/>,playposition</ConfigKey>
+                    </Connection>
+                  </NumberPos>
+                  <WidgetGroup><SizePolicy>min,me</SizePolicy></WidgetGroup>
+                </Children>
+              </WidgetGroup>
+
+              <WidgetGroup><Size>6f,1min</Size></WidgetGroup>
+
+              <!-- Full-track overview (preview) + phrase-bar placeholder -->
+              <WidgetGroup>
+                <Layout>vertical</Layout>
+                <SizePolicy>me,me</SizePolicy>
+                <Children>
+                  <Template src="skins:RekordboxPi/decks/overview.xml">
+                    <SetVariable name="Group"><Variable name="Group"/></SetVariable>
+                    <SetVariable name="SignalColor"><Variable name="SignalColor_12"/></SetVariable>
+                    <SetVariable name="OverviewFontSize">8</SetVariable>
+                  </Template>
+                  <!-- CUSTOM: REAL Rekordbox-style phrase bar - a custom C++
+                       widget (WPhraseBar) rendering this track's musical
+                       structure sections computed by AnalyzerPhrase (qm-dsp
+                       ClusterMeltSegmenter). Sections of the same similarity
+                       cluster share a color, like the XDJ-AZ minus the
+                       semantic labels. Replaces the earlier static decorative
+                       color blocks. -->
+                  <PhraseBar>
+                    <ObjectName>XdjPhraseBar</ObjectName>
+                    <Group><Variable name="Group"/></Group>
+                    <SizePolicy>me,f</SizePolicy>
+                    <MinimumSize>0,10</MinimumSize>
+                    <MaximumSize>-1,10</MaximumSize>
+                  </PhraseBar>
+                </Children>
+              </WidgetGroup>
+
             </Children>
           </WidgetGroup>
 
-          <WidgetGroup><Size>6f,1min</Size></WidgetGroup>
+        </Children>
+      </WidgetGroup><!-- left column -->
 
-          <!-- Big framed BPM block with tiny -/+ nudge, like the reference's
-               boxed BPM readout on each 4-Deck View card. -->
+      <WidgetGroup><Size>6f,1min</Size></WidgetGroup>
+
+      <!-- CUSTOM: full-height BPM column, XDJ-AZ style: white framed BPM box
+           (frame + digits turn ORANGE while this deck is the sync MASTER),
+           then a Q (quantize toggle) + clickable TEMPO RANGE line
+           (+-6 / +-10 / +-16 / WIDE), then the current pitch offset in %. -->
+      <WidgetGroup>
+        <ObjectName>CdjMiniBpmCol</ObjectName>
+        <Layout>vertical</Layout>
+        <SizePolicy>min,me</SizePolicy>
+        <MinimumSize>78,-1</MinimumSize>
+        <MaximumSize>78,-1</MaximumSize>
+        <Children>
+
           <WidgetGroup>
             <ObjectName>CdjMiniBpmBox</ObjectName>
             <Layout>vertical</Layout>
-            <SizePolicy>min,me</SizePolicy>
+            <SizePolicy>me,min</SizePolicy>
             <Children>
               <Label>
                 <ObjectName>CdjMiniBpmLabel</ObjectName>
                 <Text>BPM</Text>
-                <SizePolicy>min,f</SizePolicy>
+                <SizePolicy>me,f</SizePolicy>
+                <!-- Orange while this deck is the sync MASTER. Bound on
+                     each child too (not just the box): a parent property
+                     change doesn't re-polish children, so a descendant
+                     QSS selector alone never refreshes their color. -->
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,sync_leader</ConfigKey>
+                  <BindProperty>highlight</BindProperty>
+                </Connection>
               </Label>
+              <Number>
+                <ObjectName>CdjMiniBpm</ObjectName>
+                <SizePolicy>me,f</SizePolicy>
+                <Alignment>right</Alignment>
+                <NumberOfDigits>1</NumberOfDigits>
+                <!-- CDJ look: "150" big, ".0" smaller (see wnumber.cpp) -->
+                <SmallDecimalsPx>12</SmallDecimalsPx>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,visual_bpm</ConfigKey>
+                </Connection>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,sync_leader</ConfigKey>
+                  <BindProperty>highlight</BindProperty>
+                </Connection>
+              </Number>
+            </Children>
+            <!-- Orange frame + digits while this deck is the sync MASTER -->
+            <Connection>
+              <ConfigKey><Variable name="Group"/>,sync_leader</ConfigKey>
+              <BindProperty>highlight</BindProperty>
+            </Connection>
+          </WidgetGroup>
+
+          <WidgetGroup><Size>1min,2f</Size></WidgetGroup>
+
+          <!-- Q (quantize toggle) | TEMPO RANGE (click cycles the range) -->
+          <WidgetGroup>
+            <Layout>horizontal</Layout>
+            <SizePolicy>me,min</SizePolicy>
+            <Children>
+              <PushButton>
+                <ObjectName>CdjMiniQuantize</ObjectName>
+                <TooltipId>quantize</TooltipId>
+                <Size>14f,12f</Size>
+                <NumberStates>2</NumberStates>
+                <State><Number>0</Number><Text>Q</Text></State>
+                <State><Number>1</Number><Text>Q</Text></State>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,quantize</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                </Connection>
+                <Connection>
+                  <ConfigKey><Variable name="Group"/>,quantize</ConfigKey>
+                </Connection>
+              </PushButton>
+              <WidgetGroup><SizePolicy>me,min</SizePolicy></WidgetGroup>
               <WidgetGroup>
-                <Layout>horizontal</Layout>
-                <SizePolicy>min,f</SizePolicy>
+                <Layout>stacked</Layout>
+                <SizePolicy>min,min</SizePolicy>
                 <Children>
+                  <!-- invisible click-catcher over the range readout:
+                       each press cycles rateRange like a CDJ's TEMPO
+                       RANGE button (rate_range_cycle, ratecontrol.cpp) -->
                   <PushButton>
-                    <ObjectName>CdjMiniBpmDown</ObjectName>
-                    <Size>18f,18f</Size>
+                    <ObjectName>CdjMiniRateRangeTap</ObjectName>
+                    <Size>36f,12f</Size>
                     <NumberStates>1</NumberStates>
-                    <State><Number>0</Number><Text>&#8722;</Text></State>
                     <Connection>
-                      <!-- CUSTOM: was beats_adjust_slower, which only nudges
-                           the stored beatgrid BPM by 0.01 (a track-analysis
-                           correction) - imperceptible and NOT a speed change.
-                           rate_perm_down is the real CDJ-style TEMPO- nudge:
-                           it moves the actual playback rate slider. -->
-                      <ConfigKey><Variable name="Group"/>,rate_perm_down</ConfigKey>
+                      <ConfigKey><Variable name="Group"/>,rate_range_cycle</ConfigKey>
                       <ButtonState>LeftButton</ButtonState>
                     </Connection>
                   </PushButton>
-                  <Number>
-                    <ObjectName>CdjMiniBpm</ObjectName>
-                    <SizePolicy>min,f</SizePolicy>
-                    <Alignment>right</Alignment>
-                    <NumberOfDigits>1</NumberOfDigits>
-                    <Connection>
-                      <ConfigKey><Variable name="Group"/>,visual_bpm</ConfigKey>
-                    </Connection>
-                  </Number>
-                  <PushButton>
-                    <ObjectName>CdjMiniBpmUp</ObjectName>
-                    <Size>18f,18f</Size>
-                    <NumberStates>1</NumberStates>
-                    <State><Number>0</Number><Text>+</Text></State>
-                    <Connection>
-                      <!-- CUSTOM: was beats_adjust_faster - see CdjMiniBpmDown
-                           comment above. rate_perm_up is the real TEMPO+
-                           nudge. -->
-                      <ConfigKey><Variable name="Group"/>,rate_perm_up</ConfigKey>
-                      <ButtonState>LeftButton</ButtonState>
-                    </Connection>
-                  </PushButton>
-                </Children>
-              </WidgetGroup>
-              <!-- CUSTOM: CDJ/XDJ-style tempo range + % readout, like the
-                   real hardware's "Q ±10" (pitch fader range) / "+2.40%"
-                   (current pitch offset) stacked under the BPM box. -->
-              <WidgetGroup>
-                <ObjectName>CdjMiniRateRangeRow</ObjectName>
-                <Layout>horizontal</Layout>
-                <SizePolicy>min,f</SizePolicy>
-                <Children>
-                  <Label>
-                    <ObjectName>CdjMiniRateRangeQ</ObjectName>
-                    <Text>Q</Text>
-                    <SizePolicy>min,f</SizePolicy>
-                  </Label>
-                  <Label>
-                    <ObjectName>CdjMiniRateRangePm</ObjectName>
-                    <Text>&#177;</Text>
-                    <SizePolicy>min,f</SizePolicy>
-                  </Label>
                   <RateRange>
                     <ObjectName>CdjMiniRateRange</ObjectName>
                     <TooltipId>rate_range_display</TooltipId>
-                    <SizePolicy>min,f</SizePolicy>
+                    <Size>36f,12f</Size>
                     <Alignment>right</Alignment>
                     <Group><Variable name="Group"/></Group>
-                    <Display>range</Display>
+                    <Display>cdj</Display>
                     <NumberOfDigits>0</NumberOfDigits>
                   </RateRange>
                 </Children>
               </WidgetGroup>
-              <WidgetGroup>
-                <ObjectName>CdjMiniRatePercentRow</ObjectName>
-                <Layout>horizontal</Layout>
-                <SizePolicy>min,f</SizePolicy>
-                <Children>
-                  <NumberRate>
-                    <ObjectName>CdjMiniBpmRate</ObjectName>
-                    <TooltipId>rate_display</TooltipId>
-                    <SizePolicy>min,f</SizePolicy>
-                    <Alignment>right</Alignment>
-                    <Group><Variable name="Group"/></Group>
-                    <NumberOfDigits>2</NumberOfDigits>
-                  </NumberRate>
-                  <Label>
-                    <ObjectName>CdjMiniBpmRatePercentSign</ObjectName>
-                    <Text>%</Text>
-                    <SizePolicy>min,f</SizePolicy>
-                  </Label>
-                </Children>
-              </WidgetGroup>
-              <WidgetGroup><SizePolicy>min,me</SizePolicy></WidgetGroup>
             </Children>
           </WidgetGroup>
 
+          <!-- Current pitch offset, like the reference's "+2.40%" -->
+          <WidgetGroup>
+            <ObjectName>CdjMiniRatePercentRow</ObjectName>
+            <Layout>horizontal</Layout>
+            <SizePolicy>me,min</SizePolicy>
+            <Children>
+              <WidgetGroup><SizePolicy>me,min</SizePolicy></WidgetGroup>
+              <NumberRate>
+                <ObjectName>CdjMiniBpmRate</ObjectName>
+                <TooltipId>rate_display</TooltipId>
+                <SizePolicy>min,f</SizePolicy>
+                <Alignment>right</Alignment>
+                <Group><Variable name="Group"/></Group>
+                <NumberOfDigits>2</NumberOfDigits>
+              </NumberRate>
+              <Label>
+                <ObjectName>CdjMiniBpmRatePercentSign</ObjectName>
+                <Text>%</Text>
+                <SizePolicy>min,f</SizePolicy>
+              </Label>
+            </Children>
+          </WidgetGroup>
+
+          <WidgetGroup><SizePolicy>min,me</SizePolicy></WidgetGroup>
         </Children>
-      </WidgetGroup>
+      </WidgetGroup><!-- CdjMiniBpmCol -->
 
     </Children>
     <!-- Only meaningful on the top row's boxes (XdjMiniBoxTopLeft/TopRight):

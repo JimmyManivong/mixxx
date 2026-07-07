@@ -86,6 +86,7 @@ public slots:
   void slotControlRatePermDownSmall(double);
   void slotControlRatePermUp(double);
   void slotControlRatePermUpSmall(double);
+  void slotControlRateRangeCycle(double);
   void slotControlFastForward(double);
   void slotControlFastBack(double);
 
@@ -121,6 +122,7 @@ private:
   ControlPushButton* m_pButtonRatePermDownSmall;
   ControlPushButton* m_pButtonRatePermUp;
   ControlPushButton* m_pButtonRatePermUpSmall;
+  ControlPushButton* m_pButtonRateRangeCycle;
 
   ControlObject* m_pRateRatio;
   ControlObject* m_pRateDir;

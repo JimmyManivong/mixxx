@@ -12,7 +12,10 @@ enum class VerticalPosition {
 enum class DisplayType {
     Default,
     Prefix,
-    Range
+    Range,
+    // CUSTOM (RekordboxPi): Pioneer TEMPO RANGE readout - renders the range
+    // as +-6 / +-10 / +-16, or WIDE once the range reaches (nearly) +-100%.
+    Cdj
 };
 
 class WRateRange : public WNumber {
