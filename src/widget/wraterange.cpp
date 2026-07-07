@@ -28,10 +28,16 @@ void WRateRange::setup(const QDomNode& node, const SkinContext& context) {
         m_nodeDisplay = DisplayType::Prefix;
     } else if (RateRangeType.text() == "range") {
         m_nodeDisplay = DisplayType::Range;
+    } else if (RateRangeType.text() == "cdj") {
+        m_nodeDisplay = DisplayType::Cdj;
     } else {
         m_nodeDisplay = DisplayType::Default;
     }
-    setAlignment(Qt::AlignCenter);
+    if (m_nodeDisplay != DisplayType::Cdj) {
+        // Legacy behaviour. The Cdj display keeps the skin's <Alignment>
+        // instead, so it can be right-aligned under the BPM box.
+        setAlignment(Qt::AlignCenter);
+    }
 
     // Initialize the widget (overrides the base class initial value).
     const double range = m_pRateRangeControl->get();
@@ -61,6 +67,14 @@ void WRateRange::setValue(double range) {
         m_nodeText = prefix;
     } else if (m_nodeDisplay == DisplayType::Range) {
         m_nodeText = QString::number(range * 100);
+    } else if (m_nodeDisplay == DisplayType::Cdj) {
+        // Pioneer TEMPO RANGE readout. 0.89 rather than exactly 1.0 so a
+        // range tweaked from the preferences (e.g. 90%) still reads WIDE.
+        if (range >= 0.89) {
+            m_nodeText = QStringLiteral("WIDE");
+        } else {
+            m_nodeText = QChar(0x00B1) + QString::number(qRound(range * 100));
+        }
     } else {
         m_nodeText = prefix.append(QString::number(range * 100));
     }

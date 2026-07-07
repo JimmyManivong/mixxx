@@ -17,4 +17,8 @@ class WNumber : public WLabel  {
   protected:
     // Number of digits to round to.
     int m_iNoDigits;
+    // CUSTOM (RekordboxPi): when > 0, the decimal part (dot included) is
+    // rendered at this pixel size via rich text, smaller than the integer
+    // part - the CDJ/XDJ BPM readout look ("150" big, ".0" small).
+    int m_iSmallDecimalsPx;
 };

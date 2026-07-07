@@ -1,6 +1,8 @@
 #include "engine/controls/ratecontrol.h"
 
 #include <QtDebug>
+#include <array>
+#include <cmath>
 
 #include "control/controlobject.h"
 #include "control/controlpotmeter.h"
@@ -123,6 +125,18 @@ RateControl::RateControl(const QString& group,
             Qt::DirectConnection);
     m_pButtonRatePermUp->setKbdRepeatable(true);
 
+    // CUSTOM (RekordboxPi skin): CDJ-style TEMPO RANGE cycle button. Each
+    // press steps the pitch fader range through the Pioneer set
+    // +-6% -> +-10% -> +-16% -> WIDE (+-100%), wrapping around, exactly like
+    // tapping the TEMPO RANGE button on a CDJ/XDJ.
+    m_pButtonRateRangeCycle =
+            new ControlPushButton(ConfigKey(group, "rate_range_cycle"));
+    connect(m_pButtonRateRangeCycle,
+            &ControlObject::valueChanged,
+            this,
+            &RateControl::slotControlRateRangeCycle,
+            Qt::DirectConnection);
+
     m_pButtonRatePermUpSmall =
         new ControlPushButton(ConfigKey(group,"rate_perm_up_small"));
     connect(m_pButtonRatePermUpSmall, &ControlObject::valueChanged,
@@ -204,6 +218,7 @@ RateControl::~RateControl() {
     delete m_pButtonRatePermDownSmall;
     delete m_pButtonRatePermUp;
     delete m_pButtonRatePermUpSmall;
+    delete m_pButtonRateRangeCycle;
 
     delete m_pWheel;
     delete m_pScratch2;
@@ -364,6 +379,27 @@ void RateControl::slotControlRatePermUpSmall(double v) {
                            m_pRateDir->get() * m_dPermanentRateChangeFine.getValue() / (100. * m_pRateRange->get()));
         slotRateSliderChanged(m_pRateSlider->get());
     }
+}
+
+void RateControl::slotControlRateRangeCycle(double v) {
+    if (v <= 0.0) {
+        return;
+    }
+    // Pioneer TEMPO RANGE steps; WIDE is +-100% on CDJs.
+    constexpr std::array<double, 4> kRanges = {0.06, 0.10, 0.16, 1.00};
+    const double current = m_pRateRange->get();
+    // Find the entry closest to the current range (it may have been set to
+    // an arbitrary value from the preferences), then step to the next one.
+    std::size_t closest = 0;
+    for (std::size_t i = 1; i < kRanges.size(); ++i) {
+        if (std::abs(kRanges[i] - current) < std::abs(kRanges[closest] - current)) {
+            closest = i;
+        }
+    }
+    // The valueChanged connection on m_pRateRange (slotRateRangeChanged)
+    // rescales the slider from the unchanged rate_ratio, so the audible
+    // tempo is preserved across the switch like on real CDJs.
+    m_pRateRange->set(kRanges[(closest + 1) % kRanges.size()]);
 }
 
 double RateControl::getWheelFactor() const {

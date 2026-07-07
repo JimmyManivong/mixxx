@@ -3601,47 +3601,59 @@ WLibraryTextBrowser {
   color: #ffffff;
   border: 1px solid #d02a1e;
 }
-/* Big framed BPM readout, like the reference's boxed BPM on each card. */
+/* Big framed BPM readout, XDJ-AZ style: WHITE frame around BPM label +
+   digits; the whole box turns ORANGE while this deck is the sync MASTER. */
 #CdjMiniBpmBox {
   background-color: transparent;
-  border: 1px solid #8a8f98;
-  border-radius: 2px;
-  padding: 1px 6px;
+  border: 2px solid #e8eaed;
+  border-radius: 3px;
+  padding: 0px 3px;
+}
+#CdjMiniBpmBox[highlight="1"] {
+  border-color: #f5a623;
 }
 #CdjMiniBpmLabel {
-  color: #7c828a;
-  font-size: 9px;
+  color: #e8eaed;
+  font-size: 8px;
   font-weight: bold;
 }
 #CdjMiniBpm {
   color: #ffffff;
-  font-size: 23px;
+  font-size: 20px;
   font-weight: bold;
-  padding: 0px 2px;
 }
-#CdjMiniRateRangeQ, #CdjMiniRateRangePm, #CdjMiniRateRange {
-  color: #e8823c;
-  font-size: 7px;
-  font-weight: bold;
-  padding: 0px;
+#CdjMiniBpmLabel[highlight="1"],
+#CdjMiniBpm[highlight="1"] {
+  color: #f5a623;
 }
-#CdjMiniBpmRate, #CdjMiniBpmRatePercentSign {
-  color: #f2b8b8;
-  font-size: 8px;
-  font-weight: bold;
-  padding: 0px;
-}
-#CdjMiniBpmDown, #CdjMiniBpmUp {
+/* Q = quantize toggle under the BPM box: dim when off, lit when on. */
+#CdjMiniQuantize {
   background-color: transparent;
-  color: #6a7078;
+  color: #4a4e55;
   border: none;
-  border-radius: 3px;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: bold;
 }
-#CdjMiniBpmDown:pressed, #CdjMiniBpmUp:pressed {
-  background-color: #2bb6ff;
+#CdjMiniQuantize[displayValue="1"] {
+  color: #e8a33c;
+}
+/* TEMPO RANGE readout (a click cycles +-6 / +-10 / +-16 / WIDE). */
+#CdjMiniRateRangeTap {
+  background-color: transparent;
+  border: none;
+}
+#CdjMiniRateRange {
+  background-color: transparent;
+  color: #e0685a;
+  font-size: 10px;
+  font-weight: bold;
+}
+/* Current pitch offset, white like the reference's "+2.40%". */
+#CdjMiniBpmRate, #CdjMiniBpmRatePercentSign {
   color: #ffffff;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 0px;
 }
 
 /* ── Sidebar: deck color square + eject (reference header row) ── */
