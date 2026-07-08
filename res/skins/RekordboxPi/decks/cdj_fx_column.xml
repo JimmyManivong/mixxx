@@ -36,42 +36,6 @@
 
       <WidgetGroup><Size>1min,2f</Size></WidgetGroup>
 
-      <!-- "BEAT FX" - outside/above the bordered box -->
-      <WidgetGroup>
-        <Layout>horizontal</Layout>
-        <SizePolicy>me,f</SizePolicy>
-        <MinimumSize>0,14</MinimumSize>
-        <MaximumSize>-1,14</MaximumSize>
-        <Children>
-          <WidgetGroup><Size>1me,0min</Size></WidgetGroup>
-          <Label>
-            <ObjectName>XdjFxSectionLabel</ObjectName>
-            <Text>BEAT FX</Text>
-            <Alignment>center</Alignment>
-            <SizePolicy>max,f</SizePolicy>
-          </Label>
-          <WidgetGroup><Size>1me,0min</Size></WidgetGroup>
-          <PushButton>
-            <ObjectName>XdjFxOnSmall</ObjectName>
-            <SizePolicy>max,f</SizePolicy>
-            <MinimumSize>22,12</MinimumSize>
-            <MaximumSize>22,12</MaximumSize>
-            <NumberStates>2</NumberStates>
-            <State><Number>0</Number><Text>OFF</Text><Alignment>center</Alignment></State>
-            <State><Number>1</Number><Text>ON</Text><Alignment>center</Alignment></State>
-            <Connection>
-              <ConfigKey>[EffectRack1_EffectUnit1_Effect1],enabled</ConfigKey>
-              <ButtonState>LeftButton</ButtonState>
-            </Connection>
-            <Connection>
-              <ConfigKey>[EffectRack1_EffectUnit1_Effect1],enabled</ConfigKey>
-            </Connection>
-          </PushButton>
-        </Children>
-      </WidgetGroup>
-
-      <WidgetGroup><Size>1min,3f</Size></WidgetGroup>
-
       <!-- ═══════ White-bordered box (everything below to the division
            row lives inside this single frame, like the reference) ═══════ -->
       <WidgetGroup>
@@ -79,6 +43,44 @@
         <Layout>vertical</Layout>
         <SizePolicy>me,me</SizePolicy>
         <Children>
+
+          <WidgetGroup><Size>1min,2f</Size></WidgetGroup>
+
+          <!-- "BEAT FX" title row - moved INSIDE the frame per user request
+               (was outside/above it). -->
+          <WidgetGroup>
+            <Layout>horizontal</Layout>
+            <SizePolicy>me,f</SizePolicy>
+            <MinimumSize>0,14</MinimumSize>
+            <MaximumSize>-1,14</MaximumSize>
+            <Children>
+              <WidgetGroup><Size>1me,0min</Size></WidgetGroup>
+              <Label>
+                <ObjectName>XdjFxSectionLabel</ObjectName>
+                <Text>BEAT FX</Text>
+                <Alignment>center</Alignment>
+                <SizePolicy>max,f</SizePolicy>
+              </Label>
+              <WidgetGroup><Size>1me,0min</Size></WidgetGroup>
+              <PushButton>
+                <ObjectName>XdjFxOnSmall</ObjectName>
+                <SizePolicy>max,f</SizePolicy>
+                <MinimumSize>22,12</MinimumSize>
+                <MaximumSize>22,12</MaximumSize>
+                <NumberStates>2</NumberStates>
+                <State><Number>0</Number><Text>OFF</Text><Alignment>center</Alignment></State>
+                <State><Number>1</Number><Text>ON</Text><Alignment>center</Alignment></State>
+                <Connection>
+                  <ConfigKey>[EffectRack1_EffectUnit1_Effect1],enabled</ConfigKey>
+                  <ButtonState>LeftButton</ButtonState>
+                </Connection>
+                <Connection>
+                  <ConfigKey>[EffectRack1_EffectUnit1_Effect1],enabled</ConfigKey>
+                </Connection>
+              </PushButton>
+              <WidgetGroup><Size>4f,0min</Size></WidgetGroup>
+            </Children>
+          </WidgetGroup>
 
           <WidgetGroup><Size>1min,4me</Size></WidgetGroup>
 
