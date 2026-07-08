@@ -5,8 +5,8 @@
 #include <QInputDialog>
 #include <QMessageBox>
 
-#include "effects/backends/builtin/biquadfullkilleqeffect.h"
 #include "effects/backends/builtin/filtereffect.h"
+#include "effects/backends/builtin/threebandbiquadeqeffect.h"
 #include "effects/backends/effectmanifest.h"
 #include "effects/effectchain.h"
 #include "effects/presets/effectchainpreset.h"
@@ -685,8 +685,15 @@ EffectChainPresetPointer EffectChainPresetManager::createEmptyNamelessChainPrese
 }
 
 EffectManifestPointer EffectChainPresetManager::getDefaultEqEffect() {
+    // CUSTOM: stock Mixxx defaults to BiquadFullKillEQEffect, whose low-band
+    // cut is a near-total kill - too aggressive for this fork ("etouffe la
+    // musique"). Default to ThreeBandBiquadEQEffect instead (modeled on the
+    // Xone:23, max cut -26dB, no true kill) so a fresh install/rebuild on
+    // any machine gets the gentler curve without needing a hand-edited
+    // ~/.mixxx/effects.xml (which isn't version-controlled and was the only
+    // place this choice lived before this fix).
     EffectManifestPointer pDefaultEqEffect = m_pBackendManager->getManifest(
-            BiquadFullKillEQEffect::getId(), EffectBackendType::BuiltIn);
+            ThreeBandBiquadEQEffect::getId(), EffectBackendType::BuiltIn);
     DEBUG_ASSERT(!pDefaultEqEffect.isNull());
     return pDefaultEqEffect;
 }
