@@ -201,7 +201,10 @@
             </Connection>
           </WidgetGroup>
 
-          <!-- Q (quantize toggle) | TEMPO RANGE (click cycles the range) -->
+          <!-- Q (quantize toggle) | TEMPO RANGE (click cycles the range).
+               CUSTOM: hidden with no track loaded - these read a real
+               per-deck rate/quantize state, so showing "Q +-8" on an empty
+               deck looked like stale data rather than an empty slot. -->
           <WidgetGroup>
             <Layout>horizontal</Layout>
             <SizePolicy>me,min</SizePolicy>
@@ -250,9 +253,14 @@
                 </Children>
               </WidgetGroup>
             </Children>
+            <Connection>
+              <ConfigKey><Variable name="Group"/>,track_loaded</ConfigKey>
+              <BindProperty>visible</BindProperty>
+            </Connection>
           </WidgetGroup>
 
-          <!-- Current pitch offset, like the reference's "+2.40%" -->
+          <!-- Current pitch offset, like the reference's "+2.40%".
+               CUSTOM: hidden with no track loaded (see note above). -->
           <WidgetGroup>
             <ObjectName>CdjMiniRatePercentRow</ObjectName>
             <Layout>horizontal</Layout>
@@ -273,6 +281,10 @@
                 <Size>8f,11f</Size>
               </Label>
             </Children>
+            <Connection>
+              <ConfigKey><Variable name="Group"/>,track_loaded</ConfigKey>
+              <BindProperty>visible</BindProperty>
+            </Connection>
           </WidgetGroup>
 
           <WidgetGroup><SizePolicy>min,me</SizePolicy></WidgetGroup>
