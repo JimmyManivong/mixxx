@@ -34,8 +34,12 @@
     <LabelBackgroundColor>0,0,0,255</LabelBackgroundColor>
     <LabelBackgroundColor>#aa000000</LabelBackgroundColor>
     <LabelBackgroundColor>0,0,0,255</LabelBackgroundColor-->
+    <!-- CUSTOM: hotcue tags (auto-generated from this DefaultMark, one per
+         hotcue - see WaveformMarkSet::setup) sit ABOVE the waveform with
+         their own colored tag, like the reference XDJ-AZ preview strip,
+         instead of the stock bottom|right plain-number placement. -->
     <DefaultMark>
-      <Align>bottom|right</Align>
+      <Align>top|center</Align>
       <Color>#FF0000</Color>
       <TextColor>#FFFFFF</TextColor>
       <Text> %1 </Text>

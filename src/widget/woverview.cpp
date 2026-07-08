@@ -447,12 +447,18 @@ void WOverview::updateCues(const QList<CuePointer> &loadedCues) {
             if ((currentCue->getType() == mixxx::CueType::HotCue ||
                         currentCue->getType() == mixxx::CueType::Loop) &&
                     hotcueNumber != Cue::kNoHotCue) {
-                // Prepend the hotcue number to hotcues' labels
+                // CUSTOM (RekordboxPi): letter it like real Pioneer gear
+                // (A, B, C...) instead of a plain number - falls back to the
+                // number past 'Z' (26 hotcues), which no real CDJ/XDJ ever
+                // shows anyway (rekordbox itself stops at H, 8 hotcues).
+                const QString hotcueTag = hotcueNumber < 26
+                        ? QString(QChar('A' + hotcueNumber))
+                        : QString::number(hotcueNumber + 1);
                 QString newLabel = currentCue->getLabel();
                 if (newLabel.isEmpty()) {
-                    newLabel = QString::number(hotcueNumber + 1);
+                    newLabel = hotcueTag;
                 } else {
-                    newLabel = QString("%1: %2").arg(hotcueNumber + 1).arg(newLabel);
+                    newLabel = QString("%1: %2").arg(hotcueTag, newLabel);
                 }
 
                 if (pMark->m_text != newLabel) {
