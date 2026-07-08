@@ -3627,7 +3627,7 @@ WLibraryTextBrowser {
 }
 #CdjMiniBpm {
   color: #ffffff;
-  font-size: 20px;
+  font-size: 15px;
   font-weight: bold;
 }
 #CdjMiniBpmLabel[highlight="1"],

@@ -145,7 +145,15 @@
           <WidgetGroup>
             <ObjectName>CdjMiniBpmBox</ObjectName>
             <Layout>vertical</Layout>
-            <SizePolicy>me,min</SizePolicy>
+            <!-- CUSTOM: "min" (Minimum) still has Qt's grow flag set, so
+                 this box was stretching tall to soak up the column's
+                 leftover vertical space instead of the trailing spacer -
+                 which pushed the label+digits down/centered inside a much
+                 taller white frame than their own content needed. "max"
+                 (Maximum) can shrink but never grows past its children's
+                 natural height, so the frame now hugs the BPM digits and
+                 the freed space actually reaches the Q/range row below. -->
+            <SizePolicy>me,max</SizePolicy>
             <Children>
               <!-- Explicit heights everywhere in this column: the card is
                    63px tall and Qt silently squeezes whichever child has no
@@ -174,7 +182,7 @@
                 <Alignment>right</Alignment>
                 <NumberOfDigits>1</NumberOfDigits>
                 <!-- CDJ look: "150" big, ".0" smaller (see wnumber.cpp) -->
-                <SmallDecimalsPx>12</SmallDecimalsPx>
+                <SmallDecimalsPx>9</SmallDecimalsPx>
                 <Connection>
                   <ConfigKey><Variable name="Group"/>,visual_bpm</ConfigKey>
                 </Connection>
