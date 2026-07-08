@@ -3106,6 +3106,14 @@ WSearchLineEdit::item:selected,
     border-radius: 1px;
     border: 0px;
     outline: none;
+    /* CUSTOM: this skin's only WEffectSelector (#XdjFxName, the CDJ-style
+       effect name box) sets its own closed-box font to a huge 20px; an
+       ID-scoped "#XdjFxName QAbstractItemView" rule didn't override that
+       for the open dropdown (Qt doesn't cascade into the popup view that
+       way), so the list rendered at 20px too. Set it here instead, on the
+       selector that's confirmed to actually reach the popup. */
+    font-size: 11px;
+    font-weight: bold;
   }
   /* checked item */
   WEffectSelector::item:checked,
