@@ -150,7 +150,10 @@
               <!-- Explicit heights everywhere in this column: the card is
                    63px tall and Qt silently squeezes whichever child has no
                    hard height when the sum overflows - which crushed the
-                   digits against the frame's bottom edge. -->
+                   digits against the frame's bottom edge.
+                   CUSTOM: BPM frame shrunk a bit (26->22 digits, 2->1 lift)
+                   to give the Q/TEMPO-RANGE row below it more tap height
+                   (11->15) - it holds the actual quantize/range buttons. -->
               <Label>
                 <ObjectName>CdjMiniBpmLabel</ObjectName>
                 <Text>BPM</Text>
@@ -166,7 +169,7 @@
               </Label>
               <Number>
                 <ObjectName>CdjMiniBpm</ObjectName>
-                <Size>0me,26f</Size>
+                <Size>0me,22f</Size>
                 <Alignment>right</Alignment>
                 <NumberOfDigits>1</NumberOfDigits>
                 <!-- CDJ look: "150" big, ".0" smaller (see wnumber.cpp) -->
@@ -180,7 +183,7 @@
                 </Connection>
               </Number>
               <!-- CUSTOM: lifts the digits off the frame's bottom edge. -->
-              <WidgetGroup><Size>1min,2f</Size></WidgetGroup>
+              <WidgetGroup><Size>1min,1f</Size></WidgetGroup>
             </Children>
             <!-- Orange frame + digits while this deck is the sync MASTER -->
             <Connection>
@@ -197,7 +200,7 @@
               <PushButton>
                 <ObjectName>CdjMiniQuantize</ObjectName>
                 <TooltipId>quantize</TooltipId>
-                <Size>14f,11f</Size>
+                <Size>14f,15f</Size>
                 <NumberStates>2</NumberStates>
                 <State><Number>0</Number><Text>Q</Text></State>
                 <State><Number>1</Number><Text>Q</Text></State>
@@ -219,7 +222,7 @@
                        RANGE button (rate_range_cycle, ratecontrol.cpp) -->
                   <PushButton>
                     <ObjectName>CdjMiniRateRangeTap</ObjectName>
-                    <Size>36f,11f</Size>
+                    <Size>36f,15f</Size>
                     <NumberStates>1</NumberStates>
                     <Connection>
                       <ConfigKey><Variable name="Group"/>,rate_range_cycle</ConfigKey>
@@ -229,7 +232,7 @@
                   <RateRange>
                     <ObjectName>CdjMiniRateRange</ObjectName>
                     <TooltipId>rate_range_display</TooltipId>
-                    <Size>36f,11f</Size>
+                    <Size>36f,15f</Size>
                     <Alignment>right</Alignment>
                     <Group><Variable name="Group"/></Group>
                     <Display>cdj</Display>
