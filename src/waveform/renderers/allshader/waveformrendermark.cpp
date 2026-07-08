@@ -520,16 +520,21 @@ void allshader::WaveformRenderMark::updateUntilMark(
 
     if (std::abs(itA->toEngineSamplePos() - playPosition) < 1) {
         m_currentBeatPosition = itA->toEngineSamplePos();
-        // CUSTOM: Count from first beat to current position
-        m_beatsUntilMark = std::distance(firstBeatIterator, itA) + 1;
+        // CUSTOM: Count from first beat to current position. Clamped to a
+        // minimum of 1: while the playhead is in intro silence before the
+        // first detected beat, itA precedes firstBeatIterator and distance()
+        // goes negative, which produced a "-" in the formatted bar/beat text
+        // that digitsrenderer.cpp's charset doesn't support (DEBUG_ASSERT in
+        // debug builds, silently wrong text in release).
+        m_beatsUntilMark = std::max(1, static_cast<int>(std::distance(firstBeatIterator, itA)) + 1);
         itA++;
         m_nextBeatPosition = itA->toEngineSamplePos();
     } else {
         m_nextBeatPosition = itA->toEngineSamplePos();
         itA--;
         m_currentBeatPosition = itA->toEngineSamplePos();
-        // CUSTOM: Count from first beat to current position
-        m_beatsUntilMark = std::distance(firstBeatIterator, itA) + 1;
+        // CUSTOM: Count from first beat to current position (see clamp note above).
+        m_beatsUntilMark = std::max(1, static_cast<int>(std::distance(firstBeatIterator, itA)) + 1);
     }
     // As endPosition - playPosition corresponds with remainingTime,
     // we calculate the proportional part of nextMarkPosition - playPosition

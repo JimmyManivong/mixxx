@@ -1317,18 +1317,34 @@ double BpmControl::updateBeatDistance(mixxx::audio::FramePos playpos) {
     if (m_pBeats && playpos.isValid()) {
         auto firstBeat = m_pBeats->firstBeat();
         if (firstBeat.isValid()) {
-            // Count beats from first beat to current position
-            int beatCount = 0;
-            for (auto it = m_pBeats->iteratorFrom(firstBeat);
-                 it != m_pBeats->cend() && *it <= playpos;
-                 ++it) {
-                beatCount++;
+            // Count beats from first beat to current position.
+            // CUSTOM: Beats::ConstIterator is random-access, so distance()
+            // between two iteratorFrom() lookups is O(1). This replaces a
+            // manual per-beat increment loop that walked every beat from the
+            // track's start on every call - and updateBeatDistance() runs
+            // once per audio buffer per playing deck (from
+            // EngineBuffer::postProcess, roughly every 5-10ms), so that
+            // loop's cost grew unboundedly with elapsed playback time on the
+            // real-time audio thread.
+            auto it = m_pBeats->iteratorFrom(playpos);
+            // iteratorFrom returns the beat at-or-after playpos; step back to
+            // the beat at-or-before playpos, matching the original loop's
+            // `*it <= playpos` condition.
+            if (it == m_pBeats->cend() || *it > playpos) {
+                if (it == m_pBeats->cbegin()) {
+                    // playpos is before the very first beat (intro silence) -
+                    // there is no beat at-or-before it.
+                    it = m_pBeats->cend();
+                } else {
+                    --it;
+                }
             }
-            if (beatCount > 0) {
-                m_pBeatNumber->set(beatCount);
-                // Simple debug every 10 beats
-                if (beatCount % 10 == 0) {
-                    qDebug() << "Beat:" << beatCount;
+            if (it != m_pBeats->cend()) {
+                const int beatCount = static_cast<int>(std::distance(
+                                               m_pBeats->iteratorFrom(firstBeat), it)) +
+                        1;
+                if (beatCount > 0) {
+                    m_pBeatNumber->set(beatCount);
                 }
             }
         }
